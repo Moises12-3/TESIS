@@ -1,0 +1,63 @@
+FECHA DE VENCIMIENTO
+
+VENTA
+CREDITO 
+EFECTIVO
+
+IVA 13, 1, 2, 3
+
+
+10 USUARIOS
+Administrador
+Asistente
+ 
+Clientes
+
+clientes
+nombre, cedula, telefono, direccion, descuento, porcentaje de ganancia
+
+ UNIDAD DE PESO KG O UNIDAD, GALON 
+ 
+ TIPO DE MONEDA COLON, DOLAR DIA
+
+
+
+
+FILTRO DE GRAFICO DE BARRA MES SEMANA
+
+
+VERDURERIA Y FRUTERIA CAMPO FERTIL
+
+
+
+
+
+
+
+moises@moises-HP-Stream-Laptop-14-cb1xxx:~$ sudo /opt/lampp/manager-linux-x64.run
+[sudo] contraseña para moises: 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
