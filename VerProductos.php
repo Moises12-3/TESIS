@@ -230,7 +230,7 @@ $id_usuario = $_SESSION["id"];
                         </a>
 
                         <div class="user-menu dropdown-menu">
-                            <a class="nav-link" href="MyProfile"><i class="fa fa- user"></i>My Profile</a>
+                            <a class="nav-link" href="MyProfile.php"><i class="fa fa- user"></i>My Profile</a>
 
                             <a class="nav-link" href="cerrar_sesion.php"><i class="fa fa-power -off"></i>Logout</a>
                         </div>

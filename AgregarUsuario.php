@@ -230,7 +230,7 @@ $id_usuario = $_SESSION["id"];
                         </a>
 
                         <div class="user-menu dropdown-menu">
-                            <a class="nav-link" href="MyProfile"><i class="fa fa- user"></i>My Profile</a>
+                            <a class="nav-link" href="MyProfile.php"><i class="fa fa- user"></i>My Profile</a>
 
                             <a class="nav-link" href="cerrar_sesion.php"><i class="fa fa-power -off"></i>Logout</a>
                         </div>
@@ -252,32 +252,50 @@ $id_usuario = $_SESSION["id"];
                                 <div class="col-lg-8">
                                     <div class="card-body">
 
-                                        <h1>Agregar Usuario</h1>
-                                        <br>
+                                    <h1>Agregar Usuario</h1>
+<br>
 
-                                        <form action="Configuracion/guardar_usuario.php" method="POST">
-                                            <div class="form-group">
-                                                <label>Nombre de Usuario</label>
-                                                <input type="text" class="form-control" name="usuario" placeholder="Ejemplo: Paco" required>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Nombre Completo</label>
-                                                <input type="text" class="form-control" name="nombre" placeholder="Nombre completo del usuario" required>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Teléfono</label>
-                                                <input type="text" class="form-control" name="telefono" placeholder="Ejemplo: +50588090180" required>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Dirección</label>
-                                                <input type="text" class="form-control" name="direccion" placeholder="Ejemplo: El Viejo, Chinandega, NI" required>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Contraseña</label>
-                                                <input type="password" class="form-control" name="password" placeholder="Ingrese la contraseña" required>
-                                            </div>
-                                            <button type="submit" class="btn btn-primary">Guardar</button>
-                                        </form>
+<form action="Configuracion/guardar_usuario.php" method="POST">
+    <div class="form-group">
+        <label>Nombre de Usuario</label>
+        <input type="text" class="form-control" name="usuario" placeholder="Ejemplo: Paco" required>
+    </div>
+    <div class="form-group">
+        <label>Nombre Completo</label>
+        <input type="text" class="form-control" name="nombre" placeholder="Nombre completo del usuario" required>
+    </div>
+    <div class="form-group">
+        <label>Cédula</label>
+        <input type="text" class="form-control" name="cedula" placeholder="Ejemplo: 001-123456-7890X" required>
+    </div>
+    <div class="form-group">
+        <label>Teléfono</label>
+        <input type="text" class="form-control" name="telefono" placeholder="Ejemplo: +50588090180" required>
+    </div>
+    <div class="form-group">
+        <label>Dirección</label>
+        <input type="text" class="form-control" name="direccion" placeholder="Ejemplo: El Viejo, Chinandega, NI" required>
+    </div>
+    <div class="form-group">
+        <label>Descuento (%)</label>
+        <input type="number" class="form-control" name="descuento" step="0.01" min="0" max="100" placeholder="Ejemplo: 10.00">
+    </div>
+    <div class="form-group">
+        <label>Rol</label>
+        <select class="form-control" name="rol" required>
+            <option value="usuario">Usuario</option>
+            <option value="editor">Editor</option>
+            <option value="admin">Administrador</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" class="form-control" name="password" placeholder="Ingrese la contraseña" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</form>
+
+
 
                                     </div>
                                 </div>

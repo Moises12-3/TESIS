@@ -30,7 +30,50 @@ VERDURERIA Y FRUTERIA CAMPO FERTIL
 
 
 
+Aquí tienes los pasos y los comandos que debes usar para subir tu proyecto a GitHub utilizando la terminal:
 
+Inicializar un repositorio Git en tu proyecto (si aún no lo has hecho):
+
+
+-----------------------------------------------------------------
+git init
+Agregar todos los archivos del proyecto para su seguimiento en Git:
+
+
+-----------------------------------------------------------------
+git add .
+-----------------------------------------------------------------
+Realizar el primer commit:
+
+
+-----------------------------------------------------------------
+git commit -m "Primer commit de mi proyecto"
+-----------------------------------------------------------------
+Agregar el repositorio remoto (reemplaza con la URL de tu repositorio en GitHub):
+
+
+-----------------------------------------------------------------
+git remote add origin https://github.com/tu-usuario/tu-repositorio.git
+-----------------------------------------------------------------
+Asegúrate de que la rama local sea la correcta. Si la rama local se llama master, cámbiala a main si es necesario (comando opcional si es necesario renombrar):
+
+
+-----------------------------------------------------------------
+git branch -M main
+-----------------------------------------------------------------
+Sube tus cambios al repositorio remoto en GitHub:
+
+
+-----------------------------------------------------------------
+git push -u origin main
+-----------------------------------------------------------------
+Si la rama remota de GitHub es master, usa master en lugar de main:
+
+
+-----------------------------------------------------------------
+git push -u origin master
+-----------------------------------------------------------------
+Estos comandos te permitirán subir tu proyecto a GitHub desde la terminal. Asegúrate de haber creado previamente el repositorio en GitHub y haber obtenido la URL del repositorio para usarla en el paso 4.
 
 
 

@@ -230,7 +230,7 @@ $id_usuario = $_SESSION["id"];
                         </a>
 
                         <div class="user-menu dropdown-menu">
-                            <a class="nav-link" href="MyProfile"><i class="fa fa- user"></i>My Profile</a>
+                            <a class="nav-link" href="MyProfile.php"><i class="fa fa- user"></i>My Profile</a>
 
                             <a class="nav-link" href="cerrar_sesion.php"><i class="fa fa-power -off"></i>Logout</a>
                         </div>
@@ -254,31 +254,61 @@ $id_usuario = $_SESSION["id"];
                                         
                                     
                                     <h1>Agregar Nuevo Producto</h1>
-                                    <br>
+<br>
 
-                                    <form action="Configuracion/guardar_producto.php" method="POST">
-                                        <div class="mb-3">
-                                            <label for="codigo" class="form-label">Código del Barras</label>
-                                            <input type="text" class="form-control" id="codigo" name="codigo" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="nombre" class="form-label">Nombre del Producto</label>
-                                            <input type="text" class="form-control" id="nombre" name="nombre" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="compra" class="form-label">Precio de Compra</label>
-                                            <input type="number" step="0.01" class="form-control" id="compra" name="compra" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="venta" class="form-label">Precio de Venta</label>
-                                            <input type="number" step="0.01" class="form-control" id="venta" name="venta" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="existencia" class="form-label">Existencias</label>
-                                            <input type="number" class="form-control" id="existencia" name="existencia" required>
-                                        </div>
-                                        <button type="submit" class="btn btn-success">Guardar Producto</button>
-                                    </form>
+<form action="Configuracion/guardar_producto.php" method="POST">
+    <div class="mb-3">
+        <label for="codigo" class="form-label">Código del Barras</label>
+        <input type="text" class="form-control" id="codigo" name="codigo" required>
+    </div>
+    <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre del Producto</label>
+        <input type="text" class="form-control" id="nombre" name="nombre" required>
+    </div>
+    <div class="mb-3">
+        <label for="compra" class="form-label">Precio de Compra (Propietario)</label>
+        <div class="input-group">
+            <span class="input-group-text"><?php echo $simbolo_moneda = "₡"; ?></span>
+            <input type="number" step="0.01" class="form-control" id="compra" name="compra" required>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="venta" class="form-label">Precio de Venta (Cliente)</label>
+        <div class="input-group">
+            <span class="input-group-text"><?php echo $simbolo_moneda; ?></span>
+            <input type="number" step="0.01" class="form-control" id="venta" name="venta" required>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="existencia" class="form-label">Existencias</label>
+        <input type="number" class="form-control" id="existencia" name="existencia" required>
+    </div>
+    
+    <div class="mb-3">
+        <label for="tiene_vencimiento" class="form-label">¿Este producto tiene fecha de vencimiento?</label>
+        <input type="checkbox" id="tiene_vencimiento" name="tiene_vencimiento">
+    </div>
+
+    <div class="mb-3" id="fecha_vencimiento_div" style="display: none;">
+        <label for="vencimiento" class="form-label">Fecha de Vencimiento</label>
+        <input type="date" class="form-control" id="vencimiento" name="vencimiento">
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar Producto</button>
+</form>
+
+<script>
+    document.getElementById('tiene_vencimiento').addEventListener('change', function() {
+        var vencimientoDiv = document.getElementById('fecha_vencimiento_div');
+        if (this.checked) {
+            vencimientoDiv.style.display = 'block';
+        } else {
+            vencimientoDiv.style.display = 'none';
+        }
+    });
+</script>
+
+
                                     
 
                                     </div>
