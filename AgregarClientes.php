@@ -278,6 +278,7 @@ $id_usuario = $_SESSION["id"];
                                             <input type="number" class="form-control" id="clienteDescuento" name="descuento_cliente" step="0.01" min="0" max="100" placeholder="0" required>
                                         </div>
                                         <button type="submit" class="btn btn-primary">Guardar Cliente</button>
+                                        <a href="VerClientes.php" class="btn btn-secondary">Ver Clientes</a>
                                     </form>
 
                                     <br>

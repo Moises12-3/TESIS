@@ -258,7 +258,7 @@ $id_usuario = $_SESSION["id"];
                                         require 'Conexion/conex.php'; // Incluir la conexión a la base de datos
 
                                         // Consulta para obtener los clientes de la tabla clientes
-                                        $sql = "SELECT id, nombre, telefono, direccion FROM clientes"; // Consulta SQL
+                                        $sql = "SELECT id, nombre, cedula, telefono, direccion, descuento FROM clientes";
                                         $resultado = $conn->query($sql);
                                     ?>
 
@@ -266,8 +266,10 @@ $id_usuario = $_SESSION["id"];
                                         <thead>
                                             <tr>
                                                 <th scope="col">Nombre</th>
+                                                <th scope="col">Cédula</th> <!-- Nueva columna para Cédula -->
                                                 <th scope="col">Teléfono</th>
                                                 <th scope="col">Dirección</th>
+                                                <th scope="col">Descuento</th> <!-- Nueva columna para Descuento -->
                                                 <th scope="col">Editar</th>
                                                 <th scope="col">Eliminar</th>
                                             </tr>
@@ -278,8 +280,10 @@ $id_usuario = $_SESSION["id"];
                                                 while ($fila = $resultado->fetch_assoc()) {
                                                     echo "<tr>";
                                                     echo "<td>" . htmlspecialchars($fila["nombre"]) . "</td>";
+                                                    echo "<td>" . htmlspecialchars($fila["cedula"]) . "</td>"; 
                                                     echo "<td>" . htmlspecialchars($fila["telefono"]) . "</td>";
                                                     echo "<td>" . htmlspecialchars($fila["direccion"]) . "</td>";
+                                                    echo "<td>" . htmlspecialchars($fila["descuento"]) . "</td>"; 
                                                     echo "<td><a href='EditarCliente.php?id=" . $fila["id"] . "' class='btn btn-primary'>Editar</a></td>";
                                                     echo "<td><a href='Configuracion/eliminar_cliente.php?id=" . $fila["id"] . "' class='btn btn-danger' onclick='return confirm(\"¿Seguro que deseas eliminar este cliente?\");'>Eliminar</a></td>";
                                                     echo "</tr>";

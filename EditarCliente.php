@@ -262,7 +262,7 @@ $id_usuario = $_SESSION["id"];
                                         $id_cliente = $_GET['id'];
 
                                         // Consulta para obtener los datos del cliente
-                                        $sql = "SELECT id, nombre, telefono, direccion FROM clientes WHERE id = ?";
+                                        $sql = "SELECT * FROM clientes WHERE id = ?";
                                         $stmt = $conn->prepare($sql);
                                         $stmt->bind_param('i', $id_cliente);
                                         $stmt->execute();
@@ -293,6 +293,11 @@ $id_usuario = $_SESSION["id"];
                                     </div>
 
                                     <div class="form-group">
+                                        <label for="clienteCedula">Cédula del Cliente</label>
+                                        <input type="text" class="form-control" id="clienteCedula" name="cedula_cliente" value="<?php echo htmlspecialchars($fila['cedula']); ?>" placeholder="Ingrese la cédula del cliente" required>
+                                    </div>
+
+                                    <div class="form-group">
                                         <label for="clienteTelefono">Teléfono del Cliente</label>
                                         <input type="tel" class="form-control" id="clienteTelefono" name="telefono_cliente" value="<?php echo htmlspecialchars($fila['telefono']); ?>" placeholder="Ingrese el teléfono del cliente" required>
                                     </div>
@@ -302,15 +307,51 @@ $id_usuario = $_SESSION["id"];
                                         <input type="text" class="form-control" id="clienteDireccion" name="direccion_cliente" value="<?php echo htmlspecialchars($fila['direccion']); ?>" placeholder="Ingrese la dirección del cliente" required>
                                     </div>
 
+                                    <div class="form-group">
+                                        <label for="clienteDescuento">Descuento</label>
+                                        <input type="number" step="0.01" class="form-control" id="clienteDescuento" name="descuento_cliente" value="<?php echo htmlspecialchars($fila['descuento']); ?>" placeholder="Ingrese el descuento" required>
+                                    </div>
+
                                     <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                                     <a href="VerClientes.php" class="btn btn-secondary">Cancelar</a>
                                 </form>
 
                                 <?php
-                                    $conn->close();
+                                $conn->close();
                                 ?>
 
+                                <?php
+                                if (isset($_GET['mensaje'])) {
+                                    switch ($_GET['mensaje']) {
+                                        case 'guardado':
+                                            echo "<div id='mensaje' class='alert alert-success'>Cliente guardado exitosamente.</div>";
+                                            break;
+                                        case 'error':
+                                            echo "<div id='mensaje' class='alert alert-danger'>Error al guardar el cliente. Intente nuevamente.</div>";
+                                            break;
+                                        case 'incompleto':
+                                            echo "<div id='mensaje' class='alert alert-warning'>Todos los campos son obligatorios.</div>";
+                                            break;
+                                        case 'duplicado':
+                                            echo "<div id='mensaje' class='alert alert-warning'>La cédula o el teléfono ya están registrados.</div>";
+                                            break;
+                                        case 'eliminado':
+                                            echo "<div id='mensaje' class='alert alert-success'>Cliente eliminado correctamente.</div>";
+                                            break;
+                                    }
+                                }
+                                ?>
 
+                                <script type="text/javascript">
+                                    window.onload = function() {
+                                        var mensaje = document.getElementById('mensaje');
+                                        if (mensaje) {
+                                            setTimeout(function() {
+                                                mensaje.style.display = 'none';
+                                            }, 5000);
+                                        }
+                                    };
+                                </script>
 
                                     </div>
                                 </div>
