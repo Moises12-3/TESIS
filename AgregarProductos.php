@@ -295,6 +295,7 @@ $id_usuario = $_SESSION["id"];
     </div>
 
     <button type="submit" class="btn btn-success">Guardar Producto</button>
+    <a href="VerProductos.php" class="btn btn-secondary">Ver Productos</a>
 </form>
 
 <script>
