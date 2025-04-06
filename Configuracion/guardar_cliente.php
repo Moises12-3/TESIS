@@ -1,29 +1,45 @@
 <?php
-require '../Conexion/conex.php'; // Incluir la conexión a la base de datos
+include '../Conexion/conex.php';
 
-// Verificar si se han enviado datos por el formulario
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Recibir los datos del formulario
-    $nombre_cliente = $_POST['nombre_cliente'];
-    $telefono_cliente = $_POST['telefono_cliente'];
-    $direccion_cliente = $_POST['direccion_cliente'];
+$nombre = trim($_POST['nombre_cliente']);
+$cedula = trim($_POST['cedula_cliente']);
+$telefono = trim($_POST['telefono_cliente']);
+$direccion = trim($_POST['direccion_cliente']);
+$descuento = isset($_POST['descuento_cliente']) ? floatval($_POST['descuento_cliente']) : 0.00;
 
-    // Preparar la consulta SQL para insertar el nuevo cliente en la tabla clientes
-    $sql = "INSERT INTO clientes (nombre, telefono, direccion) VALUES (?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('sss', $nombre_cliente, $telefono_cliente, $direccion_cliente);
+if ($nombre && $cedula && $telefono && $direccion) {
+    // Verificar si la cédula o el teléfono ya existen
+    $stmt_check = $conn->prepare("SELECT id FROM clientes WHERE cedula = ? OR telefono = ?");
+    $stmt_check->bind_param("ss", $cedula, $telefono);
+    $stmt_check->execute();
+    $stmt_check->store_result();
 
-    // Ejecutar la consulta
-    if ($stmt->execute()) {
-        // Redirigir al usuario a la página de clientes (o donde desees mostrar el mensaje)
-        header("Location: ../VerClientes.php"); // Cambia esta URL a la página que desees
+    if ($stmt_check->num_rows > 0) {
+        // Ya existe un cliente con la misma cédula o teléfono
+        $stmt_check->close();
+        header("Location: ../AgregarClientes.php?mensaje=duplicado");
         exit();
-    } else {
-        echo "Error al guardar el cliente. Intenta de nuevo.";
     }
 
-    // Cerrar la declaración y la conexión
+    $stmt_check->close();
+
+    // Insertar nuevo cliente si no hay duplicados
+    $stmt = $conn->prepare("INSERT INTO clientes (nombre, cedula, telefono, direccion, descuento) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssd", $nombre, $cedula, $telefono, $direccion, $descuento);
+
+    if ($stmt->execute()) {
+        header("Location: ../AgregarClientes.php?mensaje=guardado");
+        exit();
+    } else {
+        header("Location: ../AgregarClientes.php?mensaje=error");
+        exit();
+    }
+
     $stmt->close();
-    $conn->close();
+} else {
+    header("Location: ../AgregarClientes.php?mensaje=incompleto");
+    exit();
 }
+
+$conn->close();
 ?>

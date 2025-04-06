@@ -253,28 +253,74 @@ $id_usuario = $_SESSION["id"];
 
 
                                     <div class="card-body">
-                                        
-                                    <h1>Agregar Cliente</h1> 
+                                    <h1>Agregar Cliente</h1>
                                     <br>
 
-
-                                    
                                     <form action="Configuracion/guardar_cliente.php" method="POST">
-                                    <div class="form-group">
-                                        <label for="clienteNombre">Nombre</label>
-                                        <input type="text" class="form-control" id="clienteNombre" name="nombre_cliente" placeholder="Ingrese el nombre del cliente" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="clienteTelefono">Teléfono del Cliente</label>
-                                        <input type="tel" class="form-control" id="clienteTelefono" name="telefono_cliente" placeholder="Ingrese el teléfono del cliente" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="clienteDireccion">Dirección del Cliente</label>
-                                        <input type="text" class="form-control" id="clienteDireccion" name="direccion_cliente" placeholder="Ingrese la dirección del cliente" required>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Guardar Cliente</button>
+                                        <div class="form-group">
+                                            <label for="clienteNombre">Nombre</label>
+                                            <input type="text" class="form-control" id="clienteNombre" name="nombre_cliente" placeholder="Ingrese el nombre del cliente" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="clienteCedula">Cédula</label>
+                                            <input type="text" class="form-control" id="clienteCedula" name="cedula_cliente" placeholder="Ingrese la cédula del cliente" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="clienteTelefono">Teléfono</label>
+                                            <input type="tel" class="form-control" id="clienteTelefono" name="telefono_cliente" placeholder="Ingrese el teléfono del cliente" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="clienteDireccion">Dirección</label>
+                                            <input type="text" class="form-control" id="clienteDireccion" name="direccion_cliente" placeholder="Ingrese la dirección del cliente" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="clienteDescuento">Descuento (%)</label>
+                                            <input type="number" class="form-control" id="clienteDescuento" name="descuento_cliente" step="0.01" min="0" max="100" placeholder="0" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Guardar Cliente</button>
                                     </form>
 
+                                    <br>
+
+                                    <?php
+                                    if (isset($_GET['mensaje'])) {
+                                        switch ($_GET['mensaje']) {
+                                            case 'guardado':
+                                                echo "<div id='mensaje' class='alert alert-success'>Cliente guardado exitosamente.</div>";
+                                                break;
+                                            case 'error':
+                                                echo "<div id='mensaje' class='alert alert-danger'>Error al guardar el cliente. Intente nuevamente.</div>";
+                                                break;
+                                            case 'incompleto':
+                                                echo "<div id='mensaje' class='alert alert-warning'>Todos los campos son obligatorios.</div>";
+                                                break;
+                                            case 'duplicado':
+                                                echo "<div id='mensaje' class='alert alert-warning'>La cédula o el teléfono ya están registrados.</div>";
+                                                break;
+                                            case 'eliminado':
+                                                echo "<div id='mensaje' class='alert alert-success'>Cliente eliminado correctamente.</div>";
+                                                break;
+                                        }
+                                    }
+                                    ?>
+
+                                    <script type="text/javascript">
+                                        window.onload = function() {
+                                            var mensaje = document.getElementById('mensaje');
+                                            if (mensaje) {
+                                                setTimeout(function() {
+                                                    mensaje.style.display = 'none';
+                                                }, 3000);
+                                            }
+                                        };
+                                    </script>
+
+                                        <!-- Mensaje debajo del formulario -->
+                                        <?php if (!empty($mensaje)) : ?>
+                                            <div class="alert alert-<?= $tipo_mensaje ?> mt-4" role="alert">
+                                                <?= htmlspecialchars($mensaje) ?>
+                                            </div>
+                                        <?php endif; ?>
 
                                     </div>
                                 </div>
