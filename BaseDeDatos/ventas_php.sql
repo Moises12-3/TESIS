@@ -32,7 +32,9 @@ CREATE TABLE usuarios(
     direccion VARCHAR(255) NOT NULL,
     descuento DECIMAL(5,2) NOT NULL DEFAULT 0, 
     rol ENUM('admin', 'editor', 'usuario') NOT NULL DEFAULT 'usuario',
-    password VARCHAR(255) NOT NULL
+    password VARCHAR(255) NOT NULL,
+
+    foto_perfil VARCHAR(255) DEFAULT NULL
 );
 
 INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, password) VALUES ("maaroncarrasco@gmail.com", "081-030301-1009B", "maaroncarrasco@gmail.com", "6667771234", "Nowhere", "0","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");

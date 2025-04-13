@@ -251,7 +251,217 @@ $id_usuario = $_SESSION["id"];
                         <div class="card">
                             <div class="row">
                                 <div class="col-lg-8">
-                                    <div class="card-body"><h1>Formato de relleno</h1>
+                                    <div class="card-body">
+                                        <h1>Información de Usuario</h1>
+
+
+                                        <?php
+session_start();
+require_once "Conexion/conex.php";
+
+// Validar sesión
+if (!isset($_SESSION['id']) || !isset($_SESSION['usuario'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$idUsuario = $_SESSION['id'];
+
+$sql = "SELECT * FROM usuarios WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $idUsuario);
+$stmt->execute();
+$resultado = $stmt->get_result();
+
+$usuario = $resultado->fetch_assoc();
+?>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+
+
+    <style>
+        .editable {
+            border: none;
+            background-color: transparent;
+            width: 100%;
+        }
+        .editable:focus {
+            background-color: #f0f0f0;
+            outline: none;
+        }
+        .edit-icon {
+            cursor: pointer;
+            color: #007bff;
+        }
+    </style>
+
+<br>
+
+<?php
+if (isset($_GET['mensaje'])) {
+    echo "<div id='mensaje' class='alert ";
+    switch ($_GET['mensaje']) {
+        case 'incompleto':
+            echo "alert-warning'>Todos los campos son obligatorios.</div>";
+            break;
+        case 'cedula_invalida':
+            echo "alert-danger'>La cédula debe ser numérica.</div>";
+            break;
+        case 'telefono_invalido':
+            echo "alert-danger'>El teléfono debe ser numérico.</div>";
+            break;
+        case 'descuento_invalido':
+            echo "alert-danger'>El descuento debe ser numérico.</div>";
+            break;
+        case 'guardado':
+            echo "alert-success'>Datos guardados exitosamente.</div>";
+            break;
+        case 'error':
+            echo "alert-danger'>Ocurrió un error al guardar los datos. Intente nuevamente.</div>";
+            break;
+    }
+}
+?>
+
+<script type="text/javascript">
+    window.onload = function() {
+        var mensaje = document.getElementById('mensaje');
+        if (mensaje) {
+            setTimeout(function() {
+                mensaje.style.display = 'none';
+            }, 3000);
+        }
+    };
+</script>
+<form id="formSubirFoto" method="POST" enctype="multipart/form-data" action="Configuracion/ActualizarFotoPerfil.php">
+    <div class="card shadow">
+        <div class="card-body">
+            <label for="fotoPerfil" class="form-label">Selecciona una foto de perfil</label>
+            <input type="file" id="fotoPerfil" name="fotoPerfil" class="form-control" accept="image/*" onchange="mostrarVistaPrevia()">
+            <div id="vistaPreviaContainer" class="mt-3" style="display:none;">
+                <img id="vistaPrevia" src="" alt="Vista previa de la imagen" class="img-thumbnail" width="150">
+            </div>
+            <div class="text-end mt-3">
+                <button type="submit" class="btn btn-primary">Subir Foto</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    function mostrarVistaPrevia() {
+        const archivo = document.getElementById('fotoPerfil').files[0];
+        const vistaPrevia = document.getElementById('vistaPrevia');
+        const vistaPreviaContainer = document.getElementById('vistaPreviaContainer');
+
+        if (archivo) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                vistaPrevia.src = e.target.result;
+                vistaPreviaContainer.style.display = 'block'; // Mostrar la vista previa
+            };
+
+            reader.readAsDataURL(archivo);
+        } else {
+            vistaPreviaContainer.style.display = 'none'; // Ocultar la vista previa si no hay archivo seleccionado
+        }
+    }
+</script>
+
+
+
+
+
+<form id="formPerfil" method="POST" action="Configuracion/ActualizarPerfil.php">
+        <div class="card shadow">
+            <div class="card-body">
+                <table class="table table-bordered table-hover">
+                    <?php
+                    $campos = [
+                        'usuario' => 'Usuario',
+                        'nombre' => 'Nombre',
+                        'cedula' => 'Cédula',
+                        'telefono' => 'Teléfono',
+                        'direccion' => 'Dirección',
+                        'descuento' => 'Descuento',
+                        'rol' => 'Rol'
+                    ];
+
+                    foreach ($campos as $campo => $etiqueta) {
+                        echo "<tr>
+                                <th>$etiqueta</th>
+                                <td>
+                                    <div class='d-flex justify-content-between align-items-center'>
+                                        <input type='text' name='$campo' id='$campo' class='editable' value='" . htmlspecialchars($usuario[$campo]) . "' readonly>
+                                        <img src='images/icon/pen-to-square-solid.svg' alt='Editar' class='edit-icon ms-2' id='edit-icon-$campo' onclick='habilitarCampo(\"$campo\")' style='cursor: pointer; width: 20px; height: 20px;'>
+                                    <img src='images/icon/floppy-disk-solid.svg' alt='Guardar' class='save-icon ms-2' id='save-icon-$campo' onclick='guardarCampo(\"$campo\")' style='cursor: pointer; width: 20px; height: 20px; display: none;'>
+                                    </div>
+                                </td>
+                              </tr>";
+                    }
+                    ?>
+                </table>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+
+    <script>
+let campoActivo = null; // Guardar el campo activo para edición
+
+function habilitarCampo(idCampo) {
+    // Restaurar los iconos de todos los campos a estado de edición
+    const campos = ['usuario', 'nombre', 'cedula', 'telefono', 'direccion', 'descuento', 'rol'];
+    campos.forEach(campo => {
+        const editIcon = document.getElementById('edit-icon-' + campo);
+        const saveIcon = document.getElementById('save-icon-' + campo);
+        if (campo !== idCampo) {
+            editIcon.style.display = 'inline';
+            saveIcon.style.display = 'none';
+            document.getElementById(campo).setAttribute('readonly', 'readonly');
+        }
+    });
+
+    // Habilitar el campo y cambiar los iconos
+    const input = document.getElementById(idCampo);
+    const editIcon = document.getElementById('edit-icon-' + idCampo);
+    const saveIcon = document.getElementById('save-icon-' + idCampo);
+
+    input.removeAttribute('readonly');
+    input.focus();
+
+    // Mostrar el icono de guardar y ocultar el de editar
+    editIcon.style.display = 'none';
+    saveIcon.style.display = 'inline';
+
+    campoActivo = idCampo; // Establecer el campo activo para edición
+}
+
+function guardarCampo(idCampo) {
+    const input = document.getElementById(idCampo);
+    const editIcon = document.getElementById('edit-icon-' + idCampo);
+    const saveIcon = document.getElementById('save-icon-' + idCampo);
+
+    // Guardar el contenido del campo si es necesario
+    // Aquí puedes agregar la lógica de guardar, si es que no estás haciendo una actualización con el formulario.
+
+    // Volver a cambiar los iconos: ocultar el de guardar y mostrar el de editar
+    input.setAttribute('readonly', 'readonly');
+    editIcon.style.display = 'inline';
+    saveIcon.style.display = 'none';
+
+    // Lógica para enviar el formulario o realizar otras acciones.
+}
+</script>
+
+
 
                                     </div>
                                 </div>
