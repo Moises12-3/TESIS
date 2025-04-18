@@ -301,6 +301,11 @@ $id_usuario = $_SESSION["id"];
                                             <label for="venta" class="form-label">Precio de Venta</label>
                                             <input type="number" step="0.01" class="form-control" id="venta" name="venta" value="<?php echo htmlspecialchars($producto['venta']); ?>" required>
                                         </div>
+                                                                            
+                                        <div class="mb-3">
+                                            <label for="iva" class="form-label">IVA (%)</label>
+                                            <input type="number" step="0.01" class="form-control" id="iva" name="iva" value="<?php echo htmlspecialchars($producto['iva']); ?>" required>
+                                        </div>
 
                                         <div class="mb-3">
                                             <label for="existencia" class="form-label">Existencias</label>

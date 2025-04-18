@@ -96,12 +96,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // Validar que el precio de venta no sea menor que el precio de compra
-    if ($compra >= $venta) {
-        echo "El precio de venta no puede ser menor que el precio de compra.";
+    // Calcular el Precio Unitario con IVA
+    $precioUnitario = $compra / $existencia;
+    $ivaCalculado = $precioUnitario * ($iva / 100);
+    $precioConIVA = $precioUnitario + $ivaCalculado;
+
+    // Validar que el precio de venta no sea menor que el precio unitario con IVA
+    if ($venta < $precioConIVA) {
+        echo "El precio de venta no puede ser menor que el precio unitario con IVA (" . number_format($precioConIVA, 2) . ").";
         exit();
     }
 
+
+    // Validar que el precio de venta no sea menor que el precio de compra
+    //if ($compra >= $venta) {
+    //    echo "El precio de venta no puede ser menor que el precio de compra.";
+    //    exit();
+    //}
     // Validar que las existencias sean un número positivo
     if ($existencia < 0) {
         echo "Las existencias deben ser un número positivo.";
