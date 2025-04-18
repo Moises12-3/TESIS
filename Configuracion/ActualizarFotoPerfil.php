@@ -1,43 +1,46 @@
 <?php
-require_once "../Conexion/conex.php";  // Ajusta la ruta según sea necesario
+session_start(); // Iniciar sesión si no está iniciada
+require '../Conexion/conex.php'; // Incluir la conexión a la base de datos
 
-// Verificar que se haya enviado un archivo
-if ($_FILES['fotoPerfil']['error'] === UPLOAD_ERR_OK) {
-    // Ruta donde se guardarán las imágenes de perfil
-    $rutaGuardar = 'images/perfiles/';
+// Verificamos si el archivo fue enviado
+if (isset($_FILES['fotoPerfil']) && $_FILES['fotoPerfil']['error'] == 0) {
+    $directorioDestino = '../images/perfiles/';
 
-    // Nombre del archivo y ruta completa
-    $nombreArchivo = $_FILES['fotoPerfil']['name'];
-    $rutaCompleta = $rutaGuardar . $nombreArchivo;
+    // Asegurarse de que el directorio exista
+    if (!file_exists($directorioDestino)) {
+        mkdir($directorioDestino, 0777, true); // Crear la carpeta si no existe
+    }
 
-    // Mover archivo temporal a la ubicación deseada
+    // Nombre único para evitar sobreescritura
+    $nombreArchivo = uniqid('perfil_') . '_' . basename($_FILES['fotoPerfil']['name']);
+    $rutaRelativa = 'images/perfiles/' . $nombreArchivo; // Esta es la ruta que se guardará en la BD
+    $rutaCompleta = $directorioDestino . $nombreArchivo;  // Ruta para guardar en el servidor
+
+    // Mover el archivo
     if (move_uploaded_file($_FILES['fotoPerfil']['tmp_name'], $rutaCompleta)) {
-        // Conexión a la base de datos (debes tener tu propia configuración de conexión)
-        $conexion = new mysqli('localhost', 'usuario', 'contraseña', 'basedatos');
+        // Conexión a la base de datos
+        include '../Conexion/conex.php';
 
-        // Verificar la conexión
-        if ($conexion->connect_error) {
-            die("Conexión fallida: " . $conexion->connect_error);
-        }
+        // ID del usuario (por sesión, puedes ajustarlo si lo necesitas)
+        $idUsuario = $_SESSION['id_usuario'];
 
-        // Obtener el ID del usuario actual (debes manejar la sesión o el contexto adecuado)
-        $idUsuario = 1; // Ejemplo, deberías obtenerlo según tu lógica de aplicación
+        // Consulta para actualizar la ruta de la imagen en la BD
+        $stmt = $conn->prepare("UPDATE usuarios SET foto_perfil = ? WHERE id = ?");
+        $stmt->bind_param("si", $rutaRelativa, $idUsuario);
 
-        // Actualizar la ruta de la foto de perfil en la base de datos
-        $query = "UPDATE usuarios SET foto_perfil = '$rutaCompleta' WHERE id = $idUsuario";
-
-        if ($conexion->query($query) === TRUE) {
-            echo "Foto de perfil actualizada correctamente.";
+        if ($stmt->execute()) {
+            echo "Imagen subida y ruta guardada correctamente.";
         } else {
-            echo "Error al actualizar la foto de perfil: " . $conexion->error;
+            echo "Error al guardar la ruta en la base de datos.";
         }
 
-        // Cerrar conexión
-        $conexion->close();
+        $stmt->close();
+        $conn->close();
+
     } else {
-        echo "Error al mover el archivo.";
+        echo "Error al mover la imagen al servidor.";
     }
 } else {
-    echo "Error al subir archivo: " . $_FILES['fotoPerfil']['error'];
+    echo "No se envió ninguna imagen o hubo un error en la subida.";
 }
 ?>
