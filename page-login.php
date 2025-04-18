@@ -69,6 +69,37 @@ if (isset($_SESSION["usuario"])) {
                             <p>Don't have account ? <a href="#"> Sign Up Here</a></p>
                         </div>
                     </form>                        
+
+                    
+                    <?php
+                        if (isset($_GET['mensaje'])) {
+                            switch ($_GET['mensaje']) {
+                            case 'Incorrecto':
+                                echo "<div id='mensaje' class='alert alert-danger'>Usuario o contraseña incorrectos.</div>";
+                            break;
+                            case 'UserNotSearch':
+                                echo "<div id='mensaje' class='alert alert-warning'>Usuario no encontrado.</div>";
+                            break;
+                            }
+                        }
+                        ?>
+
+                                    <script type="text/javascript">
+                                        window.onload = function() {
+                                            var mensaje = document.getElementById('mensaje');
+                                            if (mensaje) {
+                                                setTimeout(function() {
+                                                    mensaje.style.display = 'none';
+                                                }, 3000);
+                                            }
+                                        };
+                                    </script>
+
+                    <?php
+                        if (isset($error)) {
+                            echo "<div style='color:red; font-weight:bold;'>$error</div>";
+                        }
+                    ?>
                 </div>
             </div>
         </div>
