@@ -321,7 +321,7 @@ document.getElementById("buscador").addEventListener("keyup", function() {
                                         <?php
                                         require 'Conexion/conex.php'; // Conexión a la base de datos
 
-                                        $sql = "SELECT id, codigo, nombre, compra, venta, existencia FROM productos"; // Consulta SQL
+                                        $sql = "SELECT id, codigo, nombre, compra, venta, iva, existencia FROM productos"; // Consulta SQL
                                         $resultado = $conn->query($sql);
                                         ?>
 
@@ -332,6 +332,7 @@ document.getElementById("buscador").addEventListener("keyup", function() {
                                                     <th scope="col">Nombre</th>
                                                     <th scope="col">Precio Compra</th>
                                                     <th scope="col">Precio Venta</th>
+                                                    <th scope="col">IVA</th>
                                                     <th scope="col">Existencias</th>
                                                     <th scope="col">Editar</th>
                                                     <th scope="col">Eliminar</th>
@@ -340,7 +341,7 @@ document.getElementById("buscador").addEventListener("keyup", function() {
                                             <tbody>
                                                 <?php
                                                 require 'Conexion/conex.php';
-                                                $sql = "SELECT id, codigo, nombre, compra, venta, existencia FROM productos";
+                                                $sql = "SELECT id, codigo, nombre, compra, venta, iva, existencia FROM productos";
                                                 $resultado = $conn->query($sql);
 
                                                 if ($resultado->num_rows > 0) {
@@ -350,6 +351,7 @@ document.getElementById("buscador").addEventListener("keyup", function() {
                                                         echo "<td class='nombre'>" . htmlspecialchars($fila["nombre"]) . "</td>";
                                                         echo "<td>$" . number_format($fila["compra"], 2) . "</td>";
                                                         echo "<td>$" . number_format($fila["venta"], 2) . "</td>";
+                                                        echo "<td>$" . number_format($fila["iva"], 2) . "</td>";
                                                         echo "<td>" . htmlspecialchars($fila["existencia"]) . "</td>";
                                                         echo "<td><a href='EditarProducto.php?id=" . $fila["id"] . "' class='btn btn-primary'>Editar</a></td>";
                                                         echo "<td><a href='Configuracion/eliminar_producto.php?id=" . $fila["id"] . "' class='btn btn-danger' onclick='return confirm(\"¿Seguro que deseas eliminar este producto?\");'>Eliminar</a></td>";

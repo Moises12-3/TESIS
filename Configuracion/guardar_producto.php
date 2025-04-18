@@ -8,6 +8,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $compra = $_POST['compra'];
     $venta = $_POST['venta'];
     $existencia = $_POST['existencia'];
+    // Recuperar el valor del IVA
+    $iva = $_POST['iva'];
     
     // Validamos si se marcó la casilla de vencimiento
     $vencimiento = isset($_POST['tiene_vencimiento']) && $_POST['tiene_vencimiento'] == 'on' ? $_POST['vencimiento'] : NULL;
@@ -15,6 +17,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validaciones:
     if (empty($codigo) || empty($nombre) || empty($compra) || empty($venta) || empty($existencia)) {
         echo "Por favor, complete todos los campos obligatorios.";
+        exit();
+    }
+
+    // Validar que el campo del IVA no esté vacío y sea un número positivo
+    if (!is_numeric($iva) || $iva < 0) {
+        echo "El IVA debe ser un número positivo.";
         exit();
     }
 
@@ -69,9 +77,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // Usamos una sentencia preparada para evitar inyecciones SQL
-    $sql = "INSERT INTO productos (codigo, nombre, compra, venta, existencia, fecha_vencimiento, idMoneda) 
-            VALUES (?, ?, ?, ?, ?, ?, 1)";
+    // Preparar la consulta SQL para insertar el producto con el IVA
+    $sql = "INSERT INTO productos (codigo, nombre, compra, venta, existencia, fecha_vencimiento, iva, idMoneda) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, 1)";
 
     // Preparamos la sentencia
     $stmt = $conn->prepare($sql);
@@ -89,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Validar que el precio de venta no sea menor que el precio de compra
-    if ($compra <= $venta) {
+    if ($compra >= $venta) {
         echo "El precio de venta no puede ser menor que el precio de compra.";
         exit();
     }
@@ -106,9 +114,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // Asociamos los parámetros
-    $stmt->bind_param("ssddis", $codigo, $nombre, $compra, $venta, $existencia, $vencimiento);
-
+    // Asociar los parámetros
+    $stmt->bind_param("ssddisd", $codigo, $nombre, $compra, $venta, $existencia, $vencimiento, $iva);
+    
     // Ejecutamos la consulta
     if ($stmt->execute()) {
         header("Location: ../VerProductos.php?mensaje=producto_agregado");

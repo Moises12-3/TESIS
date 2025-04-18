@@ -9,6 +9,7 @@ CREATE TABLE productos(
     compra DECIMAL(8,2) NOT NULL,
     venta DECIMAL(8,2) NOT NULL,
     fecha_vencimiento DATE NULL,
+    iva DECIMAL(8,2) NOT NULL,
     existencia INT NOT NULL,
     idMoneda INT
 );

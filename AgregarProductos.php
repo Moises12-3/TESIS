@@ -280,6 +280,10 @@ $id_usuario = $_SESSION["id"];
         </div>
     </div>
     <div class="mb-3">
+        <label for="iva" class="form-label">IVA (%)</label>
+        <input type="number" step="0.01" class="form-control" id="iva" name="iva" required>
+    </div>
+    <div class="mb-3">
         <label for="existencia" class="form-label">Existencias</label>
         <input type="number" class="form-control" id="existencia" name="existencia" required>
     </div>
