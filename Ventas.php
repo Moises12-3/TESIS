@@ -255,7 +255,40 @@ $id_usuario = $_SESSION["id"];
                                         
                                         <br>
 
+<!-- Selector de clientes -->
 
+<label for="clienteSeleccionado"><strong>Cliente:</strong></label>
+<select id="clienteSeleccionado" class="form-control mb-3">
+    <option value="">Seleccione un cliente</option>
+</select>
+
+<br>
+<script>
+    function cargarClientes() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "Configuracion/obtener_clientes.php", true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            let clientes = JSON.parse(xhr.responseText);
+            let select = document.getElementById("clienteSeleccionado");
+
+            clientes.forEach(cliente => {
+                let option = document.createElement("option");
+                option.value = cliente.id;
+                option.textContent = cliente.nombre;
+                select.appendChild(option);
+            });
+        }
+    };
+    xhr.send();
+}
+
+// Llamar la función cuando cargue la página
+window.onload = function() {
+    cargarClientes();
+};
+
+</script>
 
                          
     <!-- Barra de búsqueda para escaneo -->
@@ -274,6 +307,7 @@ $id_usuario = $_SESSION["id"];
                 <th>Nombre</th>
                 <th>Precio Venta</th>
                 <th>Cantidad</th>
+                <th>Total Individual</th>
                 <th>Eliminar</th>
             </tr>
         </thead>
@@ -316,18 +350,56 @@ $id_usuario = $_SESSION["id"];
             let tabla = document.getElementById("productosSeleccionados");
             tabla.innerHTML = "";
 
+            let totalCantidad = 0;
+            let totalVenta = 0;
+
             productosSeleccionados.forEach(producto => {
+                let subtotal = producto.precio * producto.cantidad;
+                totalCantidad += producto.cantidad;
+                totalVenta += subtotal;
+
                 let fila = document.createElement("tr");
                 fila.innerHTML = `
                     <td>${producto.codigo}</td>
                     <td>${producto.nombre}</td>
                     <td>$${producto.precio.toFixed(2)}</td>
-                    <td>${producto.cantidad}</td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm" value="${producto.cantidad}" min="1"
+                            onchange="cambiarCantidad(${producto.id}, this.value)">
+                    </td>
+                    <td>$${subtotal.toFixed(2)}</td>
                     <td><button class="btn btn-danger btn-sm" onclick="eliminarProducto(${producto.id})">X</button></td>
                 `;
                 tabla.appendChild(fila);
             });
+
+            // Fila de totales
+            if (productosSeleccionados.length > 0) {
+                let filaTotales = document.createElement("tr");
+                filaTotales.innerHTML = `
+                    <td colspan="3"><strong>Totales</strong></td>
+                    <td><strong>${totalCantidad}</strong></td>
+                    <td><strong>$${totalVenta.toFixed(2)}</strong></td>
+                    <td></td>
+                `;
+                tabla.appendChild(filaTotales);
+            }
         }
+
+
+        function cambiarCantidad(id, nuevaCantidad) {
+    nuevaCantidad = parseInt(nuevaCantidad);
+    if (!isNaN(nuevaCantidad) && nuevaCantidad > 0) {
+        let producto = productosSeleccionados.find(p => p.id === id);
+        if (producto) {
+            producto.cantidad = nuevaCantidad;
+            actualizarTabla(); // Opcional: si quieres refrescar la tabla
+        }
+    } else {
+        mostrarMensajeError("La cantidad debe ser un número válido mayor que cero.");
+    }
+}
+
 
         // Captura el código escaneado y busca el producto
         document.getElementById("buscadorVenta").addEventListener("keypress", function(event) {
