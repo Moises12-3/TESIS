@@ -292,14 +292,49 @@ $id_usuario = $_SESSION["id"];
                                             <input type="text" class="form-control" id="nombre" name="nombre" value="<?php echo htmlspecialchars($producto['nombre']); ?>" required>
                                         </div>
 
+                                                                          
                                         <div class="mb-3">
-                                            <label for="compra" class="form-label">Precio de Compra</label>
-                                            <input type="number" step="0.01" class="form-control" id="compra" name="compra" value="<?php echo htmlspecialchars($producto['compra']); ?>" required>
+                                            <label for="compra" class="form-label">Precio de Compra (Propietario)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><?php echo $simbolo_moneda = "₡"; ?></span>
+                                                <input type="number" step="0.01" class="form-control" id="compra" name="compra" value="<?php echo htmlspecialchars($producto['compra']); ?>" required>
+                                            </div>
+                                            <small class="form-text text-muted">
+                                                Precio Unitario con IVA: <strong id="resultadoFinal">₡0.00</strong>
+                                            </small>
                                         </div>
 
+                                        <script>
+                                            document.addEventListener("DOMContentLoaded", function () {
+                                                const compra = document.getElementById("compra");
+                                                const existencia = document.getElementById("existencia");
+                                                const iva = document.getElementById("iva");
+                                                const resultadoFinal = document.getElementById("resultadoFinal");
+
+                                                function calcular() {
+                                                    const valorCompra = parseFloat(compra.value) || 0;
+                                                    const valorExistencia = parseFloat(existencia.value) || 1; // evita división por cero
+                                                    const valorIVA = parseFloat(iva.value) || 0;
+
+                                                    const resultado1 = valorCompra / valorExistencia;
+                                                    const resultado2 = resultado1 * (valorIVA / 100);
+                                                    const resultado3 = resultado1 + resultado2;
+
+                                                    resultadoFinal.textContent = "₡" + resultado3.toFixed(2);
+                                                }
+
+                                                compra.addEventListener("input", calcular);
+                                                existencia.addEventListener("input", calcular);
+                                                iva.addEventListener("input", calcular);
+                                            });
+                                        </script>
+
                                         <div class="mb-3">
-                                            <label for="venta" class="form-label">Precio de Venta</label>
-                                            <input type="number" step="0.01" class="form-control" id="venta" name="venta" value="<?php echo htmlspecialchars($producto['venta']); ?>" required>
+                                            <label for="venta" class="form-label">Precio de Venta (Cliente)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><?php echo $simbolo_moneda; ?></span>
+                                                <input type="number" step="0.01" class="form-control" id="venta" name="venta" value="<?php echo htmlspecialchars($producto['venta']); ?>" required>
+                                            </div>
                                         </div>
                                                                             
                                         <div class="mb-3">
@@ -310,7 +345,28 @@ $id_usuario = $_SESSION["id"];
                                         <div class="mb-3">
                                             <label for="existencia" class="form-label">Existencias</label>
                                             <input type="number" class="form-control" id="existencia" name="existencia" value="<?php echo htmlspecialchars($producto['existencia']); ?>" required>
+                                        </div>                                        
+                                        
+                                        <div class="mb-3">
+                                            <label for="tiene_vencimiento" class="form-label">¿Este producto tiene fecha de vencimiento?</label>
+                                            <input type="checkbox" id="tiene_vencimiento" name="tiene_vencimiento">
                                         </div>
+
+                                        <div class="mb-3" id="fecha_vencimiento_div" style="display: none;">
+                                            <label for="vencimiento" class="form-label">Fecha de Vencimiento</label>
+                                            <input type="date" class="form-control" id="vencimiento" name="vencimiento">
+                                        </div>
+                                            
+                                        <script>
+                                            document.getElementById('tiene_vencimiento').addEventListener('change', function() {
+                                                var vencimientoDiv = document.getElementById('fecha_vencimiento_div');
+                                                if (this.checked) {
+                                                    vencimientoDiv.style.display = 'block';
+                                                } else {
+                                                    vencimientoDiv.style.display = 'none';
+                                                }
+                                            });
+                                        </script>
 
                                         <button type="submit" class="btn btn-success">Guardar Cambios</button>
                                         <a href="VerProductos.php" class="btn btn-secondary">Cancelar</a>

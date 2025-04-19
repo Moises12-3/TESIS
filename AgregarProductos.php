@@ -266,39 +266,40 @@ $id_usuario = $_SESSION["id"];
         <input type="text" class="form-control" id="nombre" name="nombre" required>
     </div>
     <div class="mb-3">
-    <label for="compra" class="form-label">Precio de Compra (Propietario)</label>
-    <div class="input-group">
-        <span class="input-group-text"><?php echo $simbolo_moneda = "₡"; ?></span>
-        <input type="number" step="0.01" class="form-control" id="compra" name="compra" required>
+        <label for="compra" class="form-label">Precio de Compra (Propietario)</label>
+        <div class="input-group">
+            <span class="input-group-text"><?php echo $simbolo_moneda = "₡"; ?></span>
+            <input type="number" step="0.01" class="form-control" id="compra" name="compra" required>
+        </div>
+        <small class="form-text text-muted">
+            Precio Unitario con IVA: <strong id="resultadoFinal">₡0.00</strong>
+        </small>
     </div>
-    <small class="form-text text-muted">
-        Precio Unitario con IVA: <strong id="resultadoFinal">₡0.00</strong>
-    </small>
-</div>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const compra = document.getElementById("compra");
-    const existencia = document.getElementById("existencia");
-    const iva = document.getElementById("iva");
-    const resultadoFinal = document.getElementById("resultadoFinal");
 
-    function calcular() {
-        const valorCompra = parseFloat(compra.value) || 0;
-        const valorExistencia = parseFloat(existencia.value) || 1; // evita división por cero
-        const valorIVA = parseFloat(iva.value) || 0;
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const compra = document.getElementById("compra");
+            const existencia = document.getElementById("existencia");
+            const iva = document.getElementById("iva");
+            const resultadoFinal = document.getElementById("resultadoFinal");
 
-        const resultado1 = valorCompra / valorExistencia;
-        const resultado2 = resultado1 * (valorIVA / 100);
-        const resultado3 = resultado1 + resultado2;
+            function calcular() {
+                const valorCompra = parseFloat(compra.value) || 0;
+                const valorExistencia = parseFloat(existencia.value) || 1; // evita división por cero
+                const valorIVA = parseFloat(iva.value) || 0;
 
-        resultadoFinal.textContent = "₡" + resultado3.toFixed(2);
-    }
+                const resultado1 = valorCompra / valorExistencia;
+                const resultado2 = resultado1 * (valorIVA / 100);
+                const resultado3 = resultado1 + resultado2;
 
-    compra.addEventListener("input", calcular);
-    existencia.addEventListener("input", calcular);
-    iva.addEventListener("input", calcular);
-});
-</script>
+                resultadoFinal.textContent = "₡" + resultado3.toFixed(2);
+            }
+
+            compra.addEventListener("input", calcular);
+            existencia.addEventListener("input", calcular);
+            iva.addEventListener("input", calcular);
+        });
+    </script>
 
     <div class="mb-3">
         <label for="venta" class="form-label">Precio de Venta (Cliente)</label>
