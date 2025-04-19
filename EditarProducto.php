@@ -284,7 +284,7 @@ $id_usuario = $_SESSION["id"];
 
                                         <div class="mb-3">
                                             <label for="codigo" class="form-label">Código</label>
-                                            <input type="text" class="form-control" id="codigo" name="codigo" value="<?php echo htmlspecialchars($producto['codigo']); ?>" required>
+                                            <input type="text" class="form-control" id="codigo" name="codigo" value="<?php echo htmlspecialchars($producto['codigo']); ?>" readonly>
                                         </div>
 
                                         <div class="mb-3">

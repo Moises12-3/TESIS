@@ -334,6 +334,7 @@ document.getElementById("buscador").addEventListener("keyup", function() {
                                                     <th scope="col">Precio Venta</th>
                                                     <th scope="col">IVA</th>
                                                     <th scope="col">Existencias</th>
+                                                    <th scope="col">Fecha de vencimiento</th>
                                                     <th scope="col">Editar</th>
                                                     <th scope="col">Eliminar</th>
                                                 </tr>
@@ -341,7 +342,7 @@ document.getElementById("buscador").addEventListener("keyup", function() {
                                             <tbody>
                                                 <?php
                                                 require 'Conexion/conex.php';
-                                                $sql = "SELECT id, codigo, nombre, compra, venta, iva, existencia FROM productos";
+                                                $sql = "SELECT id, codigo, nombre, compra, venta, iva, existencia, fecha_vencimiento FROM productos";
                                                 $resultado = $conn->query($sql);
 
                                                 if ($resultado->num_rows > 0) {
@@ -353,6 +354,7 @@ document.getElementById("buscador").addEventListener("keyup", function() {
                                                         echo "<td>$" . number_format($fila["venta"], 2) . "</td>";
                                                         echo "<td>$" . number_format($fila["iva"], 2) . "</td>";
                                                         echo "<td>" . htmlspecialchars($fila["existencia"]) . "</td>";
+                                                        echo "<td>" . htmlspecialchars($fila["fecha_vencimiento"]) . "</td>";
                                                         echo "<td><a href='EditarProducto.php?id=" . $fila["id"] . "' class='btn btn-primary'>Editar</a></td>";
                                                         echo "<td><a href='Configuracion/eliminar_producto.php?id=" . $fila["id"] . "' class='btn btn-danger' onclick='return confirm(\"¿Seguro que deseas eliminar este producto?\");'>Eliminar</a></td>";
                                                         echo "</tr>";
