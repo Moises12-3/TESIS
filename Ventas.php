@@ -258,26 +258,53 @@ $id_usuario = $_SESSION["id"];
 <!-- Selector de clientes -->
 
 <label for="clienteSeleccionado"><strong>Cliente:</strong></label>
-<select id="clienteSeleccionado" class="form-control mb-3">
-    <option value="">Seleccione un cliente</option>
+<!-- Buscador de clientes -->
+<input type="text" id="buscarCliente" class="form-control" placeholder="Buscar cliente...">
+
+<!-- Select para mostrar los clientes -->
+<select id="clienteSeleccionado" class="form-control mt-3">
+    <option value="" disabled selected>Seleccione un cliente</option>
 </select>
+
+<!-- Información del cliente seleccionado -->
+<div id="infoCliente" class="mt-3">
+    <strong>ID Cliente: </strong><span id="clienteId"></span><br>
+    <strong>Descuento: </strong><span id="descuentoCliente"></span><br>
+
+    <!-- El input hidden para enviar el ID -->
+    <input type="text" id="inputClienteId" name="cliente_id">
+
+</div>
+
+
+
 
 <br>
 <script>
-    function cargarClientes() {
+// Función para cargar clientes en el select
+function cargarClientes(query = "") {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "Configuracion/obtener_clientes.php", true);
+    xhr.open("GET", "Configuracion/obtener_clientes.php?query=" + query, true);
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             let clientes = JSON.parse(xhr.responseText);
             let select = document.getElementById("clienteSeleccionado");
+            select.innerHTML = "<option value=''>Seleccione un cliente</option>"; // Limpiar el select antes de agregar opciones
 
-            clientes.forEach(cliente => {
+            // Verificar que los clientes sean correctos
+            if (clientes.length > 0) {
+                clientes.forEach(cliente => {
+                    let option = document.createElement("option");
+                    option.value = cliente.id;
+                    option.textContent = cliente.nombre; // Nombre del cliente
+                    select.appendChild(option);
+                });
+            } else {
                 let option = document.createElement("option");
-                option.value = cliente.id;
-                option.textContent = cliente.nombre;
+                option.value = "";
+                option.textContent = "No se encontraron clientes";
                 select.appendChild(option);
-            });
+            }
         }
     };
     xhr.send();
@@ -285,8 +312,70 @@ $id_usuario = $_SESSION["id"];
 
 // Llamar la función cuando cargue la página
 window.onload = function() {
-    cargarClientes();
+    cargarClientes(); // Cargar todos los clientes al inicio
+
+    // Filtrar clientes mientras escribes
+    document.getElementById("buscarCliente").addEventListener("input", function() {
+        let query = this.value.trim();
+        cargarClientes(query);
+    });
 };
+
+// Mostrar el ID y descuento del cliente seleccionado
+document.getElementById("clienteSeleccionado").addEventListener("change", function() {
+    let clienteId = this.value;
+    if (clienteId) {
+        mostrarInfoCliente(clienteId);
+    } else {
+        document.getElementById("clienteId").textContent = "";
+        document.getElementById("descuentoCliente").textContent = "";
+    }
+});
+
+// Función para obtener y mostrar la información del cliente seleccionado
+function mostrarInfoCliente(clienteId) {
+    // Primero vaciamos el campo inputClienteId al seleccionar un cliente
+    document.getElementById("inputClienteId").value = ""; 
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "Configuracion/obtener_info_cliente.php?id=" + clienteId, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            try {
+                let cliente = JSON.parse(xhr.responseText);
+                if (cliente) {
+                    // Si el cliente es encontrado, mostramos su información
+                    document.getElementById("clienteId").textContent = cliente.id;
+                    document.getElementById("descuentoCliente").textContent = cliente.descuento + "%";
+
+                    // Actualizamos el input con el ID del cliente seleccionado
+                    document.getElementById("inputClienteId").value = cliente.id;
+                } else {
+                    // Si no se encuentra el cliente, limpiamos el input
+                    document.getElementById("clienteId").textContent = "No encontrado";
+                    document.getElementById("descuentoCliente").textContent = "N/A";
+                    document.getElementById("inputClienteId").value = ""; // Aseguramos que quede vacío
+                }
+            } catch (e) {
+                console.error("Error al parsear JSON:", e);
+                // En caso de error, también vaciamos el input
+                document.getElementById("inputClienteId").value = "";
+            }
+        }
+    };
+    xhr.send();
+}
+
+
+
+// Evento para detectar el cambio en el select de clientes
+document.getElementById("clienteSelect").addEventListener("change", function() {
+    const clienteId = this.value; // Obtener el ID del cliente seleccionado
+    mostrarInfoCliente(clienteId); // Llamar a la función para actualizar la información
+});
+
+
+
 
 </script>
 
