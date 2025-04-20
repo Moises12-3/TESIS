@@ -545,20 +545,26 @@ document.getElementById("clienteSelect").addEventListener("change", function() {
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                    // Muestra el mensaje en la página
-                    mostrarMensaje("Venta realizada con éxito.", "success");
+                    // Parsear la respuesta JSON
+                    var respuesta = JSON.parse(xhr.responseText);
 
-                    // Limpiar la lista de productos seleccionados
-                    productosSeleccionados = [];
-                    mostrarProductosSeleccionados();
-                    document.getElementById("productosTabla").innerHTML = ""; 
+                    // Verificar el estado de la respuesta
+                    if (respuesta.status === "success") {
+                        // Mostrar mensaje de éxito
+                        mostrarMensaje(respuesta.message, "success");
 
-                    // Limpiar el select de clientes y establecer la opción predeterminada
-                    const selectCliente = document.getElementById("selectCliente");
-                    selectCliente.value = ""; // Esto selecciona la opción predeterminada (vacía)
+                        // Limpiar la lista de productos seleccionados
+                        productosSeleccionados = [];
+                        mostrarProductosSeleccionados();
+                        document.getElementById("productosTabla").innerHTML = ""; 
 
-                    // Opción alternativa: si la opción predeterminada tiene otro valor, por ejemplo, "0"
-                    // selectCliente.value = "0"; 
+                        // Limpiar el select de clientes y establecer la opción predeterminada
+                        const selectCliente = document.getElementById("selectCliente");
+                        selectCliente.value = ""; // Esto selecciona la opción predeterminada (vacía)
+                    } else if (respuesta.status === "error") {
+                        // Mostrar mensaje de error
+                        mostrarMensaje(respuesta.message, "error");
+                    }
                 }
             };
 
@@ -581,20 +587,29 @@ document.getElementById("clienteSelect").addEventListener("change", function() {
         // Función para mostrar mensajes en la página y limpiar la pantalla después de 3 segundos
         function mostrarMensaje(mensaje, tipo) {
             let mensajeVenta = document.getElementById("mensajeVenta");
-            mensajeVenta.className = `alert alert-${tipo} mt-3`; // Agrega el color según el tipo
-            mensajeVenta.innerHTML = mensaje;
-            mensajeVenta.classList.remove("d-none"); // Muestra el mensaje
+            let icono = "";
 
-            // Oculta el mensaje después de 3 segundos
+            switch (tipo) {
+                case "success":
+                    icono = "✅ ";
+                    break;
+                case "error":
+                    icono = "❌ ";
+                    break;
+                case "warning":
+                    icono = "⚠️ ";
+                    break;
+            }
+
+            mensajeVenta.className = `alert alert-${tipo} mt-3`; 
+            mensajeVenta.innerHTML = icono + mensaje;
+            mensajeVenta.classList.remove("d-none");
+
             setTimeout(() => {
-                mensajeVenta.classList.add("d-none");  // Oculta el mensaje
-
-                // Limpiar la pantalla: Puedes agregar aquí las áreas que deseas limpiar
-                productosSeleccionados = [];  // Vacía el arreglo de productos seleccionados
-                actualizarTabla();  // Actualiza la tabla (en este caso, la vacía)
-
-                // Opcional: Si quieres también limpiar el campo de búsqueda
-                document.getElementById("buscadorVenta").value = "";  // Limpiar el campo de búsqueda
+                mensajeVenta.classList.add("d-none");
+                productosSeleccionados = [];
+                actualizarTabla();
+                document.getElementById("buscadorVenta").value = "";
             }, 3000);
         }
 

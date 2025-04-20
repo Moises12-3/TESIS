@@ -9,43 +9,59 @@ if (!empty($data)) {
     $idUsuario = 1; // ID del usuario que realiza la venta
     $idCliente = $data['clienteId'];
 
-    // Insertar venta
-    $stmt = $conn->prepare("INSERT INTO ventas (fecha, total, idUsuario, idCliente) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("sdii", $fecha, $total, $idUsuario, $idCliente);
-    $stmt->execute();
-    $idVenta = $stmt->insert_id;
-
-    // Procesar cada producto
+    // PRIMERO: Validar que todas las cantidades sean válidas
     foreach ($data['productos'] as $producto) {
         $idProducto = $producto['id'];
         $cantidadVendida = $producto['cantidad'];
-        $precio = $producto['precio'];
 
-        // Guardar en productos_ventas
-        $stmt = $conn->prepare("INSERT INTO productos_ventas (cantidad, precio, idProducto, idVenta) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("idii", $cantidadVendida, $precio, $idProducto, $idVenta);
-        $stmt->execute();
-
-        // Obtener la existencia actual del producto
-        $stmt = $conn->prepare("SELECT existencia FROM productos WHERE id = ?");
+        // Obtener existencia actual y nombre del producto
+        $stmt = $conn->prepare("SELECT existencia, nombre FROM productos WHERE id = ?");
         $stmt->bind_param("i", $idProducto);
         $stmt->execute();
         $result = $stmt->get_result();
         $productoData = $result->fetch_assoc();
 
         if ($productoData) {
-            $nuevaExistencia = $productoData['existencia'] - $cantidadVendida;
+            $existenciaActual = $productoData['existencia'];
+            $nombreProducto = $productoData['nombre'];
 
-            // Asegurar que no quede en negativo
-            if ($nuevaExistencia < 0) {
-                $nuevaExistencia = 0;
-            }
-
-            // Actualizar la existencia en la tabla productos
-            $stmt = $conn->prepare("UPDATE productos SET existencia = ? WHERE id = ?");
-            $stmt->bind_param("ii", $nuevaExistencia, $idProducto);
-            $stmt->execute();
+            if ($cantidadVendida > $existenciaActual) {
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "⚠️ La cantidad solicitada para el producto <strong>$nombreProducto</strong> excede la existencia disponible. Solo hay <strong>$existenciaActual</strong> unidades en stock."
+                ]);
+                exit;
+            }            
+        } else {
+            echo json_encode([
+                "status" => "error",
+                "message" => "Producto no encontrado con ID: $idProducto"
+            ]);
+            exit;
         }
+    }
+
+    // SI TODO ESTÁ BIEN: Insertar la venta
+    $stmt = $conn->prepare("INSERT INTO ventas (fecha, total, idUsuario, idCliente) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("sdii", $fecha, $total, $idUsuario, $idCliente);
+    $stmt->execute();
+    $idVenta = $stmt->insert_id;
+
+    // Insertar detalle de productos y actualizar existencias
+    foreach ($data['productos'] as $producto) {
+        $idProducto = $producto['id'];
+        $cantidadVendida = $producto['cantidad'];
+        $precio = $producto['precio'];
+
+        // Insertar en productos_ventas
+        $stmt = $conn->prepare("INSERT INTO productos_ventas (cantidad, precio, idProducto, idVenta) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("idii", $cantidadVendida, $precio, $idProducto, $idVenta);
+        $stmt->execute();
+
+        // Actualizar la existencia
+        $stmt = $conn->prepare("UPDATE productos SET existencia = existencia - ? WHERE id = ?");
+        $stmt->bind_param("ii", $cantidadVendida, $idProducto);
+        $stmt->execute();
     }
 
     echo json_encode(["status" => "success", "message" => "Venta realizada con éxito"]);
