@@ -45,6 +45,7 @@ CREATE TABLE ventas(
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     fecha DATETIME NOT NULL,
     total DECIMAL(9,2) NOT NULL,
+    numeroFactura VARCHAR(20) UNIQUE,
     idUsuario BIGINT NOT NULL,
     idCliente BIGINT
 );  
@@ -53,6 +54,7 @@ CREATE TABLE productos_ventas(
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     cantidad INT NOT NULL,
     precio DECIMAL(8,2) NOT NULL,
+    numeroFactura VARCHAR(20),
     idProducto BIGINT NOT NULL,
     idVenta BIGINT NOT NULL
 );
