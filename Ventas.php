@@ -535,26 +535,48 @@ document.getElementById("clienteSelect").addEventListener("change", function() {
 
 
         document.getElementById("btnRealizarVenta").addEventListener("click", function() {
-            if (productosSeleccionados.length > 0) {
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST", "Configuracion/procesar_venta.php", true);
-                xhr.setRequestHeader("Content-Type", "application/json");
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState == 4 && xhr.status == 200) {
-                        // Muestra el mensaje en la página
-                        mostrarMensaje("Venta realizada con éxito.", "success");
+    if (productosSeleccionados.length > 0) {
+        // Obtener el ID del cliente
+        const clienteId = document.getElementById("inputClienteId").value;
 
-                        // Limpiar la lista de productos seleccionados
-                        productosSeleccionados = [];
-                        mostrarProductosSeleccionados();
-                        document.getElementById("productosTabla").innerHTML = ""; 
-                    }
-                };
-                xhr.send(JSON.stringify(productosSeleccionados));
-            } else {
-                mostrarMensaje("Por favor, seleccione al menos un producto.", "warning");
-            }
-        });
+        if (clienteId) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "Configuracion/procesar_venta.php", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Muestra el mensaje en la página
+                    mostrarMensaje("Venta realizada con éxito.", "success");
+
+                    // Limpiar la lista de productos seleccionados
+                    productosSeleccionados = [];
+                    mostrarProductosSeleccionados();
+                    document.getElementById("productosTabla").innerHTML = ""; 
+
+                    // Limpiar el select de clientes y establecer la opción predeterminada
+                    const selectCliente = document.getElementById("selectCliente");
+                    selectCliente.value = ""; // Esto selecciona la opción predeterminada (vacía)
+
+                    // Opción alternativa: si la opción predeterminada tiene otro valor, por ejemplo, "0"
+                    // selectCliente.value = "0"; 
+                }
+            };
+
+            // Enviar los productos seleccionados y el clienteId
+            const datosVenta = {
+                productos: productosSeleccionados,
+                clienteId: clienteId // Incluye el clienteId
+            };
+
+            xhr.send(JSON.stringify(datosVenta));
+        } else {
+            mostrarMensaje("Por favor, seleccione un cliente.", "warning");
+        }
+    } else {
+        mostrarMensaje("Por favor, seleccione al menos un producto.", "warning");
+    }
+});
+
         
         // Función para mostrar mensajes en la página y limpiar la pantalla después de 3 segundos
         function mostrarMensaje(mensaje, tipo) {
