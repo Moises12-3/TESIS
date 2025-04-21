@@ -95,6 +95,31 @@ moises@moises-HP-Stream-Laptop-14-cb1xxx:~$ sudo /opt/lampp/manager-linux-x64.ru
 
 
 
+//////////////////////////////  
+
+
+iva al realizar venta
+descuento al realizar la venta se modifique desde la tabla  iompuestos
+
+logo en la factura
+fax no
+
+cantidad que paga cliente
+
+Ident. Dimex: 155810709601 es cliente
+
+Ident. Jurídica: 3-002-691758 es de la empresa
+
+crear pdf o imprimir al vender
+
+DIMEX ES PARA EXTRANJERO RESIDENTE
+
+
+
+
+
+
+
 
 
 
