@@ -259,39 +259,122 @@ $id_usuario = $_SESSION["id"];
                                         require 'Conexion/conex.php'; // Incluir la conexión a la base de datos
 
                                         $sql = "SELECT id, usuario, nombre, telefono, direccion FROM usuarios"; // Consulta SQL
-                                        $resultado = $conn->query($sql);
-                                        ?>
+$resultado = $conn->query($sql);
+?>
 
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col">Usuario</th>
-                                                    <th scope="col">Nombre</th>
-                                                    <th scope="col">Teléfono</th>
-                                                    <th scope="col">Dirección</th>
-                                                    <th scope="col">Editar</th>
-                                                    <th scope="col">Eliminar</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php
-                                                if ($resultado->num_rows > 0) {
-                                                    while ($fila = $resultado->fetch_assoc()) {
-                                                        echo "<tr>";
-                                                        echo "<td>" . htmlspecialchars($fila["usuario"]) . "</td>";
-                                                        echo "<td>" . htmlspecialchars($fila["nombre"]) . "</td>";
-                                                        echo "<td>" . htmlspecialchars($fila["telefono"]) . "</td>";
-                                                        echo "<td>" . htmlspecialchars($fila["direccion"]) . "</td>";
-                                                        echo "<td><a href='EditarUsuario.php?id=" . $fila["id"] . "' class='btn btn-primary'>Editar</a></td>";
-                                                        echo "<td><a href='Configuracion/eliminar_usuario.php?id=" . $fila["id"] . "' class='btn btn-danger' onclick='return confirm(\"¿Seguro que deseas eliminar este usuario?\");'>Eliminar</a></td>";
-                                                        echo "</tr>";
-                                                    }
-                                                } else {
-                                                    echo "<tr><td colspan='6'>No hay usuarios registrados.</td></tr>";
-                                                }
-                                                ?>
-                                            </tbody>
-                                        </table>
+<div class="d-flex justify-content-end mb-3">
+    <label class="mr-2 mt-2">Mostrar:</label>
+    <select id="selectFilas" class="form-control w-auto">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="25">25</option>
+        <option value="50">50</option>
+    </select>
+</div>
+
+<table id="tablaUsuarios" class="table">
+    <thead>
+        <tr>
+            <th scope="col">Usuario</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Teléfono</th>
+            <th scope="col">Dirección</th>
+            <th scope="col">Editar</th>
+            <th scope="col">Eliminar</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+        if ($resultado->num_rows > 0) {
+            while ($fila = $resultado->fetch_assoc()) {
+                echo "<tr>";
+                echo "<td>" . htmlspecialchars($fila["usuario"]) . "</td>";
+                echo "<td>" . htmlspecialchars($fila["nombre"]) . "</td>";
+                echo "<td>" . htmlspecialchars($fila["telefono"]) . "</td>";
+                echo "<td>" . htmlspecialchars($fila["direccion"]) . "</td>";
+                echo "<td><a href='EditarUsuario.php?id=" . $fila["id"] . "' class='btn btn-primary'>Editar</a></td>";
+                echo "<td><a href='Configuracion/eliminar_usuario.php?id=" . $fila["id"] . "' class='btn btn-danger' onclick='return confirm(\"¿Seguro que deseas eliminar este usuario?\");'>Eliminar</a></td>";
+                echo "</tr>";
+            }
+        } else {
+            echo "<tr><td colspan='6'>No hay usuarios registrados.</td></tr>";
+        }
+        ?>
+    </tbody>
+</table>
+
+
+<!-- Contenedor de la paginación -->
+<ul id="paginacionUsuarios" class="pagination justify-content-center"></ul>
+
+<script>
+// Configuración de paginación
+let filasPorPagina = 10; // Valor inicial
+let paginaActual = 1;
+
+// Función para mostrar filas
+function mostrarPagina(pagina) {
+    let filas = document.querySelectorAll("#tablaUsuarios tbody tr");
+    let totalPaginas = Math.ceil(filas.length / filasPorPagina);
+
+    paginaActual = pagina;
+
+    filas.forEach((fila, indice) => {
+        fila.style.display = (indice >= (pagina - 1) * filasPorPagina && indice < pagina * filasPorPagina) ? "" : "none";
+    });
+
+    renderizarPaginacion(totalPaginas);
+}
+
+// Función para crear botones de paginación
+function renderizarPaginacion(totalPaginas) {
+    let paginacion = document.getElementById("paginacionUsuarios");
+    paginacion.innerHTML = "";
+
+    // Botón anterior
+    let anterior = document.createElement("li");
+    anterior.className = "page-item" + (paginaActual === 1 ? " disabled" : "");
+    anterior.innerHTML = `<a class="page-link" href="#">Anterior</a>`;
+    anterior.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (paginaActual > 1) mostrarPagina(paginaActual - 1);
+    });
+    paginacion.appendChild(anterior);
+
+    // Botones de página
+    for (let i = 1; i <= totalPaginas; i++) {
+        let boton = document.createElement("li");
+        boton.className = "page-item" + (i === paginaActual ? " active" : "");
+        boton.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+        boton.addEventListener("click", function (e) {
+            e.preventDefault();
+            mostrarPagina(i);
+        });
+        paginacion.appendChild(boton);
+    }
+
+    // Botón siguiente
+    let siguiente = document.createElement("li");
+    siguiente.className = "page-item" + (paginaActual === totalPaginas ? " disabled" : "");
+    siguiente.innerHTML = `<a class="page-link" href="#">Siguiente</a>`;
+    siguiente.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (paginaActual < totalPaginas) mostrarPagina(paginaActual + 1);
+    });
+    paginacion.appendChild(siguiente);
+}
+
+// Actualizar número de filas por página cuando se cambia el select
+document.getElementById("selectFilas").addEventListener("change", function() {
+    filasPorPagina = parseInt(this.value);
+    mostrarPagina(1); // Reiniciar a página 1
+});
+
+// Inicializar al cargar
+document.addEventListener("DOMContentLoaded", function() {
+    mostrarPagina(1);
+});
+</script>
 
                                         <?php
                                         $conn->close();

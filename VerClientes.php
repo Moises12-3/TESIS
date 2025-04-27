@@ -257,9 +257,23 @@ $id_usuario = $_SESSION["id"];
                                     <?php
                                         require 'Conexion/conex.php'; // Incluir la conexión a la base de datos
 
-                                        // Consulta para obtener los clientes de la tabla clientes
-                                        $sql = "SELECT id, nombre, cedula, telefono, direccion, descuento FROM clientes";
+                                        // Configuración para la paginación
+                                        $filasPorPagina = isset($_GET['filas']) ? (int)$_GET['filas'] : 10; // Número de filas por página, por defecto 10
+                                        $página = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1; // Página actual, por defecto 1
+
+                                        // Calcular el inicio de la consulta
+                                        $inicio = ($página - 1) * $filasPorPagina;
+
+                                        // Consulta para obtener los clientes con paginación
+                                        $sql = "SELECT id, nombre, cedula, telefono, direccion, descuento FROM clientes LIMIT $inicio, $filasPorPagina";
                                         $resultado = $conn->query($sql);
+
+                                        // Consulta para obtener el total de registros (sin paginación)
+                                        $sqlTotal = "SELECT COUNT(id) AS total FROM clientes";
+                                        $resultadoTotal = $conn->query($sqlTotal);
+                                        $filaTotal = $resultadoTotal->fetch_assoc();
+                                        $totalClientes = $filaTotal['total'];
+
                                     ?>
 
                                     <table class="table">
@@ -293,27 +307,71 @@ $id_usuario = $_SESSION["id"];
                                             }
                                             ?>
                                         </tbody>
+                                        
+<!-- Filtro para seleccionar cuántos elementos mostrar -->
+<div class="d-flex justify-content-end mb-3">
+    <label class="mr-2 mt-2">Mostrar:</label>
+    <select id="selectFilas" class="form-control w-auto">
+        <option value="5" <?= $filasPorPagina == 5 ? 'selected' : '' ?>>5</option>
+        <option value="10" <?= $filasPorPagina == 10 ? 'selected' : '' ?>>10</option>
+        <option value="25" <?= $filasPorPagina == 25 ? 'selected' : '' ?>>25</option>
+        <option value="50" <?= $filasPorPagina == 50 ? 'selected' : '' ?>>50</option>
+    </select>
+</div>
                                     </table>
 
-                                    <?php
-                                        $conn->close();
-                                    ?>
+
 <?php
-    if (isset($_GET['mensaje']) && $_GET['mensaje'] == 'eliminado') {
-        echo "<div id='mensajeEliminado' class='alert alert-success'>Cliente eliminado correctamente.</div>";
-    }
+// Cerrar la conexión a la base de datos
+$conn->close();
 ?>
+
+<!-- Paginación -->
+<?php
+$totalPaginas = ceil($totalClientes / $filasPorPagina);
+?>
+
+<nav>
+    <ul class="pagination justify-content-center">
+        <li class="page-item <?= $página == 1 ? 'disabled' : '' ?>">
+            <a class="page-link" href="?pagina=<?= $página - 1 ?>&filas=<?= $filasPorPagina ?>">Anterior</a>
+        </li>
+        <?php for ($i = 1; $i <= $totalPaginas; $i++) : ?>
+            <li class="page-item <?= $i == $página ? 'active' : '' ?>">
+                <a class="page-link" href="?pagina=<?= $i ?>&filas=<?= $filasPorPagina ?>"><?= $i ?></a>
+            </li>
+        <?php endfor; ?>
+        <li class="page-item <?= $página == $totalPaginas ? 'disabled' : '' ?>">
+            <a class="page-link" href="?pagina=<?= $página + 1 ?>&filas=<?= $filasPorPagina ?>">Siguiente</a>
+        </li>
+    </ul>
+</nav>
+
+<script>
+// Actualizar el número de filas por página al cambiar la selección
+document.getElementById("selectFilas").addEventListener("change", function() {
+    var filas = this.value;
+    window.location.href = "?pagina=1&filas=" + filas; // Recargar la página con el nuevo número de filas
+});
+</script>
+
+<?php
+if (isset($_GET['mensaje']) && $_GET['mensaje'] == 'eliminado') {
+    echo "<div id='mensajeEliminado' class='alert alert-success'>Cliente eliminado correctamente.</div>";
+}
+?>
+
 <script type="text/javascript">
-    // Verifica si el mensaje con id 'mensajeEliminado' existe en la página
-    window.onload = function() {
-        var mensaje = document.getElementById('mensajeEliminado');
-        if (mensaje) {
-            // Oculta el mensaje después de 5 segundos
-            setTimeout(function() {
-                mensaje.style.display = 'none';
-            }, 5000); // 5000 milisegundos = 5 segundos
-        }
-    };
+// Verifica si el mensaje con id 'mensajeEliminado' existe en la página
+window.onload = function() {
+    var mensaje = document.getElementById('mensajeEliminado');
+    if (mensaje) {
+        // Oculta el mensaje después de 5 segundos
+        setTimeout(function() {
+            mensaje.style.display = 'none';
+        }, 5000); // 5000 milisegundos = 5 segundos
+    }
+};
 </script>
 
 
