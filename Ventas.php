@@ -272,7 +272,7 @@ $id_usuario = $_SESSION["id"];
     <strong>Descuento: </strong><span id="descuentoCliente"></span><br>
 
     <!-- El input hidden para enviar el ID -->
-    <input type="text" id="inputClienteId" name="cliente_id">
+    <input type="hidden" id="inputClienteId" name="cliente_id">
 
 </div>
 
