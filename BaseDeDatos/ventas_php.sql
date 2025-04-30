@@ -43,6 +43,28 @@ CREATE TABLE usuarios(
 
 INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("maaroncarrasco@gmail.com", "081-030301-1009B", "maaroncarrasco@gmail.com", "6667771234", "Nowhere", "0", "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
 
+-- Tabla de páginas disponibles
+CREATE TABLE IF NOT EXISTS paginas (
+    codigo_pagina VARCHAR(50) PRIMARY KEY,
+    nombre_pagina VARCHAR(100) NOT NULL,
+    url_pagina VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS accesos (
+    codigo_usuario VARCHAR(50) NOT NULL,
+    codigo_pagina VARCHAR(50) NOT NULL,
+    PRIMARY KEY (codigo_usuario, codigo_pagina),
+    FOREIGN KEY (codigo_usuario) REFERENCES usuarios(usuario) ON DELETE CASCADE,
+    FOREIGN KEY (codigo_pagina) REFERENCES paginas(codigo_pagina) ON DELETE CASCADE
+);
+
+
+INSERT INTO paginas (codigo_pagina, nombre_pagina, url_pagina) VALUES
+('inicio', 'Página de Inicio', 'inicio.php'),
+('reportes', 'Reporte de Ventas', 'reportes/ventas.php'),
+('admin_usuarios', 'Administración de Usuarios', 'admin/usuarios.php');
+
+
 CREATE TABLE productos(
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     codigo VARCHAR(255) NOT NULL,
