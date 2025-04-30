@@ -255,7 +255,118 @@ $id_usuario = $_SESSION["id"];
                         <div class="card">
                             <div class="row">
                                 <div class="col-lg-8">
-                                    <div class="card-body"><h1>Formato de relleno</h1>
+                                    <div class="card-body">
+                                        <h1>Formato de relleno</h1>
+
+
+                                        <?php
+include("Conexion/conex.php");
+
+$mensaje = "";
+
+function generarCodigoUnico($longitud = 6) {
+    return "EMP-" . strtoupper(substr(md5(uniqid(rand(), true)), 0, $longitud));
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $nombre = $_POST['nombre'];
+    $direccion = $_POST['direccion'];
+    $correo = $_POST['correo'];
+    $telefono = $_POST['telefono'];
+    $fax = $_POST['fax'];
+    $identidad_juridica = $_POST['identidad_juridica'];
+
+    // Datos del usuario administrador
+    $admin_usuario = $_POST['admin_usuario'];
+    $admin_correo = $_POST['admin_correo'];
+    $admin_contrasena = password_hash($_POST['admin_contrasena'], PASSWORD_BCRYPT);
+
+    // Generar código interno único
+    do {
+        $codigo_interno = generarCodigoUnico();
+        $check = $conn->prepare("SELECT COUNT(*) FROM empresa WHERE codigo_interno = ?");
+        $check->bind_param("s", $codigo_interno);
+        $check->execute();
+        $check->bind_result($existe);
+        $check->fetch();
+        $check->close();
+    } while ($existe > 0);
+
+    // Insertar empresa
+    $stmt = $conn->prepare("INSERT INTO empresa (nombre, direccion, correo, telefono, fax, codigo_interno, identidad_juridica) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssssss", $nombre, $direccion, $correo, $telefono, $fax, $codigo_interno, $identidad_juridica);
+
+    if ($stmt->execute()) {
+        $stmt->close();
+
+        // Insertar usuario administrador usando el codigo_interno
+        $stmt_user = $conn->prepare("INSERT INTO usuario (id_empresa, nombre_usuario, correo_usuario, contrasena) VALUES (?, ?, ?, ?)");
+        $stmt_user->bind_param("ssss", $codigo_interno, $admin_usuario, $admin_correo, $admin_contrasena);
+        if ($stmt_user->execute()) {
+            $mensaje = "Empresa y usuario administrador registrados correctamente.";
+        } else {
+            $mensaje = "Error al crear usuario: " . $stmt_user->error;
+        }
+        $stmt_user->close();
+    } else {
+        $mensaje = "Error al registrar empresa: " . $stmt->error;
+    }
+
+    $conn->close();
+}
+?>
+
+
+<h2 class="mb-4">Configuración de Empresa y Usuario Administrador</h2>
+
+<?php if ($mensaje): ?>
+    <div class="alert alert-info"><?= $mensaje ?></div>
+<?php endif; ?>
+
+<form method="POST" action="">
+    <h5>Datos de la Empresa</h5>
+    <div class="mb-3">
+        <label class="form-label">Nombre de la Empresa</label>
+        <input type="text" class="form-control" name="nombre" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Dirección</label>
+        <input type="text" class="form-control" name="direccion" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Correo Electrónico</label>
+        <input type="email" class="form-control" name="correo" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Teléfono</label>
+        <input type="text" class="form-control" name="telefono">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Fax</label>
+        <input type="text" class="form-control" name="fax">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Identidad Jurídica</label>
+        <input type="text" class="form-control" name="identidad_juridica">
+    </div>
+
+    <h5 class="mt-4">Usuario Administrador</h5>
+    <div class="mb-3">
+        <label class="form-label">Nombre de Usuario</label>
+        <input type="text" class="form-control" name="admin_usuario" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Correo del Usuario</label>
+        <input type="email" class="form-control" name="admin_correo" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Contraseña</label>
+        <input type="password" class="form-control" name="admin_contrasena" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar Empresa</button>
+</form>
+
 
                                     </div>
                                 </div>

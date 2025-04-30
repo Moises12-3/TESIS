@@ -2,6 +2,47 @@ CREATE DATABASE ventas_php;
 
 USE ventas_php;
 
+-- Tabla empresa
+CREATE TABLE IF NOT EXISTS empresa (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    direccion VARCHAR(255) NOT NULL,
+    correo VARCHAR(255) NOT NULL,
+    telefono VARCHAR(50),
+    fax VARCHAR(50),
+    codigo_interno VARCHAR(100) UNIQUE,
+    identidad_juridica VARCHAR(100),
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla usuario (administrador)
+CREATE TABLE IF NOT EXISTS usuario (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_empresa INT NOT NULL,
+    nombre_usuario VARCHAR(100) NOT NULL,
+    correo_usuario VARCHAR(255) NOT NULL,
+    contrasena VARCHAR(255) NOT NULL,
+    rol VARCHAR(50) DEFAULT 'Administrador',
+    FOREIGN KEY (id_empresa) REFERENCES empresa(id) ON DELETE CASCADE
+);
+
+CREATE TABLE usuarios(
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    usuario VARCHAR(50) NOT NULL,
+    nombre VARCHAR(255) NOT NULL,
+    cedula VARCHAR(50) NOT NULL,
+    telefono VARCHAR(25) NOT NULL,
+    direccion VARCHAR(255) NOT NULL,
+    descuento DECIMAL(5,2) NOT NULL DEFAULT 0, 
+    rol ENUM('admin', 'editor', 'usuario') NOT NULL DEFAULT 'usuario',
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+
+    foto_perfil VARCHAR(255) DEFAULT NULL
+);
+
+INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("maaroncarrasco@gmail.com", "081-030301-1009B", "maaroncarrasco@gmail.com", "6667771234", "Nowhere", "0", "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
+
 CREATE TABLE productos(
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     codigo VARCHAR(255) NOT NULL,
@@ -23,23 +64,6 @@ CREATE TABLE clientes (
     descuento DECIMAL(5,2) NOT NULL DEFAULT 0
 );
 
-
-CREATE TABLE usuarios(
-    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    usuario VARCHAR(50) NOT NULL,
-    nombre VARCHAR(255) NOT NULL,
-    cedula VARCHAR(50) NOT NULL,
-    telefono VARCHAR(25) NOT NULL,
-    direccion VARCHAR(255) NOT NULL,
-    descuento DECIMAL(5,2) NOT NULL DEFAULT 0, 
-    rol ENUM('admin', 'editor', 'usuario') NOT NULL DEFAULT 'usuario',
-    email VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-
-    foto_perfil VARCHAR(255) DEFAULT NULL
-);
-
-INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("maaroncarrasco@gmail.com", "081-030301-1009B", "maaroncarrasco@gmail.com", "6667771234", "Nowhere", "0", "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
 
 CREATE TABLE ventas(
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
