@@ -289,7 +289,7 @@ $id_usuario = $_SESSION["id"];
 <!-- Contenedor con flexbox para alinear elementos horizontalmente -->
 <div class="d-flex align-items-center">
     <!-- Campo de búsqueda -->
-    <input type="text" id="buscador" class="form-control" placeholder="Buscar por código o nombre..." style="width: 300px;">
+    <input type="text" id="buscador" class="form-control" placeholder="Buscar productos..." style="width: 300px;">
 
     <!-- Botón para exportar a Excel -->
     <button id="exportarExcel" class="btn btn-success mt-3 ml-3">Exportar a Excel</button>
@@ -310,43 +310,30 @@ document.getElementById("exportarExcel").addEventListener("click", function () {
     XLSX.writeFile(wb, "productos.xlsx");
 });
 
-document.getElementById("buscador").addEventListener("keyup", function() {
-    let filtro = this.value.toLowerCase();
-    let filas = document.querySelectorAll("#tablaProductos tbody tr");
+</script>
 
-    filas.forEach(function(fila) {
-        let codigo = fila.querySelector(".codigo").textContent.toLowerCase();
-        let nombre = fila.querySelector(".nombre").textContent.toLowerCase();
+<script>
+document.getElementById("buscador").addEventListener("keyup", function () {
+    const texto = this.value.toLowerCase();
+    const filas = document.querySelectorAll("#tablaProductos tbody tr");
 
-        if (codigo.includes(filtro) || nombre.includes(filtro)) {
-            fila.style.display = "";
-        } else {
-            fila.style.display = "none";
-        }
+    filas.forEach(fila => {
+        const contenidoFila = fila.textContent.toLowerCase();
+        fila.style.display = contenidoFila.includes(texto) ? "" : "none";
     });
+
+    // Ocultar paginación cuando se está usando el buscador
+    const paginacion = document.getElementById("paginacionProductos");
+    if (texto.length > 0) {
+        paginacion.style.display = "none";
+    } else {
+        paginacion.style.display = "flex";
+        mostrarPagina(1);
+    }
 });
 </script>
 
                                         <br>
-
-                                        <script>
-                                        document.getElementById("buscador").addEventListener("keyup", function() {
-                                            let filtro = this.value.toLowerCase();
-                                            let filas = document.querySelectorAll("#tablaProductos tbody tr");
-
-                                            filas.forEach(function(fila) {
-                                                let codigo = fila.querySelector(".codigo").textContent.toLowerCase();
-                                                let nombre = fila.querySelector(".nombre").textContent.toLowerCase();
-
-                                                if (codigo.includes(filtro) || nombre.includes(filtro)) {
-                                                    fila.style.display = "";
-                                                } else {
-                                                    fila.style.display = "none";
-                                                }
-                                            });
-                                        });
-                                        </script>
-
 
 
                                         <?php
