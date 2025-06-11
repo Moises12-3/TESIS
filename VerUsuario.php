@@ -328,30 +328,90 @@ $id_usuario = $_SESSION["id"];
                                             const tabla = document.getElementById('tablaUsuarios').getElementsByTagName('tbody')[0];
                                             const selectFilas = document.getElementById('selectFilas');
 
+                                            let todosLosDatos = []; // Almacena todas las filas inicialmente
+                                            let filasPorPagina = parseInt(selectFilas.value);
+                                            let paginaActual = 1;
+
+                                            const obtenerFilas = () => Array.from(tabla.getElementsByTagName('tr'));
+
                                             function filtrarTabla() {
                                                 const texto = buscador.value.toLowerCase();
-                                                const filas = tabla.getElementsByTagName('tr');
-                                                let visibles = 0;
-                                                const maxFilas = parseInt(selectFilas.value);
+                                                const filas = obtenerFilas();
+                                                const paginacion = document.getElementById("paginacionUsuarios");
 
-                                                for (let i = 0; i < filas.length; i++) {
-                                                    const celdas = filas[i].getElementsByTagName('td');
-                                                    const coincide = Array.from(celdas).some(td => td.textContent.toLowerCase().includes(texto));
+                                                if (texto !== '') {
+                                                    filas.forEach(fila => {
+                                                        const coincide = Array.from(fila.getElementsByTagName('td')).some(td =>
+                                                            td.textContent.toLowerCase().includes(texto)
+                                                        );
+                                                        fila.style.display = coincide ? '' : 'none';
+                                                    });
 
-                                                    if (coincide && visibles < maxFilas) {
-                                                        filas[i].style.display = '';
-                                                        visibles++;
-                                                    } else {
-                                                        filas[i].style.display = 'none';
-                                                    }
+                                                    // Ocultar la paginación cuando se está buscando
+                                                    paginacion.style.display = 'none';
+                                                } else {
+                                                    // Si el buscador está vacío, aplicar paginación normal
+                                                    paginacion.style.display = '';
+                                                    mostrarPagina(1);
                                                 }
                                             }
 
-                                            buscador.addEventListener('input', filtrarTabla);
-                                            selectFilas.addEventListener('change', filtrarTabla);
+                                            function mostrarPagina(pagina) {
+                                                const filas = obtenerFilas();
+                                                const totalPaginas = Math.ceil(filas.length / filasPorPagina);
 
-                                            filtrarTabla(); // Inicializar
+                                                paginaActual = pagina;
+
+                                                filas.forEach((fila, i) => {
+                                                    fila.style.display = (i >= (pagina - 1) * filasPorPagina && i < pagina * filasPorPagina) ? "" : "none";
+                                                });
+
+                                                renderizarPaginacion(totalPaginas);
+                                            }
+
+                                            function renderizarPaginacion(totalPaginas) {
+                                                const paginacion = document.getElementById("paginacionUsuarios");
+                                                paginacion.innerHTML = "";
+
+                                                const crearBoton = (texto, disabled, clickHandler) => {
+                                                    const li = document.createElement("li");
+                                                    li.className = "page-item" + (disabled ? " disabled" : "");
+                                                    li.innerHTML = `<a class="page-link" href="#">${texto}</a>`;
+                                                    li.addEventListener("click", function (e) {
+                                                        e.preventDefault();
+                                                        if (!disabled) clickHandler();
+                                                    });
+                                                    return li;
+                                                };
+
+                                                paginacion.appendChild(crearBoton("Anterior", paginaActual === 1, () => mostrarPagina(paginaActual - 1)));
+
+                                                for (let i = 1; i <= totalPaginas; i++) {
+                                                    const active = i === paginaActual;
+                                                    const li = document.createElement("li");
+                                                    li.className = "page-item" + (active ? " active" : "");
+                                                    li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                                                    li.addEventListener("click", function (e) {
+                                                        e.preventDefault();
+                                                        mostrarPagina(i);
+                                                    });
+                                                    paginacion.appendChild(li);
+                                                }
+
+                                                paginacion.appendChild(crearBoton("Siguiente", paginaActual === totalPaginas, () => mostrarPagina(paginaActual + 1)));
+                                            }
+
+                                            // Eventos
+                                            buscador.addEventListener('input', filtrarTabla);
+                                            selectFilas.addEventListener('change', function () {
+                                                filasPorPagina = parseInt(this.value);
+                                                mostrarPagina(1);
+                                            });
+
+                                            // Inicializar
+                                            mostrarPagina(1);
                                         });
+
                                         </script>
 
                                         <?php
