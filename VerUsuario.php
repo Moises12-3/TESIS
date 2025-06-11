@@ -89,7 +89,8 @@ $id_usuario = $_SESSION["id"];
     <aside id="left-panel" class="left-panel">
         <nav class="navbar navbar-expand-sm navbar-default">
             <div id="main-menu" class="main-menu collapse navbar-collapse">
-                            <ul class="nav navbar-nav">
+            <ul class="nav navbar-nav">
+            <ul class="nav navbar-nav">
                 <li class="active">
                     <a href="index.php"><i class="menu-icon fa fa-home"></i>Inicio</a>
                 </li>
@@ -150,6 +151,7 @@ $id_usuario = $_SESSION["id"];
                     </ul>
                 </li>
             </ul>
+
             </div><!-- /.navbar-collapse -->
         </nav>
     </aside>
@@ -176,56 +178,55 @@ $id_usuario = $_SESSION["id"];
                                 </a>
 
                                 <script src>
-                                    // Comprueba el estado de pantalla completa al cargar la página
-                                    document.addEventListener('DOMContentLoaded', function () {
-                                        if (localStorage.getItem('fullscreen') === 'true') {
-                                            enableFullscreen();
-                                        }
-                                    });
-
-                                    // Función para activar el modo de pantalla completa
-                                    function toggleFullscreen() {
-                                        if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
-                                            enableFullscreen();
-                                        } else {
-                                            disableFullscreen();
-                                        }
+                                // Comprueba el estado de pantalla completa al cargar la página
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    if (localStorage.getItem('fullscreen') === 'true') {
+                                        enableFullscreen();
                                     }
+                                });
 
-                                    // Activar pantalla completa
-                                    function enableFullscreen() {
-                                        if (document.documentElement.requestFullscreen) {
-                                            document.documentElement.requestFullscreen();
-                                        } else if (document.documentElement.mozRequestFullScreen) {
-                                            document.documentElement.mozRequestFullScreen(); // Firefox
-                                        } else if (document.documentElement.webkitRequestFullscreen) {
-                                            document.documentElement.webkitRequestFullscreen(); // Chrome, Safari y Opera
-                                        } else if (document.documentElement.msRequestFullscreen) {
-                                            document.documentElement.msRequestFullscreen(); // IE/Edge
-                                        }
-                                        
-                                        // Guardamos en el localStorage que el modo pantalla completa está activado
-                                        localStorage.setItem('fullscreen', 'true');
+                                // Función para activar el modo de pantalla completa
+                                function toggleFullscreen() {
+                                    if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                                        enableFullscreen();
+                                    } else {
+                                        disableFullscreen();
                                     }
+                                }
 
-                                    // Desactivar pantalla completa
-                                    function disableFullscreen() {
-                                        if (document.exitFullscreen) {
-                                            document.exitFullscreen();
-                                        } else if (document.mozCancelFullScreen) {
-                                            document.mozCancelFullScreen(); // Firefox
-                                        } else if (document.webkitExitFullscreen) {
-                                            document.webkitExitFullscreen(); // Chrome, Safari y Opera
-                                        } else if (document.msExitFullscreen) {
-                                            document.msExitFullscreen(); // IE/Edge
-                                        }
-                                        
-                                        // Guardamos en el localStorage que el modo pantalla completa está desactivado
-                                        localStorage.setItem('fullscreen', 'false');
+                                // Activar pantalla completa
+                                function enableFullscreen() {
+                                    if (document.documentElement.requestFullscreen) {
+                                        document.documentElement.requestFullscreen();
+                                    } else if (document.documentElement.mozRequestFullScreen) {
+                                        document.documentElement.mozRequestFullScreen(); // Firefox
+                                    } else if (document.documentElement.webkitRequestFullscreen) {
+                                        document.documentElement.webkitRequestFullscreen(); // Chrome, Safari y Opera
+                                    } else if (document.documentElement.msRequestFullscreen) {
+                                        document.documentElement.msRequestFullscreen(); // IE/Edge
                                     }
+                                    
+                                    // Guardamos en el localStorage que el modo pantalla completa está activado
+                                    localStorage.setItem('fullscreen', 'true');
+                                }
 
-                                </script>  
-                            
+                                // Desactivar pantalla completa
+                                function disableFullscreen() {
+                                    if (document.exitFullscreen) {
+                                        document.exitFullscreen();
+                                    } else if (document.mozCancelFullScreen) {
+                                        document.mozCancelFullScreen(); // Firefox
+                                    } else if (document.webkitExitFullscreen) {
+                                        document.webkitExitFullscreen(); // Chrome, Safari y Opera
+                                    } else if (document.msExitFullscreen) {
+                                        document.msExitFullscreen(); // IE/Edge
+                                    }
+                                    
+                                    // Guardamos en el localStorage que el modo pantalla completa está desactivado
+                                    localStorage.setItem('fullscreen', 'false');
+                                }
+
+                                </script>                           
                         </div>
                     </div>
 
@@ -280,132 +281,190 @@ $id_usuario = $_SESSION["id"];
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="row">
-                                <div class="col-lg-10">
-                                   
-                                    
-                                <h1>Usuarios</h1>
+                                <div class="col-lg-8">
+                                    <div class="card-body">
+                                        
+                                        <h1>Usuarios</h1>
+
+                                        <!-- Contenedor con flexbox para alinear elementos horizontalmente -->
+                                        <div class="d-flex align-items-center">
+                                            <!-- Campo de búsqueda -->
+                                            <input type="text" id="buscador" class="form-control" placeholder="Buscar por código o nombre..." style="width: 300px;">
+                                         
+                                            <!-- Botón para exportar a Excel -->
+                                            <button id="exportarExcel" class="btn btn-success mt-3 ml-3">Exportar a Excel</button>
+                                        </div>
+                                            <div class="d-flex justify-content-end mb-3">
+                                                <label class="mr-2">Mostrar:</label>
+                                                <select id="selectFilas" class="form-control d-inline-block w-auto">
+                                                    <option value="5">5</option>
+                                                    <option value="10" selected>10</option>
+                                                    <option value="25">25</option>
+                                                    <option value="50">50</option>
+                                                </select>
+                                            </div>
+
+                                        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+                                        <script>
+                                        document.getElementById("exportarExcel").addEventListener("click", function () {
+                                            // Obtener la tabla HTML correcta
+                                            var tabla = document.getElementById("tablaUsuarios");
+
+                                            // Crear un libro de trabajo
+                                            var wb = XLSX.utils.table_to_book(tabla, { sheet: "Usuarios" });
+
+                                            // Exportar el libro de trabajo como archivo Excel
+                                            XLSX.writeFile(wb, "usuarios.xlsx");
+                                        });
+                                        </script>
+
                                         <br>
+                                        
+
+                                        <script>
+                                        document.addEventListener('DOMContentLoaded', function () {
+                                            const buscador = document.getElementById('buscador');
+                                            const tabla = document.getElementById('tablaUsuarios').getElementsByTagName('tbody')[0];
+                                            const selectFilas = document.getElementById('selectFilas');
+
+                                            function filtrarTabla() {
+                                                const texto = buscador.value.toLowerCase();
+                                                const filas = tabla.getElementsByTagName('tr');
+                                                let visibles = 0;
+                                                const maxFilas = parseInt(selectFilas.value);
+
+                                                for (let i = 0; i < filas.length; i++) {
+                                                    const celdas = filas[i].getElementsByTagName('td');
+                                                    const coincide = Array.from(celdas).some(td => td.textContent.toLowerCase().includes(texto));
+
+                                                    if (coincide && visibles < maxFilas) {
+                                                        filas[i].style.display = '';
+                                                        visibles++;
+                                                    } else {
+                                                        filas[i].style.display = 'none';
+                                                    }
+                                                }
+                                            }
+
+                                            buscador.addEventListener('input', filtrarTabla);
+                                            selectFilas.addEventListener('change', filtrarTabla);
+
+                                            filtrarTabla(); // Inicializar
+                                        });
+                                        </script>
 
                                         <?php
                                         require 'Conexion/conex.php'; // Incluir la conexión a la base de datos
 
                                         $sql = "SELECT id, usuario, nombre, telefono, direccion FROM usuarios"; // Consulta SQL
-$resultado = $conn->query($sql);
-?>
+                                        $resultado = $conn->query($sql);
+                                        ?>
+                                        
+                                        <table id="tablaUsuarios" class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Usuario</th>
+                                                    <th scope="col">Nombre</th>
+                                                    <th scope="col">Teléfono</th>
+                                                    <th scope="col">Dirección</th>
+                                                    <th scope="col">Editar</th>
+                                                    <th scope="col">Eliminar</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php
+                                                if ($resultado->num_rows > 0) {
+                                                    while ($fila = $resultado->fetch_assoc()) {
+                                                        echo "<tr>";
+                                                        echo "<td>" . htmlspecialchars($fila["usuario"]) . "</td>";
+                                                        echo "<td>" . htmlspecialchars($fila["nombre"]) . "</td>";
+                                                        echo "<td>" . htmlspecialchars($fila["telefono"]) . "</td>";
+                                                        echo "<td>" . htmlspecialchars($fila["direccion"]) . "</td>";
+                                                        echo "<td><a href='EditarUsuario.php?id=" . $fila["id"] . "' class='btn btn-primary'>Editar</a></td>";
+                                                        echo "<td><a href='Configuracion/eliminar_usuario.php?id=" . $fila["id"] . "' class='btn btn-danger' onclick='return confirm(\"¿Seguro que deseas eliminar este usuario?\");'>Eliminar</a></td>";
+                                                        echo "</tr>";
+                                                    }
+                                                } else {
+                                                    echo "<tr><td colspan='6'>No hay usuarios registrados.</td></tr>";
+                                                }
+                                                ?>
+                                            </tbody>
+                                        </table>
+                                        
 
-<div class="d-flex justify-content-end mb-3">
-    <label class="mr-2 mt-2">Mostrar:</label>
-    <select id="selectFilas" class="form-control w-auto">
-        <option value="5">5</option>
-        <option value="10" selected>10</option>
-        <option value="25">25</option>
-        <option value="50">50</option>
-    </select>
-</div>
+                                            
+                                        <!-- Contenedor de la paginación -->
+                                        <ul id="paginacionUsuarios" class="pagination justify-content-center"></ul>
 
-<table id="tablaUsuarios" class="table">
-    <thead>
-        <tr>
-            <th scope="col">Usuario</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">Teléfono</th>
-            <th scope="col">Dirección</th>
-            <th scope="col">Editar</th>
-            <th scope="col">Eliminar</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php
-        if ($resultado->num_rows > 0) {
-            while ($fila = $resultado->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($fila["usuario"]) . "</td>";
-                echo "<td>" . htmlspecialchars($fila["nombre"]) . "</td>";
-                echo "<td>" . htmlspecialchars($fila["telefono"]) . "</td>";
-                echo "<td>" . htmlspecialchars($fila["direccion"]) . "</td>";
-                echo "<td><a href='EditarUsuario.php?id=" . $fila["id"] . "' class='btn btn-primary'>Editar</a></td>";
-                echo "<td><a href='Configuracion/eliminar_usuario.php?id=" . $fila["id"] . "' class='btn btn-danger' onclick='return confirm(\"¿Seguro que deseas eliminar este usuario?\");'>Eliminar</a></td>";
-                echo "</tr>";
-            }
-        } else {
-            echo "<tr><td colspan='6'>No hay usuarios registrados.</td></tr>";
-        }
-        ?>
-    </tbody>
-</table>
+                                        <script>
+                                        // Configuración de paginación
+                                        let filasPorPagina = 10; // Valor inicial
+                                        let paginaActual = 1;
 
+                                        // Función para mostrar filas
+                                        function mostrarPagina(pagina) {
+                                            let filas = document.querySelectorAll("#tablaUsuarios tbody tr");
+                                            let totalPaginas = Math.ceil(filas.length / filasPorPagina);
 
-<!-- Contenedor de la paginación -->
-<ul id="paginacionUsuarios" class="pagination justify-content-center"></ul>
+                                            paginaActual = pagina;
 
-<script>
-// Configuración de paginación
-let filasPorPagina = 10; // Valor inicial
-let paginaActual = 1;
+                                            filas.forEach((fila, indice) => {
+                                                fila.style.display = (indice >= (pagina - 1) * filasPorPagina && indice < pagina * filasPorPagina) ? "" : "none";
+                                            });
 
-// Función para mostrar filas
-function mostrarPagina(pagina) {
-    let filas = document.querySelectorAll("#tablaUsuarios tbody tr");
-    let totalPaginas = Math.ceil(filas.length / filasPorPagina);
+                                            renderizarPaginacion(totalPaginas);
+                                        }
 
-    paginaActual = pagina;
+                                        // Función para crear botones de paginación
+                                        function renderizarPaginacion(totalPaginas) {
+                                            let paginacion = document.getElementById("paginacionUsuarios");
+                                            paginacion.innerHTML = "";
 
-    filas.forEach((fila, indice) => {
-        fila.style.display = (indice >= (pagina - 1) * filasPorPagina && indice < pagina * filasPorPagina) ? "" : "none";
-    });
+                                            // Botón anterior
+                                            let anterior = document.createElement("li");
+                                            anterior.className = "page-item" + (paginaActual === 1 ? " disabled" : "");
+                                            anterior.innerHTML = `<a class="page-link" href="#">Anterior</a>`;
+                                            anterior.addEventListener("click", function (e) {
+                                                e.preventDefault();
+                                                if (paginaActual > 1) mostrarPagina(paginaActual - 1);
+                                            });
+                                            paginacion.appendChild(anterior);
 
-    renderizarPaginacion(totalPaginas);
-}
+                                            // Botones de página
+                                            for (let i = 1; i <= totalPaginas; i++) {
+                                                let boton = document.createElement("li");
+                                                boton.className = "page-item" + (i === paginaActual ? " active" : "");
+                                                boton.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                                                boton.addEventListener("click", function (e) {
+                                                    e.preventDefault();
+                                                    mostrarPagina(i);
+                                                });
+                                                paginacion.appendChild(boton);
+                                            }
 
-// Función para crear botones de paginación
-function renderizarPaginacion(totalPaginas) {
-    let paginacion = document.getElementById("paginacionUsuarios");
-    paginacion.innerHTML = "";
+                                            // Botón siguiente
+                                            let siguiente = document.createElement("li");
+                                            siguiente.className = "page-item" + (paginaActual === totalPaginas ? " disabled" : "");
+                                            siguiente.innerHTML = `<a class="page-link" href="#">Siguiente</a>`;
+                                            siguiente.addEventListener("click", function (e) {
+                                                e.preventDefault();
+                                                if (paginaActual < totalPaginas) mostrarPagina(paginaActual + 1);
+                                            });
+                                            paginacion.appendChild(siguiente);
+                                        }
 
-    // Botón anterior
-    let anterior = document.createElement("li");
-    anterior.className = "page-item" + (paginaActual === 1 ? " disabled" : "");
-    anterior.innerHTML = `<a class="page-link" href="#">Anterior</a>`;
-    anterior.addEventListener("click", function (e) {
-        e.preventDefault();
-        if (paginaActual > 1) mostrarPagina(paginaActual - 1);
-    });
-    paginacion.appendChild(anterior);
+                                        // Actualizar número de filas por página cuando se cambia el select
+                                        document.getElementById("selectFilas").addEventListener("change", function() {
+                                            filasPorPagina = parseInt(this.value);
+                                            mostrarPagina(1); // Reiniciar a página 1
+                                        });
 
-    // Botones de página
-    for (let i = 1; i <= totalPaginas; i++) {
-        let boton = document.createElement("li");
-        boton.className = "page-item" + (i === paginaActual ? " active" : "");
-        boton.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-        boton.addEventListener("click", function (e) {
-            e.preventDefault();
-            mostrarPagina(i);
-        });
-        paginacion.appendChild(boton);
-    }
-
-    // Botón siguiente
-    let siguiente = document.createElement("li");
-    siguiente.className = "page-item" + (paginaActual === totalPaginas ? " disabled" : "");
-    siguiente.innerHTML = `<a class="page-link" href="#">Siguiente</a>`;
-    siguiente.addEventListener("click", function (e) {
-        e.preventDefault();
-        if (paginaActual < totalPaginas) mostrarPagina(paginaActual + 1);
-    });
-    paginacion.appendChild(siguiente);
-}
-
-// Actualizar número de filas por página cuando se cambia el select
-document.getElementById("selectFilas").addEventListener("change", function() {
-    filasPorPagina = parseInt(this.value);
-    mostrarPagina(1); // Reiniciar a página 1
-});
-
-// Inicializar al cargar
-document.addEventListener("DOMContentLoaded", function() {
-    mostrarPagina(1);
-});
-</script>
+                                        // Inicializar al cargar
+                                        document.addEventListener("DOMContentLoaded", function() {
+                                            mostrarPagina(1);
+                                        });
+                                        </script>
 
                                         <?php
                                         $conn->close();
@@ -428,7 +487,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                             };
                                         </script>
 
-
+                                    </div>
                                 </div>
                             </div> <!-- /.row -->
                             <div class="card-body"></div>
