@@ -22,14 +22,17 @@ if (isset($_FILES['fotoPerfil']) && $_FILES['fotoPerfil']['error'] == 0) {
         include '../Conexion/conex.php';
 
         // ID del usuario (por sesión, puedes ajustarlo si lo necesitas)
-        $idUsuario = $_SESSION['id_usuario'];
+        $idUsuario = $_SESSION['id'];
 
         // Consulta para actualizar la ruta de la imagen en la BD
         $stmt = $conn->prepare("UPDATE usuarios SET foto_perfil = ? WHERE id = ?");
         $stmt->bind_param("si", $rutaRelativa, $idUsuario);
 
         if ($stmt->execute()) {
-            echo "Imagen subida y ruta guardada correctamente.";
+            header("Location: ../MyProfile.php");
+            exit;
+
+            //echo '✅ Imagen subida correctamente. <a href="../MyProfile.php" target="_self" style="color: blue; text-decoration: underline;">Ir a mi perfil</a>';
         } else {
             echo "Error al guardar la ruta en la base de datos.";
         }

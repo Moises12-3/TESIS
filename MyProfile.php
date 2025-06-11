@@ -231,8 +231,33 @@ $id_usuario = $_SESSION["id"];
                     </div>
 
                     <div class="user-area dropdown float-right">
-                        <a href="#" class="dropdown-toggle active" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <img class="user-avatar rounded-circle" src="images/admin.jpg" alt="User Avatar">
+
+                        <?php
+                        require 'Conexion/conex.php'; // Conexión a la base de datos
+                        // session_start(); // Asegúrate de tener esto activado si usas sesiones
+
+                        $id_usuario = $_SESSION['id'] ?? null;
+
+                        $foto = 'images/favicon.png'; // Imagen por defecto
+
+                        if ($id_usuario) {
+                            $sql = "SELECT foto_perfil FROM usuarios WHERE id = ?";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bind_param("i", $id_usuario);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+
+                            if ($result && $row = $result->fetch_assoc()) {
+                                if (!empty($row['foto_perfil'])) {
+                                    $foto = $row['foto_perfil']; // Usar la ruta guardada en la base de datos
+                                }
+                            }
+                            $stmt->close();
+                        }
+                        ?>
+
+                        <a href="MyProfile.php" class="dropdown-toggle active" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img class="user-avatar rounded-circle" src="<?php echo htmlspecialchars($foto); ?>" alt="Foto de perfil">
                         </a>
 
                         <div class="user-menu dropdown-menu">
