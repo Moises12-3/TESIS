@@ -285,6 +285,39 @@ $id_usuario = $_SESSION["id"];
 
 
                                     <h1>Clientes</h1>
+                                    <div class="d-flex align-items-center">
+                                        
+                                        <input type="text" id="buscadorClientes" class="form-control" placeholder="Buscar cliente..." style="width: 300px;">
+                                        
+                                        <button class="btn btn-success mt-3 ml-3" onclick="exportarExcel()">Exportar a Excel</button>
+                                        
+                                    </div>
+
+                                     <script>
+                                    // Buscador en tiempo real
+                                    document.getElementById("buscadorClientes").addEventListener("keyup", function() {
+                                        var filtro = this.value.toLowerCase();
+                                        var filas = document.querySelectorAll("#tablaClientes tbody tr");
+
+                                        filas.forEach(function(fila) {
+                                            var textoFila = fila.textContent.toLowerCase();
+                                            fila.style.display = textoFila.includes(filtro) ? "" : "none";
+                                        });
+                                    });
+                                    </script>
+
+                                    <!-- SheetJS CDN -->
+                                    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+                                    <script>
+                                    // Función para exportar tabla a Excel
+                                    function exportarExcel() {
+                                        var tabla = document.getElementById('tablaClientes');
+                                        var wb = XLSX.utils.table_to_book(tabla, { sheet: "Clientes" });
+                                        XLSX.writeFile(wb, 'clientes.xlsx');
+                                    }
+                                    </script>
+                                    
                                     <?php
                                         require 'Conexion/conex.php'; // Incluir la conexión a la base de datos
 
@@ -307,7 +340,8 @@ $id_usuario = $_SESSION["id"];
 
                                     ?>
 
-                                    <table class="table">
+                                    <table class="table" id="tablaClientes">
+
                                         <thead>
                                             <tr>
                                                 <th scope="col">Nombre</th>
