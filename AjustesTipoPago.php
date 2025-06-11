@@ -135,7 +135,8 @@ $id_usuario = $_SESSION["id"];
                     </a>
                     <ul class="sub-menu children dropdown-menu">
                         <li><i class="menu-icon fa fa-map"></i><a href="VerReportes.php">Visualizar Reportes</a></li>                    
-                        <li><i class="menu-icon fa fa-file-invoice"></i><a href="ver_facturas.php">Ver facturas</a></li>
+                        <li><i class="menu-icon fa fa-file-invoice"></i><a href="ver_facturas.php">Ver facturas</a></li>                
+                        <li><i class="menu-icon fa fa-clock"></i><a href="verfechavencimiento.php">Ver Fecha Vencimiento</a></li>
                     </ul>
                 </li>
                 <li class="menu-item-has-children dropdown">
@@ -280,9 +281,173 @@ $id_usuario = $_SESSION["id"];
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
+                        <div class="card">
                             <div class="row">
                                 <div class="col-lg-8">
                                     <div class="card-body">
+
+
+                                    
+<?php
+require 'Conexion/conex.php';
+
+$mesActual = date('m');
+$anioActual = date('Y');
+
+// Contar productos que vencen este mes
+$sqlContador = "SELECT COUNT(*) AS total FROM productos 
+                WHERE MONTH(fecha_vencimiento) = $mesActual 
+                  AND YEAR(fecha_vencimiento) = $anioActual 
+                  AND fecha_vencimiento IS NOT NULL";
+$resContador = $conn->query($sqlContador);
+$total_vencimientos = 0;
+
+if ($resContador && $fila = $resContador->fetch_assoc()) {
+    $total_vencimientos = $fila['total'];
+}
+?>
+
+<?php if ($total_vencimientos > 0): ?>
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>Atención:</strong> Tienes <?= $total_vencimientos ?> producto(s) que vencen este mes.
+        <a href="#" class="alert-link" data-toggle="modal" data-target="#modalVencimientos">Ver detalles</a>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+<?php endif; ?>
+
+
+<!-- Modal de productos por vencer -->
+<div class="modal fade" id="modalVencimientos" tabindex="-1" role="dialog" aria-labelledby="tituloModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-white">
+        <h5 class="modal-title" id="tituloModal">Productos que vencen este mes</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <?php
+        $sql_modal = "SELECT codigo, nombre, fecha_vencimiento 
+                      FROM productos 
+                      WHERE MONTH(fecha_vencimiento) = $mesActual 
+                        AND YEAR(fecha_vencimiento) = $anioActual 
+                      ORDER BY fecha_vencimiento ASC";
+        $res_modal = $conn->query($sql_modal);
+        if ($res_modal && $res_modal->num_rows > 0): ?>
+            <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Fecha de Vencimiento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($fila = $res_modal->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($fila['codigo']) ?></td>
+                            <td><?= htmlspecialchars($fila['nombre']) ?></td>
+                            <td><?= htmlspecialchars($fila['fecha_vencimiento']) ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p>No hay productos que venzan este mes.</p>
+        <?php endif; ?>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Requiere jQuery y Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+
+
+
+<?php
+require 'Conexion/conex.php';
+
+$mesActual = date('m');
+$anioActual = date('Y');
+
+// Contar productos que vencen este mes
+$sqlContador = "SELECT COUNT(*) AS total FROM productos 
+                WHERE MONTH(fecha_vencimiento) = $mesActual 
+                  AND YEAR(fecha_vencimiento) = $anioActual 
+                  AND fecha_vencimiento IS NOT NULL";
+$resContador = $conn->query($sqlContador);
+$total_vencimientos = 0;
+
+if ($resContador && $fila = $resContador->fetch_assoc()) {
+    $total_vencimientos = $fila['total'];
+}
+?>
+
+
+
+<!-- Modal de productos por vencer -->
+<div class="modal fade" id="modalVencimientos" tabindex="-1" role="dialog" aria-labelledby="tituloModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-white">
+        <h5 class="modal-title" id="tituloModal">Productos que vencen este mes</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <?php
+        $sql_modal = "SELECT codigo, nombre, fecha_vencimiento 
+                      FROM productos 
+                      WHERE MONTH(fecha_vencimiento) = $mesActual 
+                        AND YEAR(fecha_vencimiento) = $anioActual 
+                      ORDER BY fecha_vencimiento ASC";
+        $res_modal = $conn->query($sql_modal);
+        if ($res_modal && $res_modal->num_rows > 0): ?>
+            <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Fecha de Vencimiento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($fila = $res_modal->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($fila['codigo']) ?></td>
+                            <td><?= htmlspecialchars($fila['nombre']) ?></td>
+                            <td><?= htmlspecialchars($fila['fecha_vencimiento']) ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p>No hay productos que venzan este mes.</p>
+        <?php endif; ?>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Requiere jQuery y Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
                                         
                                     <h1>Registrar Tipo de Pago</h1>
 

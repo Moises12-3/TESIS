@@ -135,7 +135,8 @@ $id_usuario = $_SESSION["id"];
                     </a>
                     <ul class="sub-menu children dropdown-menu">
                         <li><i class="menu-icon fa fa-map"></i><a href="VerReportes.php">Visualizar Reportes</a></li>                    
-                        <li><i class="menu-icon fa fa-file-invoice"></i><a href="ver_facturas.php">Ver facturas</a></li>
+                        <li><i class="menu-icon fa fa-file-invoice"></i><a href="ver_facturas.php">Ver facturas</a></li>                
+                        <li><i class="menu-icon fa fa-clock"></i><a href="verfechavencimiento.php">Ver Fecha Vencimiento</a></li>
                     </ul>
                 </li>
                 <li class="menu-item-has-children dropdown">

@@ -19,6 +19,7 @@ $id_usuario = $_SESSION["id"];
 <!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang=""> <!--<![endif]-->
 <head>
+    
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Ela Admin - HTML5 Admin Template</title>
@@ -135,7 +136,7 @@ $id_usuario = $_SESSION["id"];
                     </a>
                     <ul class="sub-menu children dropdown-menu">
                         <li><i class="menu-icon fa fa-map"></i><a href="VerReportes.php">Visualizar Reportes</a></li>                    
-                        <li><i class="menu-icon fa fa-file-invoice"></i><a href="ver_facturas.php">Ver facturas</a></li>                
+                        <li><i class="menu-icon fa fa-file-invoice"></i><a href="ver_facturas.php">Ver facturas</a></li>                         
                         <li><i class="menu-icon fa fa-clock"></i><a href="verfechavencimiento.php">Ver Fecha Vencimiento</a></li>
                     </ul>
                 </li>
@@ -173,68 +174,68 @@ $id_usuario = $_SESSION["id"];
                     <div class="header-left">
 
 
-                            
-                            <div class="dropdown for-message">
-                                <a class="nav-link" href="#" onclick="toggleFullscreen(event)">
-                                    <i class="fa fa-expand" id="fullscreenIcon"></i> Ver Pantalla completa
-                                </a>                   
-                            </div>
+                        <div class="dropdown for-message">
+                            <a class="nav-link" href="#" onclick="toggleFullscreen(event)">
+                                <i class="fa fa-expand" id="fullscreenIcon"></i> Ver Pantalla completa
+                            </a>                   
+                        </div>
 
-                            <script>
-                            function toggleFullscreen(event) {
-                                event.preventDefault();
+                        <script>
+                        function toggleFullscreen(event) {
+                            event.preventDefault();
 
-                                if (!document.fullscreenElement) {
-                                    document.documentElement.requestFullscreen()
-                                        .then(() => {
-                                            sessionStorage.setItem('fullscreenActive', 'true');
-                                            updateIcon(true);
-                                        })
-                                        .catch((err) => {
-                                            alert(`Error: ${err.message} (${err.name})`);
-                                        });
-                                } else {
-                                    document.exitFullscreen()
-                                        .then(() => {
-                                            sessionStorage.setItem('fullscreenActive', 'false');
-                                            updateIcon(false);
-                                        });
-                                }
+                            if (!document.fullscreenElement) {
+                                document.documentElement.requestFullscreen()
+                                    .then(() => {
+                                        sessionStorage.setItem('fullscreenActive', 'true');
+                                        updateIcon(true);
+                                    })
+                                    .catch((err) => {
+                                        alert(`Error: ${err.message} (${err.name})`);
+                                    });
+                            } else {
+                                document.exitFullscreen()
+                                    .then(() => {
+                                        sessionStorage.setItem('fullscreenActive', 'false');
+                                        updateIcon(false);
+                                    });
                             }
+                        }
 
-                            function updateIcon(isFullscreen) {
-                                const icon = document.getElementById('fullscreenIcon');
-                                if (isFullscreen) {
-                                    icon.classList.remove('fa-expand');
-                                    icon.classList.add('fa-compress');
-                                } else {
-                                    icon.classList.remove('fa-compress');
-                                    icon.classList.add('fa-expand');
-                                }
+                        function updateIcon(isFullscreen) {
+                            const icon = document.getElementById('fullscreenIcon');
+                            if (isFullscreen) {
+                                icon.classList.remove('fa-expand');
+                                icon.classList.add('fa-compress');
+                            } else {
+                                icon.classList.remove('fa-compress');
+                                icon.classList.add('fa-expand');
                             }
+                        }
 
-                            // Al cargar la página, verifica si el usuario quería pantalla completa
-                            document.addEventListener('DOMContentLoaded', () => {
-                                if (sessionStorage.getItem('fullscreenActive') === 'true') {
-                                    // Solo se puede activar tras interacción, así que muestra un mensaje o botón para que el usuario lo active
-                                    // Aquí solo actualizamos el icono para reflejar la intención
-                                    updateIcon(true);
-                                    // Opcional: mostrar mensaje para pedir que active pantalla completa manualmente
-                                    console.log("Recuerda activar pantalla completa con el botón si quieres continuar.");
-                                }
-                            });
+                        // Al cargar la página, verifica si el usuario quería pantalla completa
+                        document.addEventListener('DOMContentLoaded', () => {
+                            if (sessionStorage.getItem('fullscreenActive') === 'true') {
+                                // Solo se puede activar tras interacción, así que muestra un mensaje o botón para que el usuario lo active
+                                // Aquí solo actualizamos el icono para reflejar la intención
+                                updateIcon(true);
+                                // Opcional: mostrar mensaje para pedir que active pantalla completa manualmente
+                                console.log("Recuerda activar pantalla completa con el botón si quieres continuar.");
+                            }
+                        });
 
-                            // Detecta cambios en pantalla completa para actualizar el icono
-                            document.addEventListener('fullscreenchange', () => {
-                                updateIcon(!!document.fullscreenElement);
-                                if (!document.fullscreenElement) {
-                                    sessionStorage.setItem('fullscreenActive', 'false');
-                                }
-                            });
-                            </script>
+                        // Detecta cambios en pantalla completa para actualizar el icono
+                        document.addEventListener('fullscreenchange', () => {
+                            updateIcon(!!document.fullscreenElement);
+                            if (!document.fullscreenElement) {
+                                sessionStorage.setItem('fullscreenActive', 'false');
+                            }
+                        });
+                        </script>
 
 
                     </div>
+                    
 
                     <div class="user-area dropdown float-right">
 
@@ -453,59 +454,248 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 
-                                        <h1>Listado de Facturas</h1>
-                                        <?php
-// conexión a la base de datos
-include 'Conexion/conex.php';
 
 
-$sql = "SELECT 
-            v.id, 
-            v.fecha, 
-            v.total, 
-            v.numeroFactura, 
-            u.nombre AS usuario_nombre, 
-            c.nombre AS cliente_nombre
-        FROM ventas v
-        LEFT JOIN usuarios u ON v.idUsuario = u.id
-        LEFT JOIN clientes c ON v.idCliente = c.id
-        ORDER BY v.fecha DESC";
+                                    
+<?php
+require 'Conexion/conex.php';
 
-$result = $conn->query($sql);
+$mesActual = date('m');
+$anioActual = date('Y');
+
+// Contar productos que vencen este mes
+$sqlContador = "SELECT COUNT(*) AS total FROM productos 
+                WHERE MONTH(fecha_vencimiento) = $mesActual 
+                  AND YEAR(fecha_vencimiento) = $anioActual 
+                  AND fecha_vencimiento IS NOT NULL";
+$resContador = $conn->query($sqlContador);
+$total_vencimientos = 0;
+
+if ($resContador && $fila = $resContador->fetch_assoc()) {
+    $total_vencimientos = $fila['total'];
+}
 ?>
 
 
-<table class="table table-bordered table-hover table-striped">
-            <thead class="table-dark">
-                <tr>
-                    <th>#</th>
-                    <th>Fecha</th>
-                    <th>Número de Factura</th>
-                    <th>Total</th>
-                    <th>Usuario</th>
-                    <th>Cliente</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-            <?php if ($result->num_rows > 0): 
-                while($row = $result->fetch_assoc()): ?>
+
+<!-- Modal de productos por vencer -->
+<div class="modal fade" id="modalVencimientos" tabindex="-1" role="dialog" aria-labelledby="tituloModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-white">
+        <h5 class="modal-title" id="tituloModal">Productos que vencen este mes</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <?php
+        $sql_modal = "SELECT codigo, nombre, fecha_vencimiento 
+                      FROM productos 
+                      WHERE MONTH(fecha_vencimiento) = $mesActual 
+                        AND YEAR(fecha_vencimiento) = $anioActual 
+                      ORDER BY fecha_vencimiento ASC";
+        $res_modal = $conn->query($sql_modal);
+        if ($res_modal && $res_modal->num_rows > 0): ?>
+            <table class="table table-bordered">
+                <thead class="thead-dark">
                     <tr>
-                        <td><?= $row['id'] ?></td>
-                        <td><?= date("d-m-Y H:i", strtotime($row['fecha'])) ?></td>
-                        <td><?= htmlspecialchars($row['numeroFactura']) ?></td>
-                        <td>$<?= number_format($row['total'], 2) ?></td>
-                        <td><?= htmlspecialchars($row['usuario_nombre']) ?></td>
-                        <td><?= htmlspecialchars($row['cliente_nombre']) ?></td>
-                        <td>
-                            <a href="ver_detalle_factura.php?id=<?= $row['numeroFactura'] ?>" class="btn btn-sm btn-primary">Ver Detalle</a>
-                        </td>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Fecha de Vencimiento</th>
                     </tr>
-            <?php endwhile; else: ?>
-                <tr><td colspan="7" class="text-center">No hay facturas registradas.</td></tr>
-            <?php endif; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php while ($fila = $res_modal->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($fila['codigo']) ?></td>
+                            <td><?= htmlspecialchars($fila['nombre']) ?></td>
+                            <td><?= htmlspecialchars($fila['fecha_vencimiento']) ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p>No hay productos que venzan este mes.</p>
+        <?php endif; ?>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Requiere jQuery y Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+
+
+
+<?php
+require 'Conexion/conex.php';
+
+$mesActual = date('m');
+$anioActual = date('Y');
+
+// Contar productos que vencen este mes
+$sqlContador = "SELECT COUNT(*) AS total FROM productos 
+                WHERE MONTH(fecha_vencimiento) = $mesActual 
+                  AND YEAR(fecha_vencimiento) = $anioActual 
+                  AND fecha_vencimiento IS NOT NULL";
+$resContador = $conn->query($sqlContador);
+$total_vencimientos = 0;
+
+if ($resContador && $fila = $resContador->fetch_assoc()) {
+    $total_vencimientos = $fila['total'];
+}
+?>
+
+
+
+<!-- Modal de productos por vencer -->
+<div class="modal fade" id="modalVencimientos" tabindex="-1" role="dialog" aria-labelledby="tituloModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-white">
+        <h5 class="modal-title" id="tituloModal">Productos que vencen este mes</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <?php
+        $sql_modal = "SELECT codigo, nombre, fecha_vencimiento 
+                      FROM productos 
+                      WHERE MONTH(fecha_vencimiento) = $mesActual 
+                        AND YEAR(fecha_vencimiento) = $anioActual 
+                      ORDER BY fecha_vencimiento ASC";
+        $res_modal = $conn->query($sql_modal);
+        if ($res_modal && $res_modal->num_rows > 0): ?>
+            <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Fecha de Vencimiento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($fila = $res_modal->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($fila['codigo']) ?></td>
+                            <td><?= htmlspecialchars($fila['nombre']) ?></td>
+                            <td><?= htmlspecialchars($fila['fecha_vencimiento']) ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p>No hay productos que venzan este mes.</p>
+        <?php endif; ?>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Requiere jQuery y Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+<h2>Fechas de Vencimiento de Productos</h2>
+
+<!-- Filtro de texto -->
+<input type="text" id="filtroVencimiento" class="form-control" placeholder="Buscar por código, nombre o fecha..." style="width: 300px; margin-bottom: 15px;">
+
+<!-- Filtro por rango de fecha -->
+<div style="margin-bottom: 15px;">
+    <label>Fecha desde: <input type="date" id="fechaDesde"></label>
+    <label style="margin-left: 20px;">Fecha hasta: <input type="date" id="fechaHasta"></label>
+</div>
+
+<?php
+require 'Conexion/conex.php'; // Conexión a la base de datos
+
+$sql = "SELECT codigo, nombre, fecha_vencimiento FROM productos WHERE fecha_vencimiento IS NOT NULL ORDER BY fecha_vencimiento ASC";
+$resultado = $conn->query($sql);
+?>
+
+<table class="table table-bordered table-hover" id="tablaVencimientos">
+    <thead class="thead-dark">
+        <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Fecha de Vencimiento</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+        if ($resultado->num_rows > 0) {
+            while ($fila = $resultado->fetch_assoc()) {
+                echo "<tr>";
+                echo "<td>" . htmlspecialchars($fila["codigo"]) . "</td>";
+                echo "<td>" . htmlspecialchars($fila["nombre"]) . "</td>";
+                echo "<td>" . htmlspecialchars($fila["fecha_vencimiento"]) . "</td>";
+                echo "</tr>";
+            }
+        } else {
+            echo "<tr><td colspan='3'>No hay productos con fecha de vencimiento.</td></tr>";
+        }
+        ?>
+    </tbody>
+</table>
+
+<script>
+function filtrarTabla() {
+    const filtro = document.getElementById('filtroVencimiento').value.toLowerCase();
+    const fechaDesde = document.getElementById('fechaDesde').value;
+    const fechaHasta = document.getElementById('fechaHasta').value;
+
+    const filas = document.querySelectorAll('#tablaVencimientos tbody tr');
+
+    filas.forEach(fila => {
+        const codigo = fila.cells[0].textContent.toLowerCase();
+        const nombre = fila.cells[1].textContent.toLowerCase();
+        const fechaTexto = fila.cells[2].textContent;
+        const fecha = new Date(fechaTexto);
+
+        // Filtro de texto
+        const textoCoincide = codigo.includes(filtro) || nombre.includes(filtro) || fechaTexto.toLowerCase().includes(filtro);
+
+        // Filtro por rango de fecha
+        let fechaValida = true;
+        if (fechaDesde) {
+            fechaValida = fechaValida && (fecha >= new Date(fechaDesde));
+        }
+        if (fechaHasta) {
+            fechaValida = fechaValida && (fecha <= new Date(fechaHasta));
+        }
+
+        if (textoCoincide && fechaValida) {
+            fila.style.display = '';
+        } else {
+            fila.style.display = 'none';
+        }
+    });
+}
+
+// Eventos para aplicar filtro en tiempo real
+document.getElementById('filtroVencimiento').addEventListener('keyup', filtrarTabla);
+document.getElementById('fechaDesde').addEventListener('change', filtrarTabla);
+document.getElementById('fechaHasta').addEventListener('change', filtrarTabla);
+
+// Inicializar filtro al cargar la página
+document.addEventListener('DOMContentLoaded', filtrarTabla);
+</script>
+
+
+
 
                                     </div>
                                 </div>

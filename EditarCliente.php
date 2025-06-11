@@ -134,7 +134,8 @@ $id_usuario = $_SESSION["id"];
                     </a>
                     <ul class="sub-menu children dropdown-menu">
                         <li><i class="menu-icon fa fa-map"></i><a href="VerReportes.php">Visualizar Reportes</a></li>                    
-                        <li><i class="menu-icon fa fa-file-invoice"></i><a href="ver_facturas.php">Ver facturas</a></li>
+                        <li><i class="menu-icon fa fa-file-invoice"></i><a href="ver_facturas.php">Ver facturas</a></li>                
+                        <li><i class="menu-icon fa fa-clock"></i><a href="verfechavencimiento.php">Ver Fecha Vencimiento</a></li>
                     </ul>
                 </li>
                 <li class="menu-item-has-children dropdown">
@@ -171,62 +172,65 @@ $id_usuario = $_SESSION["id"];
 
 
                         <div class="dropdown for-message">
-                            <a class="nav-link" href="#" onclick="toggleFullscreen()">
-                                    <i class="fa fa-expand"></i>Ver Pantalla completa
-                                </a>
-
-                                <script src>
-                                // Comprueba el estado de pantalla completa al cargar la página
-                                document.addEventListener('DOMContentLoaded', function () {
-                                    if (localStorage.getItem('fullscreen') === 'true') {
-                                        enableFullscreen();
-                                    }
-                                });
-
-                                // Función para activar el modo de pantalla completa
-                                function toggleFullscreen() {
-                                    if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
-                                        enableFullscreen();
-                                    } else {
-                                        disableFullscreen();
-                                    }
-                                }
-
-                                // Activar pantalla completa
-                                function enableFullscreen() {
-                                    if (document.documentElement.requestFullscreen) {
-                                        document.documentElement.requestFullscreen();
-                                    } else if (document.documentElement.mozRequestFullScreen) {
-                                        document.documentElement.mozRequestFullScreen(); // Firefox
-                                    } else if (document.documentElement.webkitRequestFullscreen) {
-                                        document.documentElement.webkitRequestFullscreen(); // Chrome, Safari y Opera
-                                    } else if (document.documentElement.msRequestFullscreen) {
-                                        document.documentElement.msRequestFullscreen(); // IE/Edge
-                                    }
-                                    
-                                    // Guardamos en el localStorage que el modo pantalla completa está activado
-                                    localStorage.setItem('fullscreen', 'true');
-                                }
-
-                                // Desactivar pantalla completa
-                                function disableFullscreen() {
-                                    if (document.exitFullscreen) {
-                                        document.exitFullscreen();
-                                    } else if (document.mozCancelFullScreen) {
-                                        document.mozCancelFullScreen(); // Firefox
-                                    } else if (document.webkitExitFullscreen) {
-                                        document.webkitExitFullscreen(); // Chrome, Safari y Opera
-                                    } else if (document.msExitFullscreen) {
-                                        document.msExitFullscreen(); // IE/Edge
-                                    }
-                                    
-                                    // Guardamos en el localStorage que el modo pantalla completa está desactivado
-                                    localStorage.setItem('fullscreen', 'false');
-                                }
-
-                                </script>  
-                            
+                            <a class="nav-link" href="#" onclick="toggleFullscreen(event)">
+                                <i class="fa fa-expand" id="fullscreenIcon"></i> Ver Pantalla completa
+                            </a>                   
                         </div>
+
+                        <script>
+                        function toggleFullscreen(event) {
+                            event.preventDefault();
+
+                            if (!document.fullscreenElement) {
+                                document.documentElement.requestFullscreen()
+                                    .then(() => {
+                                        sessionStorage.setItem('fullscreenActive', 'true');
+                                        updateIcon(true);
+                                    })
+                                    .catch((err) => {
+                                        alert(`Error: ${err.message} (${err.name})`);
+                                    });
+                            } else {
+                                document.exitFullscreen()
+                                    .then(() => {
+                                        sessionStorage.setItem('fullscreenActive', 'false');
+                                        updateIcon(false);
+                                    });
+                            }
+                        }
+
+                        function updateIcon(isFullscreen) {
+                            const icon = document.getElementById('fullscreenIcon');
+                            if (isFullscreen) {
+                                icon.classList.remove('fa-expand');
+                                icon.classList.add('fa-compress');
+                            } else {
+                                icon.classList.remove('fa-compress');
+                                icon.classList.add('fa-expand');
+                            }
+                        }
+
+                        // Al cargar la página, verifica si el usuario quería pantalla completa
+                        document.addEventListener('DOMContentLoaded', () => {
+                            if (sessionStorage.getItem('fullscreenActive') === 'true') {
+                                // Solo se puede activar tras interacción, así que muestra un mensaje o botón para que el usuario lo active
+                                // Aquí solo actualizamos el icono para reflejar la intención
+                                updateIcon(true);
+                                // Opcional: mostrar mensaje para pedir que active pantalla completa manualmente
+                                console.log("Recuerda activar pantalla completa con el botón si quieres continuar.");
+                            }
+                        });
+
+                        // Detecta cambios en pantalla completa para actualizar el icono
+                        document.addEventListener('fullscreenchange', () => {
+                            updateIcon(!!document.fullscreenElement);
+                            if (!document.fullscreenElement) {
+                                sessionStorage.setItem('fullscreenActive', 'false');
+                            }
+                        });
+                        </script>
+
+
                     </div>
 
                     <div class="user-area dropdown float-right">
