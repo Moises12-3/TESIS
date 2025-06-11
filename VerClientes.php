@@ -292,6 +292,71 @@ $id_usuario = $_SESSION["id"];
                                         <button class="btn btn-success mt-3 ml-3" onclick="exportarExcel()">Exportar a Excel</button>
                                         
                                     </div>
+                                        
+                                    <!-- Filtro para seleccionar cuántos elementos mostrar -->
+                                    <div class="d-flex justify-content-end mb-3">
+                                        <label class="mr-2 mt-2">Mostrar:</label>
+                                        <select id="selectFilas" class="form-control w-auto">
+                                            <option value="5">5</option>
+                                            <option value="10" selected>10</option>
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const filas = Array.from(document.querySelectorAll("#tablaClientes tbody tr"));
+    const selectFilas = document.getElementById("selectFilas");
+    let filasPorPagina = parseInt(selectFilas.value);
+    let paginaActual = 1;
+
+    function mostrarPagina(pagina) {
+        const inicio = (pagina - 1) * filasPorPagina;
+        const fin = inicio + filasPorPagina;
+
+        filas.forEach((fila, index) => {
+            fila.style.display = index >= inicio && index < fin ? "" : "none";
+        });
+
+        document.getElementById("paginacionClientes").innerHTML = generarPaginacion(pagina);
+        paginaActual = pagina;
+    }
+
+    function generarPaginacion(pagina) {
+        const totalPaginas = Math.ceil(filas.length / filasPorPagina);
+        let html = '';
+
+        html += `<li class="page-item ${pagina === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="mostrarPagina(${pagina - 1}); return false;">Anterior</a>
+                 </li>`;
+
+        for (let i = 1; i <= totalPaginas; i++) {
+            html += `<li class="page-item ${pagina === i ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="mostrarPagina(${i}); return false;">${i}</a>
+                     </li>`;
+        }
+
+        html += `<li class="page-item ${pagina === totalPaginas ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="mostrarPagina(${pagina + 1}); return false;">Siguiente</a>
+                 </li>`;
+
+        return html;
+    }
+
+    // Cambiar cantidad de filas por página dinámicamente
+    selectFilas.addEventListener("change", function () {
+        filasPorPagina = parseInt(this.value);
+        mostrarPagina(1); // Reiniciar desde la página 1
+    });
+
+    // Hacer accesible la función desde otros scripts
+    window.mostrarPagina = mostrarPagina;
+
+    mostrarPagina(paginaActual); // Mostrar la primera página al cargar
+});
+</script>
+
 
                                      <script>
                                     // Buscador en tiempo real
@@ -329,7 +394,7 @@ $id_usuario = $_SESSION["id"];
                                         $inicio = ($página - 1) * $filasPorPagina;
 
                                         // Consulta para obtener los clientes con paginación
-                                        $sql = "SELECT id, nombre, cedula, telefono, direccion, descuento FROM clientes LIMIT $inicio, $filasPorPagina";
+                                        $sql = "SELECT id, nombre, cedula, telefono, direccion, descuento FROM clientes ";
                                         $resultado = $conn->query($sql);
 
                                         // Consulta para obtener el total de registros (sin paginación)
@@ -372,17 +437,7 @@ $id_usuario = $_SESSION["id"];
                                             }
                                             ?>
                                         </tbody>
-                                        
-<!-- Filtro para seleccionar cuántos elementos mostrar -->
-<div class="d-flex justify-content-end mb-3">
-    <label class="mr-2 mt-2">Mostrar:</label>
-    <select id="selectFilas" class="form-control w-auto">
-        <option value="5" <?= $filasPorPagina == 5 ? 'selected' : '' ?>>5</option>
-        <option value="10" <?= $filasPorPagina == 10 ? 'selected' : '' ?>>10</option>
-        <option value="25" <?= $filasPorPagina == 25 ? 'selected' : '' ?>>25</option>
-        <option value="50" <?= $filasPorPagina == 50 ? 'selected' : '' ?>>50</option>
-    </select>
-</div>
+
                                     </table>
 
 
@@ -396,27 +451,49 @@ $conn->close();
 $totalPaginas = ceil($totalClientes / $filasPorPagina);
 ?>
 
-<nav>
-    <ul class="pagination justify-content-center">
-        <li class="page-item <?= $página == 1 ? 'disabled' : '' ?>">
-            <a class="page-link" href="?pagina=<?= $página - 1 ?>&filas=<?= $filasPorPagina ?>">Anterior</a>
-        </li>
-        <?php for ($i = 1; $i <= $totalPaginas; $i++) : ?>
-            <li class="page-item <?= $i == $página ? 'active' : '' ?>">
-                <a class="page-link" href="?pagina=<?= $i ?>&filas=<?= $filasPorPagina ?>"><?= $i ?></a>
-            </li>
-        <?php endfor; ?>
-        <li class="page-item <?= $página == $totalPaginas ? 'disabled' : '' ?>">
-            <a class="page-link" href="?pagina=<?= $página + 1 ?>&filas=<?= $filasPorPagina ?>">Siguiente</a>
-        </li>
-    </ul>
-</nav>
 
 <script>
-// Actualizar el número de filas por página al cambiar la selección
-document.getElementById("selectFilas").addEventListener("change", function() {
-    var filas = this.value;
-    window.location.href = "?pagina=1&filas=" + filas; // Recargar la página con el nuevo número de filas
+// Mostrar solo X filas de la tabla sin recargar la página
+document.addEventListener("DOMContentLoaded", function () {
+    const filas = Array.from(document.querySelectorAll("#tablaClientes tbody tr"));
+    const filasPorPagina = 10;
+    let paginaActual = 1;
+
+    function mostrarPagina(pagina) {
+        const inicio = (pagina - 1) * filasPorPagina;
+        const fin = inicio + filasPorPagina;
+
+        filas.forEach((fila, index) => {
+            fila.style.display = index >= inicio && index < fin ? "" : "none";
+        });
+
+        document.getElementById("paginacionClientes").innerHTML = generarPaginacion(pagina);
+        paginaActual = pagina;
+    }
+
+    function generarPaginacion(pagina) {
+        const totalPaginas = Math.ceil(filas.length / filasPorPagina);
+        let html = '';
+
+        html += `<li class="page-item ${pagina === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="mostrarPagina(${pagina - 1}); return false;">Anterior</a>
+                 </li>`;
+
+        for (let i = 1; i <= totalPaginas; i++) {
+            html += `<li class="page-item ${pagina === i ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="mostrarPagina(${i}); return false;">${i}</a>
+                     </li>`;
+        }
+
+        html += `<li class="page-item ${pagina === totalPaginas ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="mostrarPagina(${pagina + 1}); return false;">Siguiente</a>
+                 </li>`;
+
+        return html;
+    }
+
+    window.mostrarPagina = mostrarPagina; // hacerla accesible desde los enlaces
+    mostrarPagina(1); // iniciar en la primera página
 });
 </script>
 
@@ -438,6 +515,10 @@ window.onload = function() {
     }
 };
 </script>
+<nav>
+    <ul id="paginacionClientes" class="pagination justify-content-center"></ul>
+</nav>
+
 
 
 
