@@ -261,7 +261,7 @@ $id_usuario = $_SESSION["id"];
 
 
                                         <?php
-session_start();
+//session_start();
 require_once "Conexion/conex.php";
 
 // Validar sesión
