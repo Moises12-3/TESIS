@@ -5,11 +5,19 @@ $data = json_decode(file_get_contents("php://input"), true);
 
 if (!empty($data)) {
     $fecha = date("Y-m-d H:i:s");
-    $total = array_sum(array_map(fn($p) => $p['precio'] * $p['cantidad'], $data['productos']));
     $idUsuario = 1;
     $idCliente = $data['clienteId'];
+    $descuento = isset($data['descuento']) ? floatval($data['descuento']) : 0.0;
+    error_log("Descuento recibido: $descuento");
 
-    // Validar que todas las cantidades sean válidas
+
+    // Calcular el total sin descuento
+    $subtotal = array_sum(array_map(fn($p) => $p['precio'] * $p['cantidad'], $data['productos']));
+
+    // Aplicar descuento al total
+    $totalConDescuento = $subtotal - ($subtotal * $descuento / 100);
+
+    // Validar existencias
     foreach ($data['productos'] as $producto) {
         $idProducto = $producto['id'];
         $cantidadVendida = $producto['cantidad'];
@@ -40,43 +48,38 @@ if (!empty($data)) {
         }
     }
 
-    // Generar número de factura único
+    // Generar número de factura
     $prefijo = "FAC";
     $fechaHoy = date("Ymd");
-
-    $stmt = $conn->prepare("SELECT numeroFactura FROM ventas WHERE numeroFactura LIKE ? ORDER BY numeroFactura DESC LIMIT 1");
     $likePattern = "$prefijo-$fechaHoy-%";
+    $stmt = $conn->prepare("SELECT numeroFactura FROM ventas WHERE numeroFactura LIKE ? ORDER BY numeroFactura DESC LIMIT 1");
     $stmt->bind_param("s", $likePattern);
     $stmt->execute();
     $result = $stmt->get_result();
-
     $ultimoNumero = 0;
     if ($fila = $result->fetch_assoc()) {
         $partes = explode("-", $fila['numeroFactura']);
         $ultimoNumero = (int)$partes[2];
     }
-
     $nuevoNumero = str_pad($ultimoNumero + 1, 4, "0", STR_PAD_LEFT);
     $numeroFactura = "$prefijo-$fechaHoy-$nuevoNumero";
 
-    // Insertar la venta con número de factura
-    $stmt = $conn->prepare("INSERT INTO ventas (fecha, total, idUsuario, idCliente, numeroFactura) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sdiis", $fecha, $total, $idUsuario, $idCliente, $numeroFactura);
+    // Insertar la venta
+    $stmt = $conn->prepare("INSERT INTO ventas (fecha, total, descuento, idUsuario, idCliente, numeroFactura) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sddiis", $fecha, $totalConDescuento, $descuento, $idUsuario, $idCliente, $numeroFactura);
     $stmt->execute();
     $idVenta = $stmt->insert_id;
 
-    // Insertar productos vendidos y actualizar existencias
+    // Insertar productos y actualizar existencias
     foreach ($data['productos'] as $producto) {
         $idProducto = $producto['id'];
         $cantidadVendida = $producto['cantidad'];
         $precio = $producto['precio'];
 
-        // Insertar en productos_ventas con el mismo número de factura
         $stmt = $conn->prepare("INSERT INTO productos_ventas (cantidad, precio, idProducto, idVenta, numeroFactura) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param("idiss", $cantidadVendida, $precio, $idProducto, $idVenta, $numeroFactura);
         $stmt->execute();
 
-        // Actualizar existencia
         $stmt = $conn->prepare("UPDATE productos SET existencia = existencia - ? WHERE id = ?");
         $stmt->bind_param("ii", $cantidadVendida, $idProducto);
         $stmt->execute();

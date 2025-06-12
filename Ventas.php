@@ -475,7 +475,12 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
     <strong>Descuento(%): </strong>
     <input type="text" id="descuentoCliente" class="form-control"><br>
 
+<script>
+    document.getElementById("descuentoCliente").addEventListener("input", function () {
+    actualizarTabla();
+});
 
+</script>
     <!-- El input hidden para enviar el ID -->
     <input type="hidden" id="inputClienteId" name="cliente_id">
 
@@ -551,29 +556,29 @@ function mostrarInfoCliente(clienteId) {
                 if (cliente) {
                     // Si el cliente es encontrado, mostramos su información
                     document.getElementById("clienteId").textContent = cliente.id;
-                    //document.getElementById("descuentoCliente").textContent = cliente.descuento + "%";
                     document.getElementById("descuentoCliente").value = cliente.descuento + "";
-
-
-                    // Actualizamos el input con el ID del cliente seleccionado
                     document.getElementById("inputClienteId").value = cliente.id;
-                } else {
-                    // Si no se encuentra el cliente, limpiamos el input
-                    document.getElementById("clienteId").textContent = "No encontrado";
-                    //document.getElementById("descuentoCliente").textContent = "N/A";
-                    document.getElementById("descuentoCliente").value = "N/A";
 
-                    document.getElementById("inputClienteId").value = ""; // Aseguramos que quede vacío
+                    // ✅ Volver a calcular tabla con el nuevo descuento
+                    actualizarTabla();
+
+                } else {
+                    document.getElementById("clienteId").textContent = "No encontrado";
+                    document.getElementById("descuentoCliente").value = "N/A";
+                    document.getElementById("inputClienteId").value = "";
+
+                    actualizarTabla(); // Por si se limpia también se actualiza
                 }
             } catch (e) {
                 console.error("Error al parsear JSON:", e);
-                // En caso de error, también vaciamos el input
                 document.getElementById("inputClienteId").value = "";
+                actualizarTabla(); // Por si ocurre un error, también se actualiza
             }
         }
     };
     xhr.send();
 }
+
 
 
 
@@ -645,44 +650,95 @@ document.getElementById("clienteSelect").addEventListener("change", function() {
 
         // Actualiza la tabla de productos seleccionados
         function actualizarTabla() {
-            let tabla = document.getElementById("productosSeleccionados");
-            tabla.innerHTML = "";
+    let tabla = document.getElementById("productosSeleccionados");
+    tabla.innerHTML = "";
 
-            let totalCantidad = 0;
-            let totalVenta = 0;
+    let totalCantidad = 0;
+    let subtotal = 0;
 
-            productosSeleccionados.forEach(producto => {
-                let subtotal = producto.precio * producto.cantidad;
-                totalCantidad += producto.cantidad;
-                totalVenta += subtotal;
+    productosSeleccionados.forEach(producto => {
+        let totalProducto = producto.precio * producto.cantidad;
+        totalCantidad += producto.cantidad;
+        subtotal += totalProducto;
 
-                let fila = document.createElement("tr");
-                fila.innerHTML = `
-                    <td>${producto.codigo}</td>
-                    <td>${producto.nombre}</td>
-                    <td>$${producto.precio.toFixed(2)}</td>
-                    <td>
-                        <input type="number" class="form-control form-control-sm" value="${producto.cantidad}" min="1"
-                            onchange="cambiarCantidad(${producto.id}, this.value)">
-                    </td>
-                    <td>$${subtotal.toFixed(2)}</td>
-                    <td><button class="btn btn-danger btn-sm" onclick="eliminarProducto(${producto.id})">X</button></td>
-                `;
-                tabla.appendChild(fila);
-            });
+        let fila = document.createElement("tr");
+        fila.innerHTML = `
+            <td>${producto.codigo}</td>
+            <td>${producto.nombre}</td>
+            <td>$${producto.precio.toFixed(2)}</td>
+            <td>
+                <input type="number" class="form-control form-control-sm" value="${producto.cantidad}" min="1"
+                    onchange="cambiarCantidad(${producto.id}, this.value)">
+            </td>
+            <td>$${totalProducto.toFixed(2)}</td>
+            <td><button class="btn btn-danger btn-sm" onclick="eliminarProducto(${producto.id})">X</button></td>
+        `;
+        tabla.appendChild(fila);
+    });
 
-            // Fila de totales
-            if (productosSeleccionados.length > 0) {
-                let filaTotales = document.createElement("tr");
-                filaTotales.innerHTML = `
-                    <td colspan="3"><strong>Totales</strong></td>
-                    <td><strong>${totalCantidad}</strong></td>
-                    <td><strong>$${totalVenta.toFixed(2)}</strong></td>
-                    <td></td>
-                `;
-                tabla.appendChild(filaTotales);
-            }
-        }
+    if (productosSeleccionados.length > 0) {
+        // Obtener el descuento (puede venir como texto, lo convertimos a número)
+        let descuentoPorcentaje = parseFloat(document.getElementById("descuentoCliente").value) || 0;
+
+        // Calcular descuento y total con descuento
+        let montoDescuento = (subtotal * descuentoPorcentaje) / 100;
+        let totalConDescuento = subtotal - montoDescuento;
+
+
+// Guardar valor previo del input si existe
+const montoClienteInput = document.getElementById("montoCliente");
+const montoClienteValor = montoClienteInput ? montoClienteInput.value : '';
+
+// Mostrar totales (regenerar tabla)
+tabla.innerHTML += `
+    <tr>
+        <td colspan="3"><strong>Subtotal</strong></td>
+        <td><strong>${totalCantidad}</strong></td>
+        <td><strong>$${subtotal.toFixed(2)}</strong></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td colspan="4"><strong>Descuento (${descuentoPorcentaje}%)</strong></td>
+        <td><strong>$${montoDescuento.toFixed(2)}</strong></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td colspan="4"><strong>Total con Descuento</strong></td>
+        <td><strong id="totalDescuento">$${totalConDescuento.toFixed(2)}</strong></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td colspan="4"><strong>Monto Pagado Cliente</strong></td>
+        <td colspan="2"><input type="number" id="montoCliente" oninput="calcularVuelto()" placeholder="Ingrese monto pagado" /></td>
+    </tr>
+    <tr>
+        <td colspan="4"><strong>Vuelto</strong></td>
+        <td colspan="2"><strong id="vueltoCliente">$0.00</strong></td>
+    </tr>
+`;
+
+// Restaurar el valor del input si existía
+document.getElementById("montoCliente").value = montoClienteValor;
+
+// Calcular vuelto con el valor restaurado
+calcularVuelto();
+
+
+    }
+}
+
+
+function calcularVuelto() {
+    const monto = parseFloat(document.getElementById("montoCliente").value) || 0;
+    const totalTexto = document.getElementById("totalDescuento").textContent.replace('$', '');
+    const total = parseFloat(totalTexto) || 0;
+
+    const vuelto = monto - total;
+    const vueltoFormateado = vuelto >= 0 ? `$${vuelto.toFixed(2)}` : `$0.00`;
+
+    document.getElementById("vueltoCliente").textContent = vueltoFormateado;
+}
+
 
 
         function cambiarCantidad(id, nuevaCantidad) {
@@ -743,7 +799,8 @@ document.getElementById("clienteSelect").addEventListener("change", function() {
         }
 
 
-        document.getElementById("btnRealizarVenta").addEventListener("click", function() {
+
+document.getElementById("btnRealizarVenta").addEventListener("click", function() {
     if (productosSeleccionados.length > 0) {
         // Obtener el ID del cliente
         const clienteId = document.getElementById("inputClienteId").value;
@@ -757,30 +814,31 @@ document.getElementById("clienteSelect").addEventListener("change", function() {
                     // Parsear la respuesta JSON
                     var respuesta = JSON.parse(xhr.responseText);
 
-                    // Verificar el estado de la respuesta
                     if (respuesta.status === "success") {
-                        // Mostrar mensaje de éxito
                         mostrarMensaje(respuesta.message, "success");
 
-                        // Limpiar la lista de productos seleccionados
+                        // Limpiar lista productos y tabla
                         productosSeleccionados = [];
-                        mostrarProductosSeleccionados();
-                        document.getElementById("productosTabla").innerHTML = ""; 
+                        actualizarTabla();
 
-                        // Limpiar el select de clientes y establecer la opción predeterminada
-                        const selectCliente = document.getElementById("selectCliente");
-                        selectCliente.value = ""; // Esto selecciona la opción predeterminada (vacía)
+                        // Limpiar select cliente
+                        const selectCliente = document.getElementById("clienteSeleccionado");
+                        selectCliente.value = ""; // Seleccionar opción predeterminada
+
+                        // Limpiar campos de info cliente
+                        document.getElementById("clienteId").textContent = "";
+                        document.getElementById("descuentoCliente").value = "";
+                        document.getElementById("inputClienteId").value = "";
+
                     } else if (respuesta.status === "error") {
-                        // Mostrar mensaje de error
                         mostrarMensaje(respuesta.message, "error");
                     }
                 }
             };
 
-            // Enviar los productos seleccionados y el clienteId
             const datosVenta = {
                 productos: productosSeleccionados,
-                clienteId: clienteId // Incluye el clienteId
+                clienteId: clienteId
             };
 
             xhr.send(JSON.stringify(datosVenta));

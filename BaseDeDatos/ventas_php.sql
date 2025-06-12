@@ -70,6 +70,8 @@ CREATE TABLE ventas(
     fecha DATETIME NOT NULL,
     total DECIMAL(9,2) NOT NULL,
     descuento DECIMAL(5,2) NOT NULL DEFAULT 0,
+    monto_devuelto DECIMAL(5,2) NOT NULL DEFAULT 0,
+    monto_pagado_cliente DECIMAL(5,2) NOT NULL DEFAULT 0,
     numeroFactura VARCHAR(20) UNIQUE,
     idUsuario BIGINT NOT NULL,
     idCliente BIGINT
