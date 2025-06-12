@@ -468,8 +468,13 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 
 <!-- Información del cliente seleccionado -->
 <div id="infoCliente" class="mt-3">
-    <strong>ID Cliente: </strong><span id="clienteId"></span><br>
-    <strong>Descuento: </strong><span id="descuentoCliente"></span><br>
+    <div class="blanco d-none">
+        <strong>ID Cliente: </strong><span id="clienteId"></span><br>
+    </div>
+    <!-- <strong>Descuento: </strong><span id="descuentoCliente"></span><br> -->
+    <strong>Descuento(%): </strong>
+    <input type="text" id="descuentoCliente" class="form-control"><br>
+
 
     <!-- El input hidden para enviar el ID -->
     <input type="hidden" id="inputClienteId" name="cliente_id">
@@ -546,14 +551,18 @@ function mostrarInfoCliente(clienteId) {
                 if (cliente) {
                     // Si el cliente es encontrado, mostramos su información
                     document.getElementById("clienteId").textContent = cliente.id;
-                    document.getElementById("descuentoCliente").textContent = cliente.descuento + "%";
+                    //document.getElementById("descuentoCliente").textContent = cliente.descuento + "%";
+                    document.getElementById("descuentoCliente").value = cliente.descuento + "";
+
 
                     // Actualizamos el input con el ID del cliente seleccionado
                     document.getElementById("inputClienteId").value = cliente.id;
                 } else {
                     // Si no se encuentra el cliente, limpiamos el input
                     document.getElementById("clienteId").textContent = "No encontrado";
-                    document.getElementById("descuentoCliente").textContent = "N/A";
+                    //document.getElementById("descuentoCliente").textContent = "N/A";
+                    document.getElementById("descuentoCliente").value = "N/A";
+
                     document.getElementById("inputClienteId").value = ""; // Aseguramos que quede vacío
                 }
             } catch (e) {
