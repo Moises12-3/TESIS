@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('America/Managua'); // Ajusta a tu zona horaria local
 require '../Conexion/conex.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
