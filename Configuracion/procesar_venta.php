@@ -8,6 +8,8 @@ if (!empty($data)) {
     $idUsuario = 1;
     $idCliente = $data['clienteId'];
     $descuento = isset($data['descuento']) ? floatval($data['descuento']) : 0.0;
+    $montoPagadoCliente = isset($data['monto_pagado_cliente']) ? floatval($data['monto_pagado_cliente']) : 0.0;
+    $montoDevuelto = isset($data['monto_devuelto']) ? floatval($data['monto_devuelto']) : 0.0;
     error_log("Descuento recibido: $descuento");
 
 
@@ -65,8 +67,8 @@ if (!empty($data)) {
     $numeroFactura = "$prefijo-$fechaHoy-$nuevoNumero";
 
     // Insertar la venta
-    $stmt = $conn->prepare("INSERT INTO ventas (fecha, total, descuento, idUsuario, idCliente, numeroFactura) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sddiis", $fecha, $totalConDescuento, $descuento, $idUsuario, $idCliente, $numeroFactura);
+    $stmt = $conn->prepare("INSERT INTO ventas (fecha, total, descuento, monto_devuelto, monto_pagado_cliente, idUsuario, idCliente, numeroFactura) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sddddiis", $fecha, $totalConDescuento, $descuento, $montoDevuelto, $montoPagadoCliente, $idUsuario, $idCliente, $numeroFactura);
     $stmt->execute();
     $idVenta = $stmt->insert_id;
 

@@ -802,35 +802,32 @@ function calcularVuelto() {
 
 document.getElementById("btnRealizarVenta").addEventListener("click", function() {
     if (productosSeleccionados.length > 0) {
-        // Obtener el ID del cliente
         const clienteId = document.getElementById("inputClienteId").value;
 
         if (clienteId) {
+            const montoPagado = parseFloat(document.getElementById("montoCliente").value) || 0;
+            const vuelto = parseFloat(document.getElementById("vueltoCliente").textContent.replace('$', '')) || 0;
+
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "Configuracion/procesar_venta.php", true);
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                    // Parsear la respuesta JSON
                     var respuesta = JSON.parse(xhr.responseText);
 
                     if (respuesta.status === "success") {
                         mostrarMensaje(respuesta.message, "success");
-
-                        // Limpiar lista productos y tabla
                         productosSeleccionados = [];
                         actualizarTabla();
 
-                        // Limpiar select cliente
-                        const selectCliente = document.getElementById("clienteSeleccionado");
-                        selectCliente.value = ""; // Seleccionar opción predeterminada
-
-                        // Limpiar campos de info cliente
+                        // Limpiar cliente
+                        document.getElementById("clienteSeleccionado").value = "";
                         document.getElementById("clienteId").textContent = "";
                         document.getElementById("descuentoCliente").value = "";
                         document.getElementById("inputClienteId").value = "";
-
-                    } else if (respuesta.status === "error") {
+                        document.getElementById("montoCliente").value = "";
+                        document.getElementById("vueltoCliente").textContent = "$0.00";
+                    } else {
                         mostrarMensaje(respuesta.message, "error");
                     }
                 }
@@ -838,7 +835,10 @@ document.getElementById("btnRealizarVenta").addEventListener("click", function()
 
             const datosVenta = {
                 productos: productosSeleccionados,
-                clienteId: clienteId
+                clienteId: clienteId,
+                descuento: parseFloat(document.getElementById("descuentoCliente").value) || 0,
+                monto_pagado_cliente: montoPagado,
+                monto_devuelto: vuelto
             };
 
             xhr.send(JSON.stringify(datosVenta));
