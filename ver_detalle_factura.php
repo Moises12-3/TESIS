@@ -446,194 +446,250 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 <!-- Requiere jQuery y Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="javascript/html2pdf.js"></script>
 
 
-                                        <?php
-// conexión a la base de datos
+<?php
 include 'Conexion/conex.php';
 
-
-
-// Obtener el número de factura desde la URL
 $numeroFactura = $_GET['id'];
 
-// Consultar los detalles de la factura
 $sql_factura = "SELECT 
-                    v.id, 
-                    v.fecha, 
-                    v.numeroFactura, 
-                    v.total, 
-                    u.nombre AS usuario_nombre, 
-                    u.telefono AS usuario_telefono,
-                    u.direccion AS usuario_direccion,
-                    u.email AS usuario_email,
-                    c.nombre AS cliente_nombre,
-                    c.direccion AS cliente_direccion,
-                    c.descuento AS cliente_descuento
-                FROM ventas v
-                LEFT JOIN usuarios u ON v.idUsuario = u.id
-                LEFT JOIN clientes c ON v.idCliente = c.id
-                WHERE v.numeroFactura = '$numeroFactura'";
+    v.id, 
+    v.fecha, 
+    v.numeroFactura, 
+    v.total, 
+    v.descuento AS venta_descuento,
+    v.monto_pagado_cliente,
+    v.monto_devuelto,
+    u.nombre AS usuario_nombre, 
+    u.telefono AS usuario_telefono,
+    u.direccion AS usuario_direccion,
+    u.email AS usuario_email,
+    c.nombre AS cliente_nombre,
+    c.direccion AS cliente_direccion,
+    c.telefono AS cliente_telefono
+    
+FROM ventas v
+LEFT JOIN usuarios u ON v.idUsuario = u.id
+LEFT JOIN clientes c ON v.idCliente = c.id
+WHERE v.numeroFactura = '$numeroFactura'";
 
 $result_factura = $conn->query($sql_factura);
 
 if ($result_factura->num_rows > 0) {
     $factura = $result_factura->fetch_assoc();
-    
-    // Consultar los productos de la factura
+
     $sql_productos = "SELECT 
-                        pv.cantidad, 
-                        pv.precio, 
-                        p.nombre AS producto_nombre
-                    FROM productos_ventas pv
-                    LEFT JOIN productos p ON pv.idProducto = p.id
-                    WHERE pv.numeroFactura = '$numeroFactura'";
+        pv.cantidad, 
+        pv.precio, 
+        p.codigo,
+        p.nombre AS producto_nombre
+    FROM productos_ventas pv
+    LEFT JOIN productos p ON pv.idProducto = p.id
+    WHERE pv.numeroFactura = '$numeroFactura'";
+    
     $result_productos = $conn->query($sql_productos);
 } else {
     die("Factura no encontrada.");
 }
 ?>
 
+
 <style>
-        .invoice-header {
-            background-color: #343a40;
-            color: white;
-            padding: 20px;
-        }
-        .invoice-body {
-            padding: 20px;
-        }
-        .table th, .table td {
-            text-align: center;
-        }
-        .invoice-details, .invoice-summary {
-            margin-top: 20px;
-        }
-        .btn-pdf {
-            background-color: #28a745;
-            color: white;
-            font-size: 16px;
-        }
-        .invoice-footer {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 14px;
-        }
-        .bordered {
-            border: 2px solid #343a40;
-            padding: 15px;
-            margin-top: 20px;
-        }
+    .factura {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        margin: 20px;
+    }
+    .separador {
+        border-top: 2px solid #000;
+        margin: 15px 0;
+    }
+    .factura h2 {
+        text-align: center;
+    }
+    .tabla-productos th, .tabla-productos td {
+        border: 1px solid #000;
+        padding: 5px;
+        text-align: center;
+    }
+    .tabla-productos {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 15px;
+    }
+</style>
 
-        .table-responsive {
-            overflow-x: auto;
-        }
-        .table {
-            width: 100%;
-            table-layout: fixed;  /* Asegura que la tabla se ajuste bien a la página */
-        }
+<div class="factura" id="factura-content">
+    <h2>Factura Electrónica N.º <?= $factura['numeroFactura'] ?></h2>
+    
+    <p><strong>Nombre del Cliente:</strong> <?= $factura['cliente_nombre'] ?></p>
+    <p><strong>Ident. Dimex:</strong> 1558</p>
 
-        .table th, .table td {
-            word-wrap: break-word;  /* Evita que las palabras largas desborden las celdas */
-            padding: 10px;
-        }
+    <div class="separador"></div>
 
+    <table style="width:100%;">
+        <tr>
+            <td><strong>Dirección:</strong> <?= $factura['cliente_direccion'] ?></td>
+            <td><strong>Clave Numérica:</strong> 1558</td>
+        </tr>
+        <tr>
+            <td><strong>Fecha de Emisión:</strong> <?= date("d-m-Y H:i", strtotime($factura['fecha'])) ?></td>
+            <td><strong>Teléfono:</strong> <?= $factura['cliente_telefono'] ?></td>
+        </tr>
+        <tr>
+            <td><strong>Condición de venta:</strong> Contado</td>
+            <td><strong>Correo:</strong> prueba@gmail.com</td>
+        </tr>
+        <tr>
+            <td colspan="2"><strong>Medio de pago:</strong> Efectivo</td>
+        </tr>
+    </table>
+
+    <div class="separador"></div>
+
+    <style>
+        .info-receptor {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* dos columnas iguales */
+            gap: 10px 40px; /* espacio entre filas y columnas */
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .info-receptor .full-row {
+            grid-column: 1 / -1; /* que ocupe toda la fila */
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .info-receptor p {
+            margin: 4px 0;
+        }
     </style>
 
-<div id="factura-content">
-    <div class="invoice-header text-center">
-        <h2>Factura #<?= htmlspecialchars($factura['numeroFactura']) ?></h2>
-        <p><?= date("d-m-Y H:i", strtotime($factura['fecha'])) ?></p>
+    <div class="info-receptor">
+    <p class="full-row"><strong>Receptor:</strong> VERDULERIA Y FRUTAS - CAMPO FERTIL</p>
+    <p><strong>Ident. Jurídica:</strong> [Especificar]</p>
+    <p><strong>Código Interno:</strong> 1</p>
+    <p><strong>Teléfono:</strong> (+506)6244-9726</p>
+    <p><strong>Correo:</strong> CampoFertil@gmail.com</p>
+    <p><strong>Destinatario:</strong> Asef G 1 y 2</p>
+    <p><strong>Dirección:</strong> campo fertil</p>
     </div>
 
-    <div class="invoice-body">
-        <!-- Información de Usuario y Cliente -->
-        <div class="row">
-            <div class="col-md-6">
-                <h5><strong>Vendedor</strong></h5>
-                <p><strong>Nombre:</strong> <?= htmlspecialchars($factura['usuario_nombre']) ?></p>
-                <p><strong>Teléfono:</strong> <?= htmlspecialchars($factura['usuario_telefono']) ?></p>
-                <p><strong>Dirección:</strong> <?= htmlspecialchars($factura['usuario_direccion']) ?></p>
-                <p><strong>Email:</strong> <?= htmlspecialchars($factura['usuario_email']) ?></p>
-            </div>
-            <div class="col-md-6">
-                <h5><strong>Cliente</strong></h5>
-                <p><strong>Nombre:</strong> <?= htmlspecialchars($factura['cliente_nombre']) ?></p>
-                <p><strong>Dirección:</strong> <?= htmlspecialchars($factura['cliente_direccion']) ?></p>
-                <p><strong>Descuento:</strong> <?= number_format($factura['cliente_descuento'], 2) ?>%</p>
-            </div>
-        </div>
+    <div class="separador"></div>
 
-        <!-- Detalles de los Productos -->
-        <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-            <thead class="table-dark">
-                <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio Unitario</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if ($result_productos->num_rows > 0): 
-                    while($row_producto = $result_productos->fetch_assoc()): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($row_producto['producto_nombre']) ?></td>
-                            <td><?= $row_producto['cantidad'] ?></td>
-                            <td>$<?= number_format($row_producto['precio'], 2) ?></td>
-                            <td>$<?= number_format($row_producto['cantidad'] * $row_producto['precio'], 2) ?></td>
-                        </tr>
-                <?php endwhile; else: ?>
-                    <tr><td colspan="4" class="text-center">No hay productos registrados para esta factura.</td></tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+    <!-- TABLA DE PRODUCTOS -->
+    <table class="tabla-productos">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Cantidad</th>
+                <th>Descripción</th>
+                <th>Precio Unitario</th>
+                <th>Descuento</th>
+                <th>Subtotal</th>
+                <th>IVA</th>
+                <th>Otros Imp.</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            if ($result_productos->num_rows > 0) {
+                while ($prod = $result_productos->fetch_assoc()) {
+                    $subtotal = $prod['cantidad'] * $prod['precio'];
+                    $descuento = $factura['venta_descuento'];
+                    echo "<tr>
+                        <td>{$prod['codigo']}</td>
+                        <td>{$prod['cantidad']}</td>
+                        <td>{$prod['producto_nombre']}</td>
+                        <td>$" . number_format($prod['precio'], 2) . "</td>
+                        <td>{$descuento}%</td>
+                        <td>$" . number_format($subtotal, 2) . "</td>
+                        <td>0</td>
+                        <td>0</td>
+                    </tr>";
+                }
+            } else {
+                echo "<tr><td colspan='8'>No hay productos</td></tr>";
+            }
+            ?>
+        </tbody>
+    </table>
 
+    <div class="separador"></div>
 
-        </div>
-
-        <!-- Resumen -->
-        <div class="invoice-summary bordered">
-            <h4><strong>Total:</strong> $<?= number_format($factura['total'], 2) ?></h4>
-        </div>
-
-        <!-- Botón para Descargar PDF -->
-        <div class="text-center mt-4">
-            <button class="btn btn-pdf btn-lg" onclick="descargarFactura()">Descargar PDF</button>
-        </div>
-    </div>
-
-        <div class="invoice-footer">
-            <p>Gracias por su compra. ¡Esperamos verlo pronto!</p>
-        </div>
-
-    <!-- TODO el contenido de la factura aquí, incluyendo cabecera, tabla y pie -->
+    <!-- RESUMEN -->
+    <table style="width: 100%; margin-top: 15px;">
+        <tr>
+            <td><strong>Subtotal Neto:</strong></td>
+            <td>$<?= number_format($factura['total'], 2) ?></td>
+        </tr>
+        <tr>
+            <td><strong>Descuento:</strong></td>
+            <td><?= number_format($factura['venta_descuento'], 2) ?>%</td>
+        </tr>
+        <tr>
+            <td><strong>Monto devuelto:</strong></td>
+            <td>$<?= number_format($factura['monto_devuelto'], 2) ?></td>
+        </tr>
+        <tr>
+            <td><strong>Monto pagado cliente:</strong></td>
+            <td>$<?= number_format($factura['monto_pagado_cliente'], 2) ?></td>
+        </tr>
+        <tr>
+            <td><strong>Total Factura:</strong></td>
+            <td><strong>$<?= number_format($factura['total'], 2) ?></strong></td>
+        </tr>
+    </table>
 </div>
 
-    <script>
+
+<style>
+    .btn-pdf {
+        background-color: #28a745;
+        color: white;
+        font-size: 16px;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+    }
+</style>
+
+        <!-- Botón para Descargar PDF -->
+<div class="text-center mt-4">
+    <button class="btn btn-pdf btn-lg" onclick="descargarFactura()">Descargar PDF</button>
+</div>
+
+<script>
 function descargarFactura() {
     const elemento = document.getElementById('factura-content');
-    setTimeout(function() {
-        const opciones = {
-            margin:       0.5,
-            filename:     'Factura_<?= $factura['numeroFactura'] ?>.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 3 },
-            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-        };
 
-        html2pdf().from(elemento).set(opciones).save();
-    }, 1000);  // Retraso de 1 segundo
+    const opciones = {
+        margin: [0.3, 0.3, 0.3, 0.3], // top, left, bottom, right (en pulgadas)
+        filename: 'Factura_<?= $factura['numeroFactura'] ?>.pdf',
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: {
+            scale: 2,
+            useCORS: true,
+            scrollY: 0
+        },
+        jsPDF: {
+            unit: 'in',
+            format: 'letter',
+            orientation: 'portrait'
+        }
+    };
+
+    html2pdf().set(opciones).from(elemento).save();
 }
-
-
-
-
-
-
-
 </script>
+
+
+
+
+
 
 
     <div class="mt-4">
