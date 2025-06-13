@@ -89,7 +89,8 @@ if (!empty($data)) {
 
     echo json_encode([
         "status" => "success",
-        "message" => "Venta realizada con éxito. N° Factura: <strong>$numeroFactura</strong>"
+        "message" => "Venta realizada con éxito. N° Factura: <strong>$numeroFactura</strong>. <a href='ver_detalle_factura.php?id=$numeroFactura' target='_blank'>Ver detalles</a>",
+        "numeroFactura" => $numeroFactura
     ]);
 } else {
     echo json_encode([

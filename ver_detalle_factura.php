@@ -694,6 +694,7 @@ function descargarFactura() {
 
     <div class="mt-4">
         <a href="ver_facturas.php" class="btn btn-secondary">Volver al Listado</a>
+        <a href="Ventas.php" class="btn btn-warning">Volver a Ventas</a>
     </div>
 
                                     </div>
