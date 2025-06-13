@@ -660,7 +660,18 @@ if ($result_factura->num_rows > 0) {
         <!-- Botón para Descargar PDF -->
 <div class="text-center mt-4">
     <button class="btn btn-pdf btn-lg" onclick="descargarFactura()">Descargar PDF</button>
+    <button class="btn btn-imprimir btn-lg" onclick="imprimirFactura()">Imprimir</button>
 </div>
+<style>
+    .btn-imprimir {
+        background-color: #007bff; /* Azul */
+        color: white;
+        font-size: 16px;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+    }
+</style>
 
 <script>
 function descargarFactura() {
@@ -683,6 +694,32 @@ function descargarFactura() {
     };
 
     html2pdf().set(opciones).from(elemento).save();
+}
+
+function imprimirFactura() {
+    const contenido = document.getElementById('factura-content').innerHTML;
+    const ventana = window.open('', '_blank');
+    ventana.document.write(`
+        <html>
+        <head>
+            <title>Factura <?= $factura['numeroFactura'] ?></title>
+            <style>
+                body { font-family: Arial, sans-serif; font-size: 14px; }
+                .tabla-productos { border-collapse: collapse; width: 100%; }
+                .tabla-productos th, .tabla-productos td {
+                    border: 1px solid #000;
+                    padding: 5px;
+                    text-align: center;
+                }
+                .separador { border-top: 2px solid #000; margin: 15px 0; }
+            </style>
+        </head>
+        <body onload="window.print(); setTimeout(() => window.close(), 100);">
+            ${contenido}
+        </body>
+        </html>
+    `);
+    ventana.document.close();
 }
 </script>
 
