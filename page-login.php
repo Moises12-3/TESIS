@@ -6,7 +6,7 @@ if (isset($_SESSION["usuario"])) {
 }
 ?>
 
-<!doctype.php>
+<!doctype html>
 <!--[if lt IE 7]>      .php class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
 <!--[if IE 7]>         .php class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
 <!--[if IE 8]>         .php class="no-js lt-ie9" lang=""> <![endif]-->
@@ -115,4 +115,4 @@ if (isset($_SESSION["usuario"])) {
     <script src="assets/js/main.js"></script>
 
 </body>
-<.php>
+</html>
