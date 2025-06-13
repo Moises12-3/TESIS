@@ -453,11 +453,9 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 
-                                        <h1>Listado de Facturas</h1>
-                                        <?php
-// conexión a la base de datos
+<h1>Listado de Facturas</h1>
+<?php
 include 'Conexion/conex.php';
-
 
 $sql = "SELECT 
             v.id, 
@@ -474,38 +472,114 @@ $sql = "SELECT
 $result = $conn->query($sql);
 ?>
 
+<div class="d-flex justify-content-end mb-3">
+    <label class="mr-2 mt-2">Mostrar:</label>
+    <select id="selectFilas" class="form-control w-auto">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="25">25</option>
+        <option value="50">50</option>
+    </select>
+</div>
 
-<table class="table table-bordered table-hover table-striped">
-            <thead class="table-dark">
+<div class="paginacion">
+    <table class="table table-bordered table-hover table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Fecha</th>
+                <th>Número de Factura</th>
+                <th>Total</th>
+                <th>Usuario</th>
+                <th>Cliente</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tablaFacturas">
+        <?php if ($result->num_rows > 0): 
+            while($row = $result->fetch_assoc()): ?>
                 <tr>
-                    <th>#</th>
-                    <th>Fecha</th>
-                    <th>Número de Factura</th>
-                    <th>Total</th>
-                    <th>Usuario</th>
-                    <th>Cliente</th>
-                    <th>Acciones</th>
+                    <td><?= $row['id'] ?></td>
+                    <td><?= date("d-m-Y H:i", strtotime($row['fecha'])) ?></td>
+                    <td><?= htmlspecialchars($row['numeroFactura']) ?></td>
+                    <td>$<?= number_format($row['total'], 2) ?></td>
+                    <td><?= htmlspecialchars($row['usuario_nombre']) ?></td>
+                    <td><?= htmlspecialchars($row['cliente_nombre']) ?></td>
+                    <td>
+                        <a href="ver_detalle_factura.php?id=<?= $row['numeroFactura'] ?>" class="btn btn-sm btn-primary">Ver Detalle</a>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-            <?php if ($result->num_rows > 0): 
-                while($row = $result->fetch_assoc()): ?>
-                    <tr>
-                        <td><?= $row['id'] ?></td>
-                        <td><?= date("d-m-Y H:i", strtotime($row['fecha'])) ?></td>
-                        <td><?= htmlspecialchars($row['numeroFactura']) ?></td>
-                        <td>$<?= number_format($row['total'], 2) ?></td>
-                        <td><?= htmlspecialchars($row['usuario_nombre']) ?></td>
-                        <td><?= htmlspecialchars($row['cliente_nombre']) ?></td>
-                        <td>
-                            <a href="ver_detalle_factura.php?id=<?= $row['numeroFactura'] ?>" class="btn btn-sm btn-primary">Ver Detalle</a>
-                        </td>
-                    </tr>
-            <?php endwhile; else: ?>
-                <tr><td colspan="7" class="text-center">No hay facturas registradas.</td></tr>
-            <?php endif; ?>
-            </tbody>
-        </table>
+        <?php endwhile; else: ?>
+            <tr><td colspan="7" class="text-center">No hay facturas registradas.</td></tr>
+        <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
+<!-- 👇 Aquí debe ir la paginación, fuera de la tabla -->
+<div id="paginacionBotones" class="d-flex justify-content-center mt-3"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const selectFilas = document.getElementById("selectFilas");
+    const tabla = document.getElementById("tablaFacturas");
+    const filas = Array.from(tabla.getElementsByTagName("tr"));
+    const contenedorPaginacion = document.getElementById("paginacionBotones");
+
+    let paginaActual = 1;
+    let filasPorPagina = parseInt(selectFilas.value);
+
+    function mostrarPagina(pagina) {
+        const totalPaginas = Math.ceil(filas.length / filasPorPagina);
+        if (pagina < 1) pagina = 1;
+        if (pagina > totalPaginas) pagina = totalPaginas;
+        paginaActual = pagina;
+
+        filas.forEach((fila, index) => {
+            fila.style.display = (index >= (pagina - 1) * filasPorPagina && index < pagina * filasPorPagina) ? "" : "none";
+        });
+
+        generarBotonesPaginacion(totalPaginas);
+    }
+
+    function generarBotonesPaginacion(totalPaginas) {
+        contenedorPaginacion.innerHTML = "";
+
+        const btnAnterior = document.createElement("button");
+        btnAnterior.textContent = "Anterior";
+        btnAnterior.className = "btn btn-secondary mx-1";
+        btnAnterior.disabled = paginaActual === 1;
+        btnAnterior.onclick = () => mostrarPagina(paginaActual - 1);
+        contenedorPaginacion.appendChild(btnAnterior);
+
+        for (let i = 1; i <= totalPaginas; i++) {
+            const btn = document.createElement("button");
+            btn.textContent = i;
+            btn.className = "btn " + (i === paginaActual ? "btn-primary" : "btn-outline-primary") + " mx-1";
+            btn.onclick = () => mostrarPagina(i);
+            contenedorPaginacion.appendChild(btn);
+        }
+
+        const btnSiguiente = document.createElement("button");
+        btnSiguiente.textContent = "Siguiente";
+        btnSiguiente.className = "btn btn-secondary mx-1";
+        btnSiguiente.disabled = paginaActual === totalPaginas;
+        btnSiguiente.onclick = () => mostrarPagina(paginaActual + 1);
+        contenedorPaginacion.appendChild(btnSiguiente);
+    }
+
+    selectFilas.addEventListener("change", function () {
+        filasPorPagina = parseInt(this.value);
+        mostrarPagina(1);
+    });
+
+    mostrarPagina(1);
+});
+</script>
+
+
+
+
 
                                     </div>
                                 </div>
