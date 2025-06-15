@@ -1,4 +1,6 @@
 
+USE ventas_php;
+
     INSERT INTO Moneda (nombre, simbolo, tipo, pais, estado, valor) VALUES
     ('Dólar Estadounidense', 'USD', 'extranjera', 'Estados Unidos', 'activo', 1.00),
     ('Peso Mexicano', 'MXN', 'nacional', 'México', 'activo', 18.00),

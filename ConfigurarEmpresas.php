@@ -286,69 +286,151 @@ $id_usuario = $_SESSION["id"];
                                     <div class="card-body">
 
 
-                                        <?php
-include("Conexion/conex.php");
+<?php
+$mensaje_foto = "";
 
-$mensaje = "";
+if (isset($_POST['subir_logo'])) {
+    // Validar que exista al menos una empresa
+    $resultado = $conn->query("SELECT id, nombre FROM empresa ORDER BY id DESC LIMIT 1");
+    if ($resultado && $resultado->num_rows > 0) {
+        $empresa = $resultado->fetch_assoc();
+        $id_empresa = $empresa['id'];
+        $nombre_empresa = preg_replace('/[^a-zA-Z0-9]/', '_', $empresa['nombre']); // Limpia el nombre
 
-function generarCodigoUnico($longitud = 6) {
-    return "EMP-" . strtoupper(substr(md5(uniqid(rand(), true)), 0, $longitud));
-}
+        if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
+            $archivo = $_FILES['logo'];
+            $tiposPermitidos = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nombre = $_POST['nombre'];
-    $direccion = $_POST['direccion'];
-    $correo = $_POST['correo'];
-    $telefono = $_POST['telefono'];
-    $fax = $_POST['fax'];
-    $identidad_juridica = $_POST['identidad_juridica'];
+            if (in_array($archivo['type'], $tiposPermitidos)) {
+                $carpetaDestino = __DIR__ . '/images/logo_empresa/';
+                if (!is_dir($carpetaDestino)) {
+                    mkdir($carpetaDestino, 0755, true);
+                }
 
-    // Datos del usuario administrador
-    $admin_usuario = $_POST['admin_usuario'];
-    $admin_correo = $_POST['admin_correo'];
-    $admin_contrasena = password_hash($_POST['admin_contrasena'], PASSWORD_BCRYPT);
+                $extension = pathinfo($archivo['name'], PATHINFO_EXTENSION);
+                // Nombre único para evitar sobrescritura
+                $nombreArchivo = $nombre_empresa . '_' . uniqid() . '.' . $extension;
+                $rutaDestino = $carpetaDestino . $nombreArchivo;
+                $rutaRelativa = 'images/logo_empresa/' . $nombreArchivo;
 
-    // Generar código interno único
-    do {
-        $codigo_interno = generarCodigoUnico();
-        $check = $conn->prepare("SELECT COUNT(*) FROM empresa WHERE codigo_interno = ?");
-        $check->bind_param("s", $codigo_interno);
-        $check->execute();
-        $check->bind_result($existe);
-        $check->fetch();
-        $check->close();
-    } while ($existe > 0);
-
-    // Insertar empresa
-    $stmt = $conn->prepare("INSERT INTO empresa (nombre, direccion, correo, telefono, fax, codigo_interno, identidad_juridica) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssssss", $nombre, $direccion, $correo, $telefono, $fax, $codigo_interno, $identidad_juridica);
-
-    if ($stmt->execute()) {
-        $stmt->close();
-
-        // Insertar usuario administrador usando el codigo_interno
-        $stmt_user = $conn->prepare("INSERT INTO usuario (id_empresa, nombre_usuario, correo_usuario, contrasena) VALUES (?, ?, ?, ?)");
-        $stmt_user->bind_param("ssss", $codigo_interno, $admin_usuario, $admin_correo, $admin_contrasena);
-        if ($stmt_user->execute()) {
-            $mensaje = "Empresa y usuario administrador registrados correctamente.";
+                if (move_uploaded_file($archivo['tmp_name'], $rutaDestino)) {
+                    // Actualizar la columna foto_perfil en la empresa correspondiente
+                    $stmt = $conn->prepare("UPDATE empresa SET foto_perfil = ? WHERE id = ?");
+                    $stmt->bind_param("si", $rutaRelativa, $id_empresa);
+                    if ($stmt->execute()) {
+                        $mensaje_foto = "¡Logo subido y guardado correctamente!";
+                    } else {
+                        $mensaje_foto = "Error al actualizar la ruta del logo: " . $stmt->error;
+                    }
+                    $stmt->close();
+                } else {
+                    $mensaje_foto = "Error al mover el archivo.";
+                }
+            } else {
+                $mensaje_foto = "Tipo de archivo no permitido. Solo JPG, PNG, GIF o WEBP.";
+            }
         } else {
-            $mensaje = "Error al crear usuario: " . $stmt_user->error;
+            $mensaje_foto = "No se ha seleccionado ningún archivo o hubo un error en la subida.";
         }
-        $stmt_user->close();
     } else {
-        $mensaje = "Error al registrar empresa: " . $stmt->error;
+        $mensaje_foto = "Debe registrar la empresa antes de subir el logo.";
     }
-
-    $conn->close();
 }
 ?>
 
 
+
 <h2 class="mb-4">Configuración de Empresa y Usuario Administrador</h2>
 
-<?php if ($mensaje): ?>
-    <div class="alert alert-info"><?= $mensaje ?></div>
+<?php if ($mensaje_foto): ?>
+    <div class="alert alert-info"><?= htmlspecialchars($mensaje_foto) ?></div>
+    
+<script>
+    setTimeout(() => {
+        location.href = 'ConfigurarEmpresas.php';
+    }, 3000); // 3 segundos
+</script>
+    
 <?php endif; ?>
+
+
+
+<?php
+
+$mensaje_info = "";
+if (isset($_POST['guardar_empresa'])) {
+    // Recoger y limpiar datos del formulario
+    $nombre = $conn->real_escape_string($_POST['nombre']);
+    $direccion = $conn->real_escape_string($_POST['direccion']);
+    $correo = $conn->real_escape_string($_POST['correo']);
+    $telefono = $conn->real_escape_string($_POST['telefono']);
+    $fax = $conn->real_escape_string($_POST['fax']);
+    $identidad_juridica = $conn->real_escape_string($_POST['identidad_juridica']);
+    
+    // Generar código_interno único (puedes cambiar la lógica)
+    $codigo_interno = uniqid('EMP_');
+    
+    // Insertar en la tabla empresa
+    $sql = "INSERT INTO empresa (nombre, direccion, correo, telefono, fax, codigo_interno, identidad_juridica) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    
+    $stmt = $conn->prepare($sql);
+    if ($stmt === false) {
+        die("Error en la preparación de la consulta: " . $conn->error);
+    }
+    
+    $stmt->bind_param("sssssss", $nombre, $direccion, $correo, $telefono, $fax, $codigo_interno, $identidad_juridica);
+    
+    if ($stmt->execute()) {
+        $mensaje_info = "Empresa guardada correctamente.";
+    } else {
+        $mensaje_info = "Error al guardar la empresa: " . $stmt->error;
+    }
+    
+    $stmt->close();
+}
+
+?>
+
+<?php if ($mensaje_info): ?>
+    <div class="alert alert-info"><?= htmlspecialchars($mensaje_info) ?></div>
+        
+<script>
+    setTimeout(() => {
+        location.href = 'ConfigurarEmpresas.php';
+    }, 3000); // 3 segundos
+</script>
+    
+<?php endif; ?>
+
+
+<form method="POST" action="" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label class="form-label">Logo de la Empresa</label>
+        <input type="file" class="form-control" name="logo" id="logo" accept="image/*" required>
+        <img id="preview" src="#" alt="Vista previa del logo" style="display:none; max-height:150px; margin-top:10px;">
+    </div>
+    <button type="submit" name="subir_logo" class="btn btn-primary">Subir foto</button>
+</form>
+
+<script>
+document.getElementById("logo").addEventListener("change", function(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById("preview");
+
+    if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = "block";
+        }
+        reader.readAsDataURL(file);
+    } else {
+        preview.src = "#";
+        preview.style.display = "none";
+    }
+});
+</script>
+<br>
 
 <form method="POST" action="">
     <h5>Datos de la Empresa</h5>
@@ -377,22 +459,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="text" class="form-control" name="identidad_juridica">
     </div>
 
-    <h5 class="mt-4">Usuario Administrador</h5>
-    <div class="mb-3">
-        <label class="form-label">Nombre de Usuario</label>
-        <input type="text" class="form-control" name="admin_usuario" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Correo del Usuario</label>
-        <input type="email" class="form-control" name="admin_correo" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Contraseña</label>
-        <input type="password" class="form-control" name="admin_contrasena" required>
-    </div>
 
-    <button type="submit" class="btn btn-primary">Guardar Empresa</button>
+    <button type="submit"name="guardar_empresa"  class="btn btn-primary">Guardar Empresa</button>
 </form>
+
+
 
 
                                     </div>

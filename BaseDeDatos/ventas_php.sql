@@ -8,10 +8,11 @@ CREATE TABLE IF NOT EXISTS empresa (
     nombre VARCHAR(255) NOT NULL,
     direccion VARCHAR(255) NOT NULL,
     correo VARCHAR(255) NOT NULL,
-    telefono VARCHAR(50),
-    fax VARCHAR(50),
+    telefono VARCHAR(50) NOT NULL,
+    fax VARCHAR(50) NOT NULL,
     codigo_interno VARCHAR(100) UNIQUE,
     identidad_juridica VARCHAR(100),
+    foto_perfil VARCHAR(255) DEFAULT NULL,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
