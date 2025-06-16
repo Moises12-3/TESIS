@@ -449,7 +449,6 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="javascript/html2pdf.js"></script>
 
-
 <?php
 include 'Conexion/conex.php';
 
@@ -496,6 +495,20 @@ if ($result_factura->num_rows > 0) {
 }
 ?>
 
+<?php
+$sql_empresa = "SELECT * FROM empresa LIMIT 1";
+$result_empresa = $conn->query($sql_empresa);
+
+if ($result_empresa->num_rows > 0) {
+    $empresa = $result_empresa->fetch_assoc();
+} else {
+    
+    echo "<h2 style='color: red; text-align: center;'>⚠ No hay información registrada de la empresa. Por favor, ingrese los datos antes de generar la factura.</h2>";
+    exit;
+    //die("<h2 style='color: red; text-align: center;'>⚠ No hay información registrada de la empresa. Por favor, ingrese los datos antes de generar la factura.</h2>");
+}
+
+?>
 
 <style>
     .factura {
@@ -523,6 +536,13 @@ if ($result_factura->num_rows > 0) {
 </style>
 
 <div class="factura" id="factura-content">
+    
+    <?php if (!empty($empresa['foto_perfil'])): ?>
+        <div style="text-align: center; margin-bottom: 10px;">
+            <img src="<?= $empresa['foto_perfil'] ?>" alt="Logo de la empresa" style="max-height: 100px;">
+        </div>
+    <?php endif; ?>
+
     <h2>Factura Electrónica N.º <?= $factura['numeroFactura'] ?></h2>
     
     <p><strong>Nombre del Cliente:</strong> <?= $factura['cliente_nombre'] ?></p>
@@ -567,15 +587,15 @@ if ($result_factura->num_rows > 0) {
             margin: 4px 0;
         }
     </style>
-
+    
     <div class="info-receptor">
-    <p class="full-row"><strong>Receptor:</strong> VERDULERIA Y FRUTAS - CAMPO FERTIL</p>
-    <p><strong>Ident. Jurídica:</strong> [Especificar]</p>
-    <p><strong>Código Interno:</strong> 1</p>
-    <p><strong>Teléfono:</strong> (+506)6244-9726</p>
-    <p><strong>Correo:</strong> CampoFertil@gmail.com</p>
-    <p><strong>Destinatario:</strong> Asef G 1 y 2</p>
-    <p><strong>Dirección:</strong> campo fertil</p>
+        <p class="full-row"><strong>Receptor:</strong> <?= $empresa['nombre'] ?></p>
+        <p><strong>Ident. Jurídica:</strong> <?= $empresa['identidad_juridica'] ?></p>
+        <p><strong>Código Interno:</strong> <?= $empresa['codigo_interno'] ?></p>
+        <p><strong>Teléfono:</strong> <?= $empresa['telefono'] ?></p>
+        <p><strong>Correo:</strong> <?= $empresa['correo'] ?></p>
+        <p><strong>Destinatario:</strong> <?= $empresa['codigo_interno'] ?></p>
+        <p><strong>Dirección:</strong> <?= $empresa['direccion'] ?></p>
     </div>
 
     <div class="separador"></div>
