@@ -1,0 +1,21 @@
+ADMIN 1 Y 2
+
+
+
+VENDEDOR(Ventas, Facturar, Reportes de Vencimiento, Reportes en existencias, Bodega(Productos, Agregar))
+
+Tipo de Pago (CONTADO, CREDITO)
+
+Reporte de Ventas (Código de producto, Existencia, total vendido) tener un filtro de fecha por default que sea de mes
+Ajuste de Ventas
+
+Reportes de Compras (Código de producto, Descripción , cantidad)
+
+Reporte de Crédito (Numero de factura, productos que se llevo, precio, existencias, Clientes)
+
+Reporte de Vencimientos (Código de productos, cantidad, Precio de ventas y Precio de compra, Fecha de vencimiento)
+
+Reporte por Donación (Código de productos, cantidad, Precio de ventas y Precio de compra, Fecha de vencimiento)
+
+
+
