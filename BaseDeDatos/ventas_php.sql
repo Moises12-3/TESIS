@@ -100,15 +100,6 @@ CREATE TABLE Moneda (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
-INSERT INTO Moneda (nombre, simbolo, tipo, pais, estado) 
-VALUES ('Colon', '₡', 'nacional', 'Costa Rica', 'activo');
--- INSERT INTO Moneda (nombre, simbolo, tipo, pais, estado) 
--- VALUES ('Cordoba', 'C$', 'extranjera', 'Nicaragua', 'activo');
--- INSERT INTO Moneda (nombre, simbolo, tipo, pais, estado) 
--- VALUES ('Dola', '$', 'extranjera', 'Estados Unidos', 'activo');
-
-
 CREATE TABLE TipoPago (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,  -- Ejemplo: Efectivo, Tarjeta de Crédito, Transferencia
