@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS ventas_php;
+
 CREATE DATABASE ventas_php;
 
 USE ventas_php;
@@ -111,7 +113,7 @@ CREATE TABLE TipoPago (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,  -- Ejemplo: Efectivo, Tarjeta de Crédito, Transferencia
     descripcion TEXT,
-    estado ENUM('activo', 'inactivo') DEFAULT 'activo',
+    estado ENUM('Efectivo', 'Contado') DEFAULT 'Efectivo',
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
