@@ -288,75 +288,81 @@ $id_usuario = $_SESSION["id"];
                         <div class="card">
                             <div class="row">
                                 <div class="col-lg-8">
+
+                                    <div class="card-body">
+
                                     <?php
-require_once "conexion/conex.php";
+                                    require_once "prueba.php";
+                                    ?>
 
-// Inicializa array para mensajes
-$mensajes = [];
+                                    
+                                    <?php
+                                    require_once "conexion/conex.php";
+                                    $mensajes = [];
 
-// Validar existencia de al menos una empresa
-$sql = "SELECT COUNT(*) AS total FROM empresa";
-$result = $conn->query($sql);
-$fila = $result->fetch_assoc();
-if ($fila['total'] == 0) {
-    $mensajes[] = 'Debe configurar una empresa: <a href="ConfigurarEmpresas.php" class="btn btn-sm btn-primary">Ir a Configuración</a>';
-}
+                                    // Validar existencia de al menos una empresa
+                                    $sql = "SELECT COUNT(*) AS total FROM empresa";
+                                    $result = $conn->query($sql);
+                                    $fila = $result->fetch_assoc();
+                                    if ($fila['total'] == 0) {
+                                        $mensajes[] = 'Debe configurar una empresa: <a href="ConfigurarEmpresas.php" class="btn btn-sm btn-primary">Ir a Configuración</a>';
+                                    }
 
-// Validar si hay al menos un tipo de pago con estado 'EFECTIVO' o 'CONTADO'
-$sql = "SELECT COUNT(*) AS total FROM TipoPago WHERE estado IN ('Efectivo', 'Contado')";
-$result = $conn->query($sql);
-$fila = $result->fetch_assoc();
+                                    // Tipo de pago
+                                    $sql = "SELECT COUNT(*) AS total FROM TipoPago WHERE estado IN ('Efectivo', 'Contado')";
+                                    $result = $conn->query($sql);
+                                    $fila = $result->fetch_assoc();
+                                    if ($fila['total'] == 0) {
+                                        $mensajes[] = 'Debe configurar los tipos de pago: <a href="AjustesTipoPago.php" class="btn btn-sm btn-warning">Ir a Tipos de Pago</a>';
+                                    }
 
-if ($fila['total'] == 0) {
-    $mensajes[] = 'Debe configurar los tipos de pago: <a href="AjustesTipoPago.php" class="btn btn-sm btn-warning">Ir a Tipos de Pago</a>';
-}
+                                    // Unidad de peso
+                                    $sql = "SELECT COUNT(*) AS total FROM UnidadPeso WHERE estado = 'activo'";
+                                    $result = $conn->query($sql);
+                                    $fila = $result->fetch_assoc();
+                                    if ($fila['total'] == 0) {
+                                        $mensajes[] = 'Debe configurar las unidades de peso: <a href="AjusteUnidad.php" class="btn btn-sm btn-secondary">Ir a Unidades</a>';
+                                    }
 
-// Validar existencia de unidad de peso
-$sql = "SELECT COUNT(*) AS total FROM UnidadPeso WHERE estado = 'activo'";
-$result = $conn->query($sql);
-$fila = $result->fetch_assoc();
-if ($fila['total'] == 0) {
-    $mensajes[] = 'Debe configurar las unidades de peso: <a href="AjusteUnidad.php" class="btn btn-sm btn-secondary">Ir a Unidades</a>';
-}
+                                    // Impuestos
+                                    $sql = "SELECT COUNT(*) AS total FROM Impuesto WHERE estado = 'Activo'";
+                                    $result = $conn->query($sql);
+                                    $fila = $result->fetch_assoc();
+                                    if ($fila['total'] == 0) {
+                                        $mensajes[] = 'Debe configurar los impuestos: <a href="AjustesImpuestos.php" class="btn btn-sm btn-danger">Ir a Impuestos</a>';
+                                    }
 
-// Validar existencia de impuestos
-$sql = "SELECT COUNT(*) AS total FROM Impuesto WHERE estado = 'Activo'";
-$result = $conn->query($sql);
-$fila = $result->fetch_assoc();
-if ($fila['total'] == 0) {
-    $mensajes[] = 'Debe configurar los impuestos: <a href="AjustesImpuestos.php" class="btn btn-sm btn-danger">Ir a Impuestos</a>';
-}
+                                    // Monedas
+                                    $sql = "SELECT 
+                                        SUM(CASE WHEN tipo = 'nacional' THEN 1 ELSE 0 END) AS nacionales,
+                                        SUM(CASE WHEN tipo = 'extranjera' THEN 1 ELSE 0 END) AS extranjeras
+                                        FROM Moneda WHERE estado = 'activo'";
+                                    $result = $conn->query($sql);
+                                    $fila = $result->fetch_assoc();
+                                    if ($fila['nacionales'] != 1) {
+                                        $mensajes[] = 'Debe haber exactamente una moneda nacional activa: <a href="AjusteMoneda.php" class="btn btn-sm btn-info">Ir a Monedas</a>';
+                                    }
+                                    if ($fila['extranjeras'] < 1) {
+                                        $mensajes[] = 'Debe haber al menos una moneda extranjera activa: <a href="AjusteMoneda.php" class="btn btn-sm btn-success">Ir a Monedas</a>';
+                                    }
+                                    ?>
 
-// Validar existencia de monedas
-$sql = "SELECT 
-    SUM(CASE WHEN tipo = 'nacional' THEN 1 ELSE 0 END) AS nacionales,
-    SUM(CASE WHEN tipo = 'extranjera' THEN 1 ELSE 0 END) AS extranjeras
-    FROM Moneda WHERE estado = 'activo'";
-$result = $conn->query($sql);
-$fila = $result->fetch_assoc();
-if ($fila['nacionales'] != 1) {
-    $mensajes[] = 'Debe haber exactamente una moneda nacional activa: <a href="AjusteMoneda.php" class="btn btn-sm btn-info">Ir a Monedas</a>';
-}
-if ($fila['extranjeras'] < 1) {
-    $mensajes[] = 'Debe haber al menos una moneda extranjera activa: <a href="AjusteMoneda.php" class="btn btn-sm btn-info">Ir a Monedas</a>';
-}
-?>
+                                    <?php if (count($mensajes) > 0): ?>
+                                        <div class="alert alert-warning">
+                                            <h4 class="alert-heading">Configuración Incompleta</h4>
+                                            <ul class="mb-0">
+                                                <?php foreach ($mensajes as $mensaje): ?>
+                                                    <li><?= $mensaje ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                        
+                                    <?php exit; ?>
+                                    <?php else: ?>
+                                        
+                                    <?php endif; ?>
 
-        <?php if (count($mensajes) > 0): ?>
-            <div class="alert alert-warning">
-                <h4 class="alert-heading">Configuración Incompleta</h4>
-                <ul class="mb-0">
-                    <?php foreach ($mensajes as $mensaje): ?>
-                        <li><?= $mensaje ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php else: ?>
-            <div class="alert alert-success">
-                Todo está correctamente configurado.
-            </div>
-        <?php endif; ?>
-                                    <div class="card-body"><h1>Formato de relleno</h1>
+                                        <h1>Formato de relleno</h1>
 
                                     </div>
                                 </div>
