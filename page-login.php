@@ -15,7 +15,7 @@ if (isset($_SESSION["usuario"])) {
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Ela Admin -.php5 Admin Template</title>
+    <title>Login</title>
     <meta name="description" content="Ela Admin -.php5 Admin Template">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
