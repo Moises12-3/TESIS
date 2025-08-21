@@ -291,7 +291,7 @@ $id_usuario = $_SESSION["id"];
 
                                     // Verificar si se recibió el ID del producto
                                     if (!isset($_GET['id']) || empty($_GET['id'])) {
-                                        echo "ID de producto no proporcionado.";
+                                        echo "⚠️ID de producto no proporcionado.";
                                         exit;
                                     }
 
@@ -305,37 +305,37 @@ $id_usuario = $_SESSION["id"];
                                     $resultado = $stmt->get_result();
 
                                     if ($resultado->num_rows === 0) {
-                                        echo "Producto no encontrado.";
+                                        echo "❌Producto no encontrado.";
                                         exit;
                                     }
 
                                     $producto = $resultado->fetch_assoc();
                                     ?>
 
-                                    <h2>Editar Producto</h2>
+                                    <h2 class="mb-4">✏️ Editar Producto</h2>
 
                                     <form action="./Configuracion/guardar_editar_producto.php" method="POST">
                                         <input type="hidden" name="id" value="<?php echo $producto['id']; ?>">
 
                                         <div class="mb-3">
-                                            <label for="codigo" class="form-label">Código</label>
+                                            <label for="codigo" class="form-label">📦Código</label>
                                             <input type="text" class="form-control" id="codigo" name="codigo" value="<?php echo htmlspecialchars($producto['codigo']); ?>" readonly>
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="nombre" class="form-label">Nombre</label>
+                                            <label for="nombre" class="form-label">📝Nombre</label>
                                             <input type="text" class="form-control" id="nombre" name="nombre" value="<?php echo htmlspecialchars($producto['nombre']); ?>" required>
                                         </div>
 
                                                                           
                                         <div class="mb-3">
-                                            <label for="compra" class="form-label">Precio de Compra (Propietario)</label>
+                                            <label for="compra" class="form-label">💰Precio de Compra (Propietario)</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><?php echo $simbolo_moneda = "₡"; ?></span>
                                                 <input type="number" step="0.01" class="form-control" id="compra" name="compra" value="<?php echo htmlspecialchars($producto['compra']); ?>" required>
                                             </div>
                                             <small class="form-text text-muted">
-                                                Precio Unitario con IVA: <strong id="resultadoFinal">₡0.00</strong>
+                                                📊Precio Unitario con IVA: <strong id="resultadoFinal">₡0.00</strong>
                                             </small>
                                         </div>
 
@@ -365,7 +365,7 @@ $id_usuario = $_SESSION["id"];
                                         </script>
 
                                         <div class="mb-3">
-                                            <label for="venta" class="form-label">Precio de Venta (Cliente)</label>
+                                            <label for="venta" class="form-label">🏷️Precio de Venta (Cliente)</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><?php echo $simbolo_moneda; ?></span>
                                                 <input type="number" step="0.01" class="form-control" id="venta" name="venta" value="<?php echo htmlspecialchars($producto['venta']); ?>" required>
@@ -373,22 +373,22 @@ $id_usuario = $_SESSION["id"];
                                         </div>
                                                                             
                                         <div class="mb-3">
-                                            <label for="iva" class="form-label">IVA (%)</label>
+                                            <label for="iva" class="form-label">⚖️IVA (%)</label>
                                             <input type="number" step="0.01" class="form-control" id="iva" name="iva" value="<?php echo htmlspecialchars($producto['iva']); ?>" required>
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="existencia" class="form-label">Existencias</label>
+                                            <label for="existencia" class="form-label">📊Existencias</label>
                                             <input type="number" class="form-control" id="existencia" name="existencia" value="<?php echo htmlspecialchars($producto['existencia']); ?>" required>
                                         </div>                                        
                                         
                                         <div class="mb-3">
-                                            <label for="tiene_vencimiento" class="form-label">¿Este producto tiene fecha de vencimiento?</label>
+                                            <label for="tiene_vencimiento" class="form-label">⏳¿Este producto tiene fecha de vencimiento?</label>
                                             <input type="checkbox" id="tiene_vencimiento" name="tiene_vencimiento">
                                         </div>
 
                                         <div class="mb-3" id="fecha_vencimiento_div" style="display: none;">
-                                            <label for="vencimiento" class="form-label">Fecha de Vencimiento</label>
+                                            <label for="vencimiento" class="form-label">📅Fecha de Vencimiento</label>
                                             <input type="date" class="form-control" id="vencimiento" name="vencimiento">
                                         </div>
                                             
@@ -403,8 +403,8 @@ $id_usuario = $_SESSION["id"];
                                             });
                                         </script>
 
-                                        <button type="submit" class="btn btn-success">Guardar Cambios</button>
-                                        <a href="VerProductos.php" class="btn btn-secondary">Cancelar</a>
+                                        <button type="submit" class="btn btn-success">💾Guardar Cambios</button>
+                                        <a href="VerProductos.php" class="btn btn-secondary">↩️Cancelar</a>
                                     </form>
 
                                     <?php
