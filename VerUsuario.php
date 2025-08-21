@@ -449,18 +449,19 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 
 
                                         
-                                        <h1>Usuarios</h1>
+
+<h2 class="text-center mb-4">📦 Gestión de Usuarios 🛒</h2>
 
                                         <!-- Contenedor con flexbox para alinear elementos horizontalmente -->
                                         <div class="d-flex align-items-center">
                                             <!-- Campo de búsqueda -->
-                                            <input type="text" id="buscador" class="form-control" placeholder="Buscar por código o nombre..." style="width: 300px;">
+                                            <input type="text" id="buscador" class="form-control" placeholder="🔍Buscar por código o nombre..." style="width: 300px;">
                                          
                                             <!-- Botón para exportar a Excel -->
-                                            <button id="exportarExcel" class="btn btn-success mt-3 ml-3">Exportar a Excel</button>
+                                            <button id="exportarExcel" class="btn btn-success ml-3">📊Exportar a Excel</button>
                                         </div>
                                             <div class="d-flex justify-content-end mb-3">
-                                                <label class="mr-2">Mostrar:</label>
+                                                <label class="mr-2">📑Mostrar:</label>
                                                 <select id="selectFilas" class="form-control d-inline-block w-auto">
                                                     <option value="5">5</option>
                                                     <option value="10" selected>10</option>
@@ -586,15 +587,15 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
                                         $resultado = $conn->query($sql);
                                         ?>
                                         
-                                        <table id="tablaUsuarios" class="table">
+                                        <table id="tablaUsuarios" class="table table-dark">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col">Usuario</th>
-                                                    <th scope="col">Nombre</th>
-                                                    <th scope="col">Teléfono</th>
-                                                    <th scope="col">Dirección</th>
-                                                    <th scope="col">Editar</th>
-                                                    <th scope="col">Eliminar</th>
+                                                    <th scope="col">👤Usuario</th>
+                                                    <th scope="col">📝Nombre</th>
+                                                    <th scope="col">📞Teléfono</th>
+                                                    <th scope="col">🏠Dirección</th>
+                                                    <th scope="col">✏️Editar</th>
+                                                    <th scope="col">🗑️Eliminar</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -611,7 +612,7 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
                                                         echo "</tr>";
                                                     }
                                                 } else {
-                                                    echo "<tr><td colspan='6'>No hay usuarios registrados.</td></tr>";
+                                                    echo "<tr><td colspan='6'>⚠️No hay usuarios registrados.</td></tr>";
                                                 }
                                                 ?>
                                             </tbody>
@@ -696,7 +697,7 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
                                         ?>
                                         <?php
                                             if (isset($_GET['mensaje']) && $_GET['mensaje'] == 'eliminado') {
-                                                echo "<div id='mensajeEliminado' class='alert alert-success'>Usuario eliminado correctamente.</div>";
+                                                echo "<div id='mensajeEliminado' class='alert alert-success'>✅Usuario eliminado correctamente.</div>";
                                             }
                                         ?>
                                         <script type="text/javascript">
