@@ -337,6 +337,19 @@ $id_usuario = $_SESSION["id"];
                                             });
                                         </script>
 
+                                            
+                                        <script>
+                                            document.getElementById('tiene_vencimiento').addEventListener('change', function() {
+                                                var vencimientoDiv = document.getElementById('fecha_vencimiento_div');
+                                                if (this.checked) {
+                                                    vencimientoDiv.style.display = 'block';
+                                                } else {
+                                                    vencimientoDiv.style.display = 'none';
+                                                }
+                                            });
+                                        </script>
+
+                                        
                                     <h2 class="mb-4">✏️ Editar Producto</h2>
 
                                     <form action="./Configuracion/guardar_editar_producto.php" method="POST">
@@ -391,17 +404,6 @@ $id_usuario = $_SESSION["id"];
                                             <label for="vencimiento" class="form-label">📅Fecha de Vencimiento</label>
                                             <input type="date" class="form-control" id="vencimiento" name="vencimiento">
                                         </div>
-                                            
-                                        <script>
-                                            document.getElementById('tiene_vencimiento').addEventListener('change', function() {
-                                                var vencimientoDiv = document.getElementById('fecha_vencimiento_div');
-                                                if (this.checked) {
-                                                    vencimientoDiv.style.display = 'block';
-                                                } else {
-                                                    vencimientoDiv.style.display = 'none';
-                                                }
-                                            });
-                                        </script>
 
                                         <button type="submit" class="btn btn-success">💾Guardar Cambios</button>
                                         <a href="VerProductos.php" class="btn btn-secondary">↩️Cancelar</a>
