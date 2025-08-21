@@ -452,15 +452,16 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 
                                         
 
-                                    <h1>Productos</h1>
+<h2 class="text-center mb-4">📦 Lista de Productos 🛒</h2>
 
 <!-- Contenedor con flexbox para alinear elementos horizontalmente -->
 <div class="d-flex align-items-center">
     <!-- Campo de búsqueda -->
+    <span class="me-2 fs-5">🔎</span>
     <input type="text" id="buscador" class="form-control" placeholder="Buscar productos..." style="width: 300px;">
 
     <!-- Botón para exportar a Excel -->
-    <button id="exportarExcel" class="btn btn-success mt-3 ml-3">Exportar a Excel</button>
+    <button id="exportarExcel" class="btn btn-success ms-3">📊Exportar a Excel</button>
 </div>
 
 
@@ -511,18 +512,18 @@ document.getElementById("buscador").addEventListener("keyup", function () {
                                         $resultado = $conn->query($sql);
                                         ?>
 
-                                        <table class="table table-striped" id="tablaProductos">
+                                        <table class="table table-dark" id="tablaProductos">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col">Código</th>
-                                                    <th scope="col">Nombre</th>
-                                                    <th scope="col">Precio Compra</th>
-                                                    <th scope="col">Precio Venta</th>
-                                                    <th scope="col">IVA</th>
-                                                    <th scope="col">Existencias</th>
-                                                    <th scope="col">Fecha de vencimiento</th>
-                                                    <th scope="col">Editar</th>
-                                                    <th scope="col">Eliminar</th>
+                                                    <th scope="col">🔢Código</th>
+                                                    <th scope="col">📝Nombre</th>
+                                                    <th scope="col">💰Precio Compra</th>
+                                                    <th scope="col">🏷️Precio Venta</th>
+                                                    <th scope="col">⚖️IVA</th>
+                                                    <th scope="col">📊Existencias</th>
+                                                    <th scope="col">⏳Fecha de vencimiento</th>
+                                                    <th scope="col">✏️Editar</th>
+                                                    <th scope="col">🗑️Eliminar</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -553,7 +554,7 @@ document.getElementById("buscador").addEventListener("keyup", function () {
 
                                             
                                             <div class="d-flex justify-content-end mb-3">
-                                                <label class="mr-2 mt-2">Mostrar:</label>
+                                                <label class="mr-2 mt-2">👀Mostrar:</label>
                                                 <select id="selectFilas" class="form-control w-auto">
                                                     <option value="5">5</option>
                                                     <option value="10" selected>10</option>
