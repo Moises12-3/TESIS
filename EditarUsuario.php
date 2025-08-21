@@ -314,36 +314,54 @@ $id_usuario = $_SESSION["id"];
                                         }
                                         ?>
 
-                                        <h1>Editar Usuario</h1>
-                                        <br>
+<h1 class="mb-4">✏️ Editar Usuario</h1>
 
-                                        <form action="Configuracion/guardar_editar_usuario.php" method="POST">
-                                            <input type="hidden" name="id" value="<?php echo $fila['id']; ?>">
+<form action="Configuracion/guardar_editar_usuario.php" method="POST">
+    <input type="hidden" name="id" value="<?php echo $fila['id']; ?>">
 
-                                            <div class="form-group">
-                                                <label>Nombre de Usuario</label>
-                                                <input type="text" class="form-control" name="usuario" value="<?php echo htmlspecialchars($fila['usuario']); ?>" required>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Nombre Completo</label>
-                                                <input type="text" class="form-control" name="nombre" value="<?php echo htmlspecialchars($fila['nombre']); ?>" required>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Teléfono</label>
-                                                <input type="text" class="form-control" name="telefono" value="<?php echo htmlspecialchars($fila['telefono']); ?>" required>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Dirección</label>
-                                                <input type="text" class="form-control" name="direccion" value="<?php echo htmlspecialchars($fila['direccion']); ?>" required>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Contraseña</label>
-                                                <input type="password" class="form-control" name="password" placeholder="Ingrese la contraseña (dejar en blanco si no desea cambiarla)">
-                                            </div>
-                                            <button type="submit" class="btn btn-primary">Guardar</button>
-                                            <!-- Botón Cancelar -->
-                                            <a href="VerUsuario.php" class="btn btn-danger">Cancelar</a>
-                                        </form>
+    <div class="row">
+        <!-- Columna izquierda -->
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="usuario" class="form-label">👤 Nombre de Usuario</label>
+                <input type="text" class="form-control" id="usuario" name="usuario" value="<?php echo htmlspecialchars($fila['usuario']); ?>" required>
+            </div>
+            <div class="mb-3">
+                <label for="telefono" class="form-label">📞 Teléfono</label>
+                <input type="text" class="form-control" id="telefono" name="telefono" value="<?php echo htmlspecialchars($fila['telefono']); ?>" required>
+            </div>
+        </div>
+
+        <!-- Columna derecha -->
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="nombre" class="form-label">📝 Nombre Completo</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" value="<?php echo htmlspecialchars($fila['nombre']); ?>" required>
+            </div>
+            <div class="mb-3">
+                <label for="direccion" class="form-label">🏠 Dirección</label>
+                <input type="text" class="form-control" id="direccion" name="direccion" value="<?php echo htmlspecialchars($fila['direccion']); ?>" required>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fila de contraseña -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="mb-3">
+                <label for="password" class="form-label">🔑 Contraseña</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Ingrese la contraseña (dejar en blanco si no desea cambiarla)">
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="mt-3">
+        <button type="submit" class="btn btn-success">💾 Guardar Cambios</button>
+        <a href="VerUsuario.php" class="btn btn-secondary">↩️ Cancelar</a>
+    </div>
+</form>
+
 
 
                                     </div>
