@@ -338,76 +338,97 @@ $id_usuario = $_SESSION["id"];
                                         </script>
 
                                             
-                                        <script>
-                                            document.getElementById('tiene_vencimiento').addEventListener('change', function() {
-                                                var vencimientoDiv = document.getElementById('fecha_vencimiento_div');
-                                                if (this.checked) {
-                                                    vencimientoDiv.style.display = 'block';
-                                                } else {
-                                                    vencimientoDiv.style.display = 'none';
-                                                }
-                                            });
-                                        </script>
 
-                                        
-                                    <h2 class="mb-4">✏️ Editar Producto</h2>
+<h2 class="mb-4">✏️ Editar Producto</h2>
 
-                                    <form action="./Configuracion/guardar_editar_producto.php" method="POST">
-                                        <input type="hidden" name="id" value="<?php echo $producto['id']; ?>">
+<form action="./Configuracion/guardar_editar_producto.php" method="POST" class="p-4 border rounded shadow-sm bg-light">
+    <input type="hidden" name="id" value="<?php echo $producto['id']; ?>">
 
-                                        <div class="mb-3">
-                                            <label for="codigo" class="form-label">📦Código</label>
-                                            <input type="text" class="form-control" id="codigo" name="codigo" value="<?php echo htmlspecialchars($producto['codigo']); ?>" readonly>
-                                        </div>
+    <!-- Código y Nombre -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="codigo" class="form-label">📦 Código</label>
+            <input type="text" class="form-control" id="codigo" name="codigo" 
+                   value="<?php echo htmlspecialchars($producto['codigo']); ?>" readonly>
+        </div>
+        <div class="col-md-8">
+            <label for="nombre" class="form-label">📝 Nombre</label>
+            <input type="text" class="form-control" id="nombre" name="nombre" 
+                   value="<?php echo htmlspecialchars($producto['nombre']); ?>" required>
+        </div>
+    </div>
 
-                                        <div class="mb-3">
-                                            <label for="nombre" class="form-label">📝Nombre</label>
-                                            <input type="text" class="form-control" id="nombre" name="nombre" value="<?php echo htmlspecialchars($producto['nombre']); ?>" required>
-                                        </div>
+    <!-- Compra y Venta -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="compra" class="form-label">💰 Precio de Compra</label>
+            <div class="input-group">
+                <span class="input-group-text">₡</span>
+                <input type="number" step="0.01" class="form-control" id="compra" name="compra" 
+                       value="<?php echo htmlspecialchars($producto['compra']); ?>" required>
+            </div>
+            <small class="form-text text-muted">
+                📊 Unitario con IVA: <strong id="resultadoFinal">₡0.00</strong>
+            </small>
+        </div>
+        <div class="col-md-6">
+            <label for="venta" class="form-label">🏷️ Precio de Venta</label>
+            <div class="input-group">
+                <span class="input-group-text">₡</span>
+                <input type="number" step="0.01" class="form-control" id="venta" name="venta" 
+                       value="<?php echo htmlspecialchars($producto['venta']); ?>" required>
+            </div>
+        </div>
+    </div>
 
-                                                                          
-                                        <div class="mb-3">
-                                            <label for="compra" class="form-label">💰Precio de Compra (Propietario)</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text"><?php echo $simbolo_moneda = "₡"; ?></span>
-                                                <input type="number" step="0.01" class="form-control" id="compra" name="compra" value="<?php echo htmlspecialchars($producto['compra']); ?>" required>
-                                            </div>
-                                            <small class="form-text text-muted">
-                                                📊Precio Unitario con IVA: <strong id="resultadoFinal">₡0.00</strong>
-                                            </small>
-                                        </div>
+    <!-- IVA y Existencias -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="iva" class="form-label">⚖️ IVA (%)</label>
+            <input type="number" step="0.01" class="form-control" id="iva" name="iva" 
+                   value="<?php echo htmlspecialchars($producto['iva']); ?>" required>
+        </div>
+        <div class="col-md-6">
+            <label for="existencia" class="form-label">📊 Existencias</label>
+            <input type="number" class="form-control" id="existencia" name="existencia" 
+                   value="<?php echo htmlspecialchars($producto['existencia']); ?>" required>
+        </div>
+    </div>
 
-                                        <div class="mb-3">
-                                            <label for="venta" class="form-label">🏷️Precio de Venta (Cliente)</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text"><?php echo $simbolo_moneda; ?></span>
-                                                <input type="number" step="0.01" class="form-control" id="venta" name="venta" value="<?php echo htmlspecialchars($producto['venta']); ?>" required>
-                                            </div>
-                                        </div>
-                                                                            
-                                        <div class="mb-3">
-                                            <label for="iva" class="form-label">⚖️IVA (%)</label>
-                                            <input type="number" step="0.01" class="form-control" id="iva" name="iva" value="<?php echo htmlspecialchars($producto['iva']); ?>" required>
-                                        </div>
+    <!-- Vencimiento -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="tiene_vencimiento" class="form-label">⏳ ¿Tiene vencimiento?</label>
+            <input type="checkbox" id="tiene_vencimiento" name="tiene_vencimiento">
+        </div>
+        <div class="col-md-6" id="fecha_vencimiento_div" style="display: none;">
+            <label for="vencimiento" class="form-label">📅 Fecha de Vencimiento</label>
+            <input type="date" class="form-control" id="vencimiento" name="vencimiento">
+        </div>
+    </div>
 
-                                        <div class="mb-3">
-                                            <label for="existencia" class="form-label">📊Existencias</label>
-                                            <input type="number" class="form-control" id="existencia" name="existencia" value="<?php echo htmlspecialchars($producto['existencia']); ?>" required>
-                                        </div>                                        
-                                        
-                                        <div class="mb-3">
-                                            <label for="tiene_vencimiento" class="form-label">⏳¿Este producto tiene fecha de vencimiento?</label>
-                                            <input type="checkbox" id="tiene_vencimiento" name="tiene_vencimiento">
-                                        </div>
+    <!-- Botones -->
+    <div class="mt-4 text-end">
+        <button type="submit" class="btn btn-success">💾 Guardar</button>
+        <a href="VerProductos.php" class="btn btn-secondary">↩️ Cancelar</a>
+    </div>
+</form>
 
-                                        <div class="mb-3" id="fecha_vencimiento_div" style="display: none;">
-                                            <label for="vencimiento" class="form-label">📅Fecha de Vencimiento</label>
-                                            <input type="date" class="form-control" id="vencimiento" name="vencimiento">
-                                        </div>
 
-                                        <button type="submit" class="btn btn-success">💾Guardar Cambios</button>
-                                        <a href="VerProductos.php" class="btn btn-secondary">↩️Cancelar</a>
-                                    </form>
+                                            
+    <script>
+        document.getElementById('tiene_vencimiento').addEventListener('change', function() {
+            var vencimientoDiv = document.getElementById('fecha_vencimiento_div');
+            if (this.checked) {
+            vencimientoDiv.style.display = 'block';
+            } else {
+            vencimientoDiv.style.display = 'none';
+            }
+        });
+    </script>
+
+
+
 
                                     <?php
 if (isset($_GET['mensaje']) && $_GET['mensaje'] == 'actualizado') {
