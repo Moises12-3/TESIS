@@ -450,48 +450,62 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 
-
-                                    <h1>Agregar Usuario</h1>
+<h1 class="mb-4">➕ Agregar Usuario</h1>
 <br>
 
+
 <form action="Configuracion/guardar_usuario.php" method="POST">
-    <div class="form-group">
-        <label>Nombre de Usuario</label>
-        <input type="text" class="form-control" name="usuario" placeholder="Ejemplo: Paco" required>
+    <div class="row">
+        <!-- Columna izquierda -->
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="usuario" class="form-label">👤 Nombre de Usuario</label>
+                <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Ejemplo: Paco" required>
+            </div>
+            <div class="mb-3">
+                <label for="cedula" class="form-label">🆔 Cédula</label>
+                <input type="text" class="form-control" id="cedula" name="cedula" placeholder="Ejemplo: 001-123456-7890X" required>
+            </div>
+            <div class="mb-3">
+                <label for="descuento" class="form-label">💸 Descuento (%)</label>
+                <input type="number" class="form-control" id="descuento" name="descuento" step="0.01" min="0" max="100" placeholder="Ejemplo: 10.00">
+            </div>
+            <div class="mb-3">
+                <label for="rol" class="form-label">🎛️ Rol</label>
+                <select class="form-control" id="rol" name="rol" required>
+                    <option value="usuario">Usuario</option>
+                    <option value="editor">Editor</option>
+                    <option value="admin">Administrador</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Columna derecha -->
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="nombre" class="form-label">📝 Nombre Completo</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre completo del usuario" required>
+            </div>
+            <div class="mb-3">
+                <label for="telefono" class="form-label">📞 Teléfono</label>
+                <input type="text" class="form-control" id="telefono" name="telefono" placeholder="Ejemplo: +50588090180" required>
+            </div>
+            <div class="mb-3">
+                <label for="direccion" class="form-label">🏠 Dirección</label>
+                <input type="text" class="form-control" id="direccion" name="direccion" placeholder="Ejemplo: El Viejo, Chinandega, NI" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">🔑 Contraseña</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Ingrese la contraseña" required>
+            </div>
+        </div>
     </div>
-    <div class="form-group">
-        <label>Nombre Completo</label>
-        <input type="text" class="form-control" name="nombre" placeholder="Nombre completo del usuario" required>
+
+    <!-- Botones -->
+    <div class="mt-3">
+        <button type="submit" class="btn btn-success btn-lg px-4">💾 Guardar Usuario</button>
+        <a href="VerUsuario.php" class="btn btn-secondary btn-lg px-4">📂Ver Usaurios</a>
     </div>
-    <div class="form-group">
-        <label>Cédula</label>
-        <input type="text" class="form-control" name="cedula" placeholder="Ejemplo: 001-123456-7890X" required>
-    </div>
-    <div class="form-group">
-        <label>Teléfono</label>
-        <input type="text" class="form-control" name="telefono" placeholder="Ejemplo: +50588090180" required>
-    </div>
-    <div class="form-group">
-        <label>Dirección</label>
-        <input type="text" class="form-control" name="direccion" placeholder="Ejemplo: El Viejo, Chinandega, NI" required>
-    </div>
-    <div class="form-group">
-        <label>Descuento (%)</label>
-        <input type="number" class="form-control" name="descuento" step="0.01" min="0" max="100" placeholder="Ejemplo: 10.00">
-    </div>
-    <div class="form-group">
-        <label>Rol</label>
-        <select class="form-control" name="rol" required>
-            <option value="usuario">Usuario</option>
-            <option value="editor">Editor</option>
-            <option value="admin">Administrador</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label>Contraseña</label>
-        <input type="password" class="form-control" name="password" placeholder="Ingrese la contraseña" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
 </form>
 
 
