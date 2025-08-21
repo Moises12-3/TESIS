@@ -120,8 +120,13 @@ $id_usuario = $_SESSION["id"];
                         <li><i class="menu-icon fa fa-user-plus"></i><a href="AgregarClientes.php">Nuevo Cliente</a></li>
                     </ul>
                 </li>
-                <li>
-                    <a href="Ventas.php"><i class="menu-icon fa fa-shopping-cart"></i>Vender</a>
+                <li class="menu-item-has-children dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="menu-icon fa fa-shopping-cart"></i>Vender
+                    </a>
+                    <ul class="sub-menu children dropdown-menu">
+                        <li><i class="menu-icon fa fa-line-chart"></i><a href="Ventas.php">Vender</a></li>
+                    </ul>
                 </li>
                 <li class="menu-item-has-children dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -444,31 +449,73 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-
-                                        
-                                    
-                                    <h1>Agregar Nuevo Producto</h1>
+<h1 class="text-center my-4">✨ Agregar Nuevo Producto 🛒</h1>
 <br>
 
-<form action="Configuracion/guardar_producto.php" method="POST">
-    <div class="mb-3">
-        <label for="codigo" class="form-label">Código del Barras</label>
-        <input type="text" class="form-control" id="codigo" name="codigo" required>
-    </div>
-    <div class="mb-3">
-        <label for="nombre" class="form-label">Nombre del Producto</label>
-        <input type="text" class="form-control" id="nombre" name="nombre" required>
-    </div>
-    <div class="mb-3">
-        <label for="compra" class="form-label">Precio de Compra (Propietario)</label>
-        <div class="input-group">
-            <span class="input-group-text"><?php echo $simbolo_moneda = "₡"; ?></span>
-            <input type="number" step="0.01" class="form-control" id="compra" name="compra" required>
+<form action="Configuracion/guardar_producto.php" method="POST" class="container bg-light p-4 rounded shadow-lg">
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="codigo" class="form-label">📦 Código de Barras</label>
+            <input type="text" class="form-control" id="codigo" name="codigo" required>
         </div>
-        <small class="form-text text-muted">
-            Precio Unitario con IVA: <strong id="resultadoFinal">₡0.00</strong>
-        </small>
+        <div class="col-md-6">
+            <label for="nombre" class="form-label">📝 Nombre del Producto</label>
+            <input type="text" class="form-control" id="nombre" name="nombre" required>
+        </div>
     </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="compra" class="form-label">💰 Precio de Compra (Propietario)</label>
+            <div class="input-group">
+                <span class="input-group-text">₡</span>
+                <input type="number" step="0.01" class="form-control" id="compra" name="compra" required>
+            </div>
+            <small class="form-text text-muted">
+                Precio Unitario con IVA: <strong id="resultadoFinal">₡0.00</strong>
+            </small>
+        </div>
+
+        <div class="col-md-6">
+            <label for="venta" class="form-label">🏷️ Precio de Venta (Cliente)</label>
+            <div class="input-group">
+                <span class="input-group-text">₡</span>
+                <input type="number" step="0.01" class="form-control" id="venta" name="venta" required>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="iva" class="form-label">⚖️ IVA (%)</label>
+            <input type="number" step="0.01" class="form-control" id="iva" name="iva" required>
+        </div>
+        <div class="col-md-6">
+            <label for="existencia" class="form-label">📊 Existencias</label>
+            <input type="number" class="form-control" id="existencia" name="existencia" required>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6 d-flex align-items-center">
+            <input type="checkbox" class="form-check-input me-2" id="tiene_vencimiento" name="tiene_vencimiento">
+            <label for="tiene_vencimiento" class="form-check-label">⏳ ¿Tiene fecha de vencimiento?</label>
+        </div>
+        <div class="col-md-6" id="fecha_vencimiento_div" style="display: none;">
+            <label for="vencimiento" class="form-label">📅 Fecha de Vencimiento</label>
+            <input type="date" class="form-control" id="vencimiento" name="vencimiento">
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <button type="submit" class="btn btn-success btn-lg px-4">💾 Guardar Producto</button>
+        <a href="VerProductos.php" class="btn btn-secondary btn-lg px-4">📂 Ver Productos</a>
+    </div>
+</form>
+
+                                        
+       
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -495,46 +542,16 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
         });
     </script>
 
-    <div class="mb-3">
-        <label for="venta" class="form-label">Precio de Venta (Cliente)</label>
-        <div class="input-group">
-            <span class="input-group-text"><?php echo $simbolo_moneda; ?></span>
-            <input type="number" step="0.01" class="form-control" id="venta" name="venta" required>
-        </div>
-    </div>
-    <div class="mb-3">
-        <label for="iva" class="form-label">IVA (%)</label>
-        <input type="number" step="0.01" class="form-control" id="iva" name="iva" required>
-    </div>
-    <div class="mb-3">
-        <label for="existencia" class="form-label">Existencias</label>
-        <input type="number" class="form-control" id="existencia" name="existencia" required>
-    </div>
-    
-    <div class="mb-3">
-        <label for="tiene_vencimiento" class="form-label">¿Este producto tiene fecha de vencimiento?</label>
-        <input type="checkbox" id="tiene_vencimiento" name="tiene_vencimiento">
-    </div>
-
-    <div class="mb-3" id="fecha_vencimiento_div" style="display: none;">
-        <label for="vencimiento" class="form-label">Fecha de Vencimiento</label>
-        <input type="date" class="form-control" id="vencimiento" name="vencimiento">
-    </div>
-
-    <button type="submit" class="btn btn-success">Guardar Producto</button>
-    <a href="VerProductos.php" class="btn btn-secondary">Ver Productos</a>
-</form>
-
-<script>
-    document.getElementById('tiene_vencimiento').addEventListener('change', function() {
-        var vencimientoDiv = document.getElementById('fecha_vencimiento_div');
-        if (this.checked) {
-            vencimientoDiv.style.display = 'block';
-        } else {
-            vencimientoDiv.style.display = 'none';
-        }
-    });
-</script>
+    <script>
+        document.getElementById('tiene_vencimiento').addEventListener('change', function() {
+            var vencimientoDiv = document.getElementById('fecha_vencimiento_div');
+            if (this.checked) {
+                vencimientoDiv.style.display = 'block';
+            } else {
+                vencimientoDiv.style.display = 'none';
+            }
+        });
+    </script>
 
 
                                     
