@@ -281,7 +281,7 @@ $id_usuario = $_SESSION["id"];
                         <div class="card">
                         <div class="card">
                             <div class="row">
-                                <div class="col-lg-8">
+                                <div class="col-lg-11">
                                     <div class="card-body">
 
 
@@ -446,159 +446,63 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 
-<h1 class="mb-4">🛒Realizar Ventas</h1>
-                                        
-                                        <br>
-
-<!-- Selector de clientes -->
-
-<label for="clienteSeleccionado"><strong>Cliente:</strong></label>
-<!-- Buscador de clientes -->
-<input type="text" id="buscarCliente" class="form-control" placeholder="Buscar cliente...">
-
-<!-- Select para mostrar los clientes -->
-<select id="clienteSeleccionado" class="form-control mt-3">
-    <option value="" disabled selected>Seleccione un cliente</option>
-</select>
-
-<!-- Información del cliente seleccionado -->
-<div id="infoCliente" class="mt-3">
-    <div class="blanco d-none">
-        <strong>ID Cliente: </strong><span id="clienteId"></span><br>
-    </div>
-    <!-- <strong>Descuento: </strong><span id="descuentoCliente"></span><br> -->
-    <strong>Descuento(%): </strong>
-    <input type="text" id="descuentoCliente" class="form-control"><br>
-
-<script>
-    document.getElementById("descuentoCliente").addEventListener("input", function () {
-    actualizarTabla();
-});
-
-</script>
-    <!-- El input hidden para enviar el ID -->
-    <input type="hidden" id="inputClienteId" name="cliente_id">
-
-</div>
-
-
 
 
 <br>
-<script>
-// Función para cargar clientes en el select
-function cargarClientes(query = "") {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "Configuracion/obtener_clientes.php?query=" + query, true);
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            let clientes = JSON.parse(xhr.responseText);
-            let select = document.getElementById("clienteSeleccionado");
-            select.innerHTML = "<option value=''>Seleccione un cliente</option>"; // Limpiar el select antes de agregar opciones
+<h1 class="mb-4">🛒 Realizar Ventas</h1>
 
-            // Verificar que los clientes sean correctos
-            if (clientes.length > 0) {
-                clientes.forEach(cliente => {
-                    let option = document.createElement("option");
-                    option.value = cliente.id;
-                    option.textContent = cliente.nombre; // Nombre del cliente
-                    select.appendChild(option);
-                });
-            } else {
-                let option = document.createElement("option");
-                option.value = "";
-                option.textContent = "No se encontraron clientes";
-                select.appendChild(option);
-            }
-        }
-    };
-    xhr.send();
-}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Columna izquierda: Cliente -->
+        <div class="col-md-4">
+            <!-- Selector de clientes -->
+            <label for="clienteSeleccionado" class="form-label">👤 <strong>Cliente:</strong></label>
+            
+            <!-- Buscador -->
+            <input type="text" id="buscarCliente" class="form-control mb-2" placeholder="🔎 Buscar cliente...">
 
-// Llamar la función cuando cargue la página
-window.onload = function() {
-    cargarClientes(); // Cargar todos los clientes al inicio
+            <!-- Lista de clientes -->
+            <select id="clienteSeleccionado" class="form-control mb-3">
+                <option value="" disabled selected>📋Seleccione un cliente</option>
+            </select>
 
-    // Filtrar clientes mientras escribes
-    document.getElementById("buscarCliente").addEventListener("input", function() {
-        let query = this.value.trim();
-        cargarClientes(query);
-    });
-};
+            <!-- Información del cliente -->
+            <div id="infoCliente" class="card p-3 shadow-sm">
+                <div class="blanco d-none">
+                    <strong>🆔 ID Cliente:</strong> <span id="clienteId"></span><br>
+                </div>
 
-// Mostrar el ID y descuento del cliente seleccionado
-document.getElementById("clienteSeleccionado").addEventListener("change", function() {
-    let clienteId = this.value;
-    if (clienteId) {
-        mostrarInfoCliente(clienteId);
-    } else {
-        document.getElementById("clienteId").textContent = "";
-        document.getElementById("descuentoCliente").textContent = "";
-    }
-});
+                <label for="descuentoCliente" class="form-label mt-2">💸<strong>Descuento (%):</strong></label>
+                <input type="text" id="descuentoCliente" class="form-control" placeholder="Ej: 10"><br>
 
-// Función para obtener y mostrar la información del cliente seleccionado
-function mostrarInfoCliente(clienteId) {
-    // Primero vaciamos el campo inputClienteId al seleccionar un cliente
-    document.getElementById("inputClienteId").value = ""; 
+                <!-- Input oculto -->
+                <input type="hidden" id="inputClienteId" name="cliente_id">
 
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "Configuracion/obtener_info_cliente.php?id=" + clienteId, true);
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            try {
-                let cliente = JSON.parse(xhr.responseText);
-                if (cliente) {
-                    // Si el cliente es encontrado, mostramos su información
-                    document.getElementById("clienteId").textContent = cliente.id;
-                    document.getElementById("descuentoCliente").value = cliente.descuento + "";
-                    document.getElementById("inputClienteId").value = cliente.id;
-
-                    // ✅ Volver a calcular tabla con el nuevo descuento
-                    actualizarTabla();
-
-                } else {
-                    document.getElementById("clienteId").textContent = "No encontrado";
-                    document.getElementById("descuentoCliente").value = "N/A";
-                    document.getElementById("inputClienteId").value = "";
-
-                    actualizarTabla(); // Por si se limpia también se actualiza
-                }
-            } catch (e) {
-                console.error("Error al parsear JSON:", e);
-                document.getElementById("inputClienteId").value = "";
-                actualizarTabla(); // Por si ocurre un error, también se actualiza
-            }
-        }
-    };
-    xhr.send();
-}
+                    <!-- Barra de búsqueda para escaneo -->
+                <label for="descuentoCliente" class="form-label mt-2">💸<strong>Escanea el codigo del producto:</strong></label>
+                <input type="text" id="buscadorVenta" class="form-control" placeholder="Escanea el código de producto..." autofocus>
+                <br>
+                <div id="mensajeVenta" class="alert d-none mt-3" role="alert"></div>
+                <div id="mensajeError" class="alert d-none mt-3" role="alert"></div>
 
 
+            </div>
+        </div>
+
+        
+        <!-- Columna derecha: Resumen o futura tabla -->
 
 
-// Evento para detectar el cambio en el select de clientes
-document.getElementById("clienteSelect").addEventListener("change", function() {
-    const clienteId = this.value; // Obtener el ID del cliente seleccionado
-    mostrarInfoCliente(clienteId); // Llamar a la función para actualizar la información
-});
+        <div class="col-md-8">
+            <div class="card p-3 shadow-sm">
+                                 
 
-
-
-
-</script>
-
-                         
-    <!-- Barra de búsqueda para escaneo -->
-    <input type="text" id="buscadorVenta" class="form-control" placeholder="Escanea el código de producto..." autofocus>
-    <br>
-    <div id="mensajeVenta" class="alert d-none mt-3" role="alert"></div>
-    <div id="mensajeError" class="alert d-none mt-3" role="alert"></div>
 
 
     <!-- Tabla de productos seleccionados -->
-    <h3>Productos seleccionados</h3>
-    <table class="table table-striped">
+    <h3>📊Productos seleccionados</h3>
+    <div class="table-responsive">
+    <table class="table table-dark table-bordered text-center align-middle w-100" style="table-layout: fixed; word-wrap: break-word;">
         <thead>
             <tr>
                 <th>Código</th>
@@ -611,7 +515,7 @@ document.getElementById("clienteSelect").addEventListener("change", function() {
         </thead>
         <tbody id="productosSeleccionados"></tbody>
     </table>
-
+</div>
     <!-- Botón para realizar la venta -->
     <button id="btnRealizarVenta" class="btn btn-success">Realizar Venta</button>
 
@@ -687,24 +591,24 @@ const montoClienteValor = montoClienteInput ? montoClienteInput.value : '';
 // Mostrar totales (regenerar tabla)
 tabla.innerHTML += `
     <tr>
-        <td colspan="3"><strong>Subtotal</strong></td>
+        <td colspan="3" style="text-align: left;"><strong>Subtotal</strong></td>
         <td><strong>${totalCantidad}</strong></td>
         <td><strong>$${subtotal.toFixed(2)}</strong></td>
         <td></td>
     </tr>
     <tr>
-        <td colspan="4"><strong>Descuento (${descuentoPorcentaje}%)</strong></td>
+        <td colspan="4" style="text-align: left;"><strong>Descuento (${descuentoPorcentaje}%)</strong></td>
         <td><strong>$${montoDescuento.toFixed(2)}</strong></td>
         <td></td>
     </tr>
     <tr>
-        <td colspan="4"><strong>Total con Descuento</strong></td>
+        <td colspan="4" style="text-align: left;"><strong>Total con Descuento</strong></td>
         <td><strong id="totalDescuento">$${totalConDescuento.toFixed(2)}</strong></td>
         <td></td>
     </tr>
     <tr>
-        <td colspan="4"><strong>Monto Pagado Cliente</strong></td>
-        <td colspan="2"><input type="number" id="montoCliente" oninput="calcularVuelto()" placeholder="Ingrese monto pagado" /></td>
+        <td colspan="4" style="text-align: left;"><strong>Monto Pagado Cliente</strong></td>
+        <td colspan="2"><input type="number" id="montoCliente" oninput="calcularVuelto()" class="form-control form-control-sm" min="1" placeholder="Monto"/></td>
     </tr>
     <tr>
         <td colspan="4"><strong>Vuelto</strong></td>
@@ -877,6 +781,125 @@ document.getElementById("btnRealizarVenta").addEventListener("click", function()
 
 
     </script>
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("descuentoCliente").addEventListener("input", function () {
+        actualizarTabla();
+    });
+</script>
+
+
+<script>
+// Función para cargar clientes en el select
+function cargarClientes(query = "") {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "Configuracion/obtener_clientes.php?query=" + query, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            let clientes = JSON.parse(xhr.responseText);
+            let select = document.getElementById("clienteSeleccionado");
+            select.innerHTML = "<option value=''>Seleccione un cliente</option>"; // Limpiar el select antes de agregar opciones
+
+            // Verificar que los clientes sean correctos
+            if (clientes.length > 0) {
+                clientes.forEach(cliente => {
+                    let option = document.createElement("option");
+                    option.value = cliente.id;
+                    option.textContent = cliente.nombre; // Nombre del cliente
+                    select.appendChild(option);
+                });
+            } else {
+                let option = document.createElement("option");
+                option.value = "";
+                option.textContent = "No se encontraron clientes";
+                select.appendChild(option);
+            }
+        }
+    };
+    xhr.send();
+}
+
+// Llamar la función cuando cargue la página
+window.onload = function() {
+    cargarClientes(); // Cargar todos los clientes al inicio
+
+    // Filtrar clientes mientras escribes
+    document.getElementById("buscarCliente").addEventListener("input", function() {
+        let query = this.value.trim();
+        cargarClientes(query);
+    });
+};
+
+// Mostrar el ID y descuento del cliente seleccionado
+document.getElementById("clienteSeleccionado").addEventListener("change", function() {
+    let clienteId = this.value;
+    if (clienteId) {
+        mostrarInfoCliente(clienteId);
+    } else {
+        document.getElementById("clienteId").textContent = "";
+        document.getElementById("descuentoCliente").textContent = "";
+    }
+});
+
+// Función para obtener y mostrar la información del cliente seleccionado
+function mostrarInfoCliente(clienteId) {
+    // Primero vaciamos el campo inputClienteId al seleccionar un cliente
+    document.getElementById("inputClienteId").value = ""; 
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "Configuracion/obtener_info_cliente.php?id=" + clienteId, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            try {
+                let cliente = JSON.parse(xhr.responseText);
+                if (cliente) {
+                    // Si el cliente es encontrado, mostramos su información
+                    document.getElementById("clienteId").textContent = cliente.id;
+                    document.getElementById("descuentoCliente").value = cliente.descuento + "";
+                    document.getElementById("inputClienteId").value = cliente.id;
+
+                    // ✅ Volver a calcular tabla con el nuevo descuento
+                    actualizarTabla();
+
+                } else {
+                    document.getElementById("clienteId").textContent = "No encontrado";
+                    document.getElementById("descuentoCliente").value = "N/A";
+                    document.getElementById("inputClienteId").value = "";
+
+                    actualizarTabla(); // Por si se limpia también se actualiza
+                }
+            } catch (e) {
+                console.error("Error al parsear JSON:", e);
+                document.getElementById("inputClienteId").value = "";
+                actualizarTabla(); // Por si ocurre un error, también se actualiza
+            }
+        }
+    };
+    xhr.send();
+}
+
+
+
+
+// Evento para detectar el cambio en el select de clientes
+document.getElementById("clienteSelect").addEventListener("change", function() {
+    const clienteId = this.value; // Obtener el ID del cliente seleccionado
+    mostrarInfoCliente(clienteId); // Llamar a la función para actualizar la información
+});
+
+
+
+
+</script>
+
+
 
 
 
