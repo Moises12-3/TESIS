@@ -446,7 +446,7 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 
-                                        <h1>Realizar Ventas</h1>
+<h1 class="mb-4">🛒 Realizar Ventas</h1>
                                         
                                         <br>
 
