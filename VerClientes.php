@@ -447,18 +447,18 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 
 
 
-                                    <h1>Clientes</h1>
+<h2 class="text-center mb-4">👥 Clientes</h2>
                                     <div class="d-flex align-items-center">
                                         
-                                        <input type="text" id="buscadorClientes" class="form-control" placeholder="Buscar cliente..." style="width: 300px;">
+                                        <input type="text" id="buscadorClientes" class="form-control" placeholder="🔎Buscar cliente..." style="width: 300px;">
                                         
-                                        <button class="btn btn-success mt-3 ml-3" onclick="exportarExcel()">Exportar a Excel</button>
+                                        <button class="btn btn-success mt-3 ml-3" onclick="exportarExcel()">📊Exportar a Excel</button>
                                         
                                     </div>
                                         
                                     <!-- Filtro para seleccionar cuántos elementos mostrar -->
                                     <div class="d-flex justify-content-end mb-3">
-                                        <label class="mr-2 mt-2">Mostrar:</label>
+                                        <label class="mr-2 mt-2">📌Mostrar:</label>
                                         <select id="selectFilas" class="form-control w-auto">
                                             <option value="5">5</option>
                                             <option value="10" selected>10</option>
@@ -568,17 +568,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
                                     ?>
 
-                                    <table class="table" id="tablaClientes">
+                                    <table class="table table-dark" id="tablaClientes">
 
                                         <thead>
                                             <tr>
-                                                <th scope="col">Nombre</th>
-                                                <th scope="col">Cédula</th> <!-- Nueva columna para Cédula -->
-                                                <th scope="col">Teléfono</th>
-                                                <th scope="col">Dirección</th>
-                                                <th scope="col">Descuento</th> <!-- Nueva columna para Descuento -->
-                                                <th scope="col">Editar</th>
-                                                <th scope="col">Eliminar</th>
+                                                <th scope="col">👤Nombre</th>
+                                                <th scope="col">🆔Cédula</th> <!-- Nueva columna para Cédula -->
+                                                <th scope="col">📞Teléfono</th>
+                                                <th scope="col">🏠Dirección</th>
+                                                <th scope="col">💸Descuento</th> <!-- Nueva columna para Descuento -->
+                                                <th scope="col">✏️Editar</th>
+                                                <th scope="col">🗑️Eliminar</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -596,7 +596,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                                     echo "</tr>";
                                                 }
                                             } else {
-                                                echo "<tr><td colspan='5'>No hay clientes registrados.</td></tr>";
+                                                echo "<tr><td colspan='5'>⚠️No hay clientes registrados.</td></tr>";
                                             }
                                             ?>
                                         </tbody>
