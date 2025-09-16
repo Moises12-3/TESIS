@@ -1,15 +1,12 @@
 <?php
-session_start(); // Inicia la sesión
-
-// Incluir la conexión
+session_start();
+header('Content-Type: application/json');
 require_once "Conexion/conex.php";
 
-// Verificar si el formulario fue enviado
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST["email"];
-    $password = $_POST["password"];
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $email = trim($_POST["email"] ?? '');
+    $password = $_POST["password"] ?? '';
 
-    // Preparar consulta segura
     $stmt = $conn->prepare("SELECT id, email, password FROM usuarios WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
@@ -19,26 +16,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_result($id, $db_email, $db_password);
         $stmt->fetch();
 
-        // Verificar la contraseña
         if (password_verify($password, $db_password)) {
             $_SESSION["usuario"] = $db_email;
             $_SESSION["id"] = $id;
-            header("Location: index.php"); // Redirigir si es correcto
-            exit();
+            echo json_encode(["status"=>"success"]);
         } else {
-            header("Location: page-login.php?mensaje=Incorrecto");
-            //$error = "Usuario o contraseña incorrectos";
+            echo json_encode([
+                "status"=>"error",
+                "type"=>"danger",
+                "message"=>"❌ Usuario o contraseña incorrectos."
+            ]);
         }
     } else {
-        header("Location: page-login.php?mensaje=UserNotSearch");
-        //$error = "Usuario no encontrado";
+        echo json_encode([
+            "status"=>"error",
+            "type"=>"warning",
+            "message"=>"⚠️ Usuario no encontrado."
+        ]);
     }
-
     $stmt->close();
+    exit;
 }
-?>
 
-<!-- Mostrar errores -->
-<?php if (!empty($error)): ?>
-    <div style="color: red; font-weight: bold;"><?php echo $error; ?></div>
-<?php endif; ?>
+echo json_encode(["status"=>"error","type"=>"danger","message"=>"Solicitud no válida."]);

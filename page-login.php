@@ -4,115 +4,171 @@ if (isset($_SESSION["usuario"])) {
     header("Location: index.php");
     exit();
 }
+
+// Obtener imágenes del fondo
+$imagenes = glob("fondo/*.{jpg,jpeg,png,gif,webp}", GLOB_BRACE);
 ?>
-
 <!doctype html>
-<!--[if lt IE 7]>      .php class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
-<!--[if IE 7]>         .php class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
-<!--[if IE 8]>         .php class="no-js lt-ie9" lang=""> <![endif]-->
-<!--[if gt IE 8]><!--> 
-<html class="no-js" lang=""> <!--<![endif]-->
+<html lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Login</title>
-    <meta name="description" content="Ela Admin -.php5 Admin Template">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>🔐 Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="apple-touch-icon" href="images/favicon.png">
-    <link rel="shortcut icon" href="images/favicon.png">
+<link rel="apple-touch-icon" href="images/favicon.png">
+<link rel="shortcut icon" href="images/favicon.png">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.0/normalize.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css">
+<!-- Bootstrap & Font Awesome -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lykmapipo/themify-icons@0.1.2/css/themify-icons.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pixeden-stroke-7-icon@1.2.3/pe-icon-7-stroke/dist/pe-icon-7-stroke.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.2.0/css/flag-icon.min.css">
-    <link rel="stylesheet" href="assets/css/cs-skin-elastic.css">
-    <link rel="stylesheet" href="assets/css/style.css">
-
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800' rel='stylesheet' type='text/css'>
-
-    <!-- <script type="text/javascript" src="https://cdn.jsdelivr.net.php5shiv/3.7.3.php5shiv.min.js"></script> -->
+<style>
+body, html { height: 100%; margin: 0; }
+.background-slideshow {
+    position: fixed; top:0; left:0;
+    width:100%; height:100%;
+    z-index:-1; overflow:hidden;
+}
+.background-slideshow img {
+    position:absolute;
+    width:100%; height:100%;
+    object-fit:cover;
+    display:none;
+}
+.login-box {
+    background:rgba(0,0,0,0.7);
+    padding:40px;
+    border-radius:12px;
+    color:#fff;
+    box-shadow:0 8px 25px rgba(0,0,0,0.5);
+}
+.form-control { border-radius:30px; padding-left:40px; }
+.input-icon { position:absolute; left:15px; top:10px; color:#888; }
+.btn-login { border-radius:30px; font-size:1.1rem; }
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    cursor: pointer;
+    color: #888;
+}
+</style>
 </head>
-<body class="bg-dark">
+<body>
 
-    <div class="sufee-login d-flex align-content-center flex-wrap">
-        <div class="container">
-            <div class="login-content">
-                <div class="login-logo">
-                    <a href="index.php">
-                        <img class="align-content" src="images/logo.png" alt="">
-                    </a>
-                </div>
-                <div class="login-form">
-                    <form method="POST" action="login.php">
-                        <div class="form-group">
-                            <label>Email address</label>
-                            <input type="email" class="form-control" name="email" placeholder="Email">
-                        </div>
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="password" class="form-control" name="password" placeholder="Password">
-                        </div>
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox"> Remember Me
-                            </label>
-                            <label class="pull-right">
-                                <a href="#">Forgotten Password?</a>
-                            </label>
+<div class="background-slideshow">
+    <?php foreach ($imagenes as $img) {
+        echo "<img src='$img'>";
+    } ?>
+</div>
 
-                        </div>
-                        <button type="submit" class="btn btn-success btn-flat m-b-30 m-t-30">Sign in</button>
-                        <div class="register-link m-t-15 text-center">
-                            <p>Don't have account ? <a href="#"> Sign Up Here</a></p>
-                        </div>
-                    </form>                        
-
-                    
-                    <?php
-                        if (isset($_GET['mensaje'])) {
-                            switch ($_GET['mensaje']) {
-                            case 'Incorrecto':
-                                echo "<div id='mensaje' class='alert alert-danger'>Usuario o contraseña incorrectos.</div>";
-                            break;
-                            case 'UserNotSearch':
-                                echo "<div id='mensaje' class='alert alert-warning'>Usuario no encontrado.</div>";
-                            break;
-                            }
-                        }
-                        ?>
-
-                                    <script type="text/javascript">
-                                        window.onload = function() {
-                                            var mensaje = document.getElementById('mensaje');
-                                            if (mensaje) {
-                                                setTimeout(function() {
-                                                    mensaje.style.display = 'none';
-                                                }, 3000);
-                                            }
-                                        };
-                                    </script>
-
-                    <?php
-                        if (isset($error)) {
-                            echo "<div style='color:red; font-weight:bold;'>$error</div>";
-                        }
-                    ?>
-                </div>
-            </div>
+<div class="d-flex justify-content-center align-items-center" style="height:100%;">
+    <div class="login-box col-md-4">
+        <div class="text-center mb-4">
+            <img src="images/favicon.png" alt="Logo" class="img-fluid mb-2" style="max-height:80px;">
+            <h4>👋 ¡Bienvenido!</h4>
+            <p>Inicia sesión para continuar</p>
         </div>
+
+        <form id="loginForm">
+            <div class="form-group position-relative">
+                <span class="input-icon"><i class="fas fa-envelope"></i></span>
+                <input type="email" class="form-control" name="email" placeholder="📧 Correo electrónico" required>
+            </div>
+            <div class="form-group position-relative">
+                <span class="input-icon"><i class="fas fa-lock"></i></span>
+                <input type="password" class="form-control" name="password" id="password" placeholder="🔑 Contraseña" required>
+                <span class="password-toggle"><i class="fas fa-eye" id="togglePassword"></i></span>
+            </div>
+            <button type="submit" class="btn btn-success btn-block btn-login">🚀 Entrar</button>
+
+            <?php
+            // Obtener la URL del sitio actual
+            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+            $siteURL = $protocol . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']);
+
+            // Mensaje de WhatsApp con el link clickeable
+            $whatsappMsg = urlencode("Hola, tengo problemas al iniciar sesion en este sitio: $siteURL");
+            ?>
+            <div class="mt-3 text-center">
+                <small>
+                    <a href="https://api.whatsapp.com/send?phone=50588090180&text=<?php echo $whatsappMsg; ?>" target="_blank" class="text-light">
+                        ❓ ¿Olvidaste tu contraseña?
+                    </a>
+                </small>
+            </div>
+        </form>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@2.2.4/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-match-height@0.7.2/dist/jquery.matchHeight.min.js"></script>
-    <script src="assets/js/main.js"></script>
+<!-- Modal -->
+<div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-body text-center" id="modal-message"></div>
+    </div>
+  </div>
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+$(function(){
+    // Slideshow con fade
+    let images = $(".background-slideshow img");
+    let current = 0;
+    images.eq(current).fadeIn(1000);
+    setInterval(() => {
+        images.eq(current).fadeOut(1000);
+        current = (current + 1) % images.length;
+        images.eq(current).fadeIn(1000);
+    }, 5000);
+
+    // Toggle contraseña
+    $("#togglePassword").on("click", function(){
+        let input = $("#password");
+        if(input.attr("type") === "password"){
+            input.attr("type", "text");
+            $(this).removeClass("fa-eye").addClass("fa-eye-slash");
+        } else {
+            input.attr("type", "password");
+            $(this).removeClass("fa-eye-slash").addClass("fa-eye");
+        }
+    });
+
+    // Login AJAX
+    $("#loginForm").on("submit", function(e){
+        e.preventDefault();
+        $.ajax({
+            url: "login.php",
+            type: "POST",
+            data: $(this).serialize(),
+            dataType: "json",
+            success: function(res){
+                if(res.status === "success"){
+                    window.location.href = "index.php";
+                } else {
+                    const colors = {danger:"text-danger", warning:"text-warning"};
+                    $("#modal-message")
+                        .removeClass()
+                        .addClass("p-3 " + (colors[res.type] || ""))
+                        .html(`<h5>${res.message}</h5>`);
+                    $("#alertModal").modal("show");
+                    setTimeout(()=>{ $("#alertModal").modal("hide"); }, 3000);
+                }
+            },
+            error: function(){
+                $("#modal-message")
+                    .removeClass()
+                    .addClass("p-3 text-danger")
+                    .html("<h5>⚠️ Error al procesar la solicitud.</h5>");
+                $("#alertModal").modal("show");
+                setTimeout(()=>{ $("#alertModal").modal("hide"); }, 3000);
+            }
+        });
+    });
+});
+</script>
 </body>
 </html>
