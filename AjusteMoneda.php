@@ -21,7 +21,7 @@ $id_usuario = $_SESSION["id"];
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Tipo Moneda</title>
+    <title>🪙 Ajuste de Moneda</title>
     <meta name="description" content="Ela Admin - HTML5 Admin Template">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -168,62 +168,67 @@ $id_usuario = $_SESSION["id"];
                     <div class="header-left">
 
 
+                        
                         <div class="dropdown for-message">
-                            <a class="nav-link" href="#" onclick="toggleFullscreen()">
-                                    <i class="fa fa-expand"></i>Ver Pantalla completa
-                                </a>
-
-                                <script src>
-                                // Comprueba el estado de pantalla completa al cargar la página
-                                document.addEventListener('DOMContentLoaded', function () {
-                                    if (localStorage.getItem('fullscreen') === 'true') {
-                                        enableFullscreen();
-                                    }
-                                });
-
-                                // Función para activar el modo de pantalla completa
-                                function toggleFullscreen() {
-                                    if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
-                                        enableFullscreen();
-                                    } else {
-                                        disableFullscreen();
-                                    }
-                                }
-
-                                // Activar pantalla completa
-                                function enableFullscreen() {
-                                    if (document.documentElement.requestFullscreen) {
-                                        document.documentElement.requestFullscreen();
-                                    } else if (document.documentElement.mozRequestFullScreen) {
-                                        document.documentElement.mozRequestFullScreen(); // Firefox
-                                    } else if (document.documentElement.webkitRequestFullscreen) {
-                                        document.documentElement.webkitRequestFullscreen(); // Chrome, Safari y Opera
-                                    } else if (document.documentElement.msRequestFullscreen) {
-                                        document.documentElement.msRequestFullscreen(); // IE/Edge
-                                    }
-                                    
-                                    // Guardamos en el localStorage que el modo pantalla completa está activado
-                                    localStorage.setItem('fullscreen', 'true');
-                                }
-
-                                // Desactivar pantalla completa
-                                function disableFullscreen() {
-                                    if (document.exitFullscreen) {
-                                        document.exitFullscreen();
-                                    } else if (document.mozCancelFullScreen) {
-                                        document.mozCancelFullScreen(); // Firefox
-                                    } else if (document.webkitExitFullscreen) {
-                                        document.webkitExitFullscreen(); // Chrome, Safari y Opera
-                                    } else if (document.msExitFullscreen) {
-                                        document.msExitFullscreen(); // IE/Edge
-                                    }
-                                    
-                                    // Guardamos en el localStorage que el modo pantalla completa está desactivado
-                                    localStorage.setItem('fullscreen', 'false');
-                                }
-
-                                </script>                           
+                            <a class="nav-link" href="#" onclick="toggleFullscreen(event)">
+                                <i class="fa fa-expand" id="fullscreenIcon"></i> Ver Pantalla completa
+                            </a>                   
                         </div>
+
+                        <script>
+                        function toggleFullscreen(event) {
+                            event.preventDefault();
+
+                            if (!document.fullscreenElement) {
+                                document.documentElement.requestFullscreen()
+                                    .then(() => {
+                                        sessionStorage.setItem('fullscreenActive', 'true');
+                                        updateIcon(true);
+                                    })
+                                    .catch((err) => {
+                                        alert(`Error: ${err.message} (${err.name})`);
+                                    });
+                            } else {
+                                document.exitFullscreen()
+                                    .then(() => {
+                                        sessionStorage.setItem('fullscreenActive', 'false');
+                                        updateIcon(false);
+                                    });
+                            }
+                        }
+
+                        function updateIcon(isFullscreen) {
+                            const icon = document.getElementById('fullscreenIcon');
+                            if (isFullscreen) {
+                                icon.classList.remove('fa-expand');
+                                icon.classList.add('fa-compress');
+                            } else {
+                                icon.classList.remove('fa-compress');
+                                icon.classList.add('fa-expand');
+                            }
+                        }
+
+                        // Al cargar la página, verifica si el usuario quería pantalla completa
+                        document.addEventListener('DOMContentLoaded', () => {
+                            if (sessionStorage.getItem('fullscreenActive') === 'true') {
+                                // Solo se puede activar tras interacción, así que muestra un mensaje o botón para que el usuario lo active
+                                // Aquí solo actualizamos el icono para reflejar la intención
+                                updateIcon(true);
+                                // Opcional: mostrar mensaje para pedir que active pantalla completa manualmente
+                                console.log("Recuerda activar pantalla completa con el botón si quieres continuar.");
+                            }
+                        });
+
+                        // Detecta cambios en pantalla completa para actualizar el icono
+                        document.addEventListener('fullscreenchange', () => {
+                            updateIcon(!!document.fullscreenElement);
+                            if (!document.fullscreenElement) {
+                                sessionStorage.setItem('fullscreenActive', 'false');
+                            }
+                        });
+                        </script>
+
+
                     </div>
 
                     <div class="user-area dropdown float-right">
@@ -276,182 +281,26 @@ $id_usuario = $_SESSION["id"];
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
-                        <div class="card">
                             <div class="row">
                                 <div class="col-lg-8">
                                     <div class="card-body">
 
+                                    
+
+
+    
+   
+
+
+
+
 
                                     
-<?php
-require 'Conexion/conex.php';
-
-$mesActual = date('m');
-$anioActual = date('Y');
-
-// Contar productos que vencen este mes
-$sqlContador = "SELECT COUNT(*) AS total FROM productos 
-                WHERE MONTH(fecha_vencimiento) = $mesActual 
-                  AND YEAR(fecha_vencimiento) = $anioActual 
-                  AND fecha_vencimiento IS NOT NULL";
-$resContador = $conn->query($sqlContador);
-$total_vencimientos = 0;
-
-if ($resContador && $fila = $resContador->fetch_assoc()) {
-    $total_vencimientos = $fila['total'];
-}
-?>
-
-<?php if ($total_vencimientos > 0): ?>
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <strong>Atención:</strong> Tienes <?= $total_vencimientos ?> producto(s) que vencen este mes.
-        <a href="#" class="alert-link" data-toggle="modal" data-target="#modalVencimientos">Ver detalles</a>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-<?php endif; ?>
-
-
-<!-- Modal de productos por vencer -->
-<div class="modal fade" id="modalVencimientos" tabindex="-1" role="dialog" aria-labelledby="tituloModal" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg-warning text-white">
-        <h5 class="modal-title" id="tituloModal">Productos que vencen este mes</h5>
-        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <?php
-        $sql_modal = "SELECT codigo, nombre, fecha_vencimiento 
-                      FROM productos 
-                      WHERE MONTH(fecha_vencimiento) = $mesActual 
-                        AND YEAR(fecha_vencimiento) = $anioActual 
-                      ORDER BY fecha_vencimiento ASC";
-        $res_modal = $conn->query($sql_modal);
-        if ($res_modal && $res_modal->num_rows > 0): ?>
-            <table class="table table-bordered">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre</th>
-                        <th>Fecha de Vencimiento</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($fila = $res_modal->fetch_assoc()): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($fila['codigo']) ?></td>
-                            <td><?= htmlspecialchars($fila['nombre']) ?></td>
-                            <td><?= htmlspecialchars($fila['fecha_vencimiento']) ?></td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <p>No hay productos que venzan este mes.</p>
-        <?php endif; ?>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Requiere jQuery y Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-
-
-
 
 <?php
-require 'Conexion/conex.php';
-
-$mesActual = date('m');
-$anioActual = date('Y');
-
-// Contar productos que vencen este mes
-$sqlContador = "SELECT COUNT(*) AS total FROM productos 
-                WHERE MONTH(fecha_vencimiento) = $mesActual 
-                  AND YEAR(fecha_vencimiento) = $anioActual 
-                  AND fecha_vencimiento IS NOT NULL";
-$resContador = $conn->query($sqlContador);
-$total_vencimientos = 0;
-
-if ($resContador && $fila = $resContador->fetch_assoc()) {
-    $total_vencimientos = $fila['total'];
-}
-?>
-
-
-
-<!-- Modal de productos por vencer -->
-<div class="modal fade" id="modalVencimientos" tabindex="-1" role="dialog" aria-labelledby="tituloModal" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg-warning text-white">
-        <h5 class="modal-title" id="tituloModal">Productos que vencen este mes</h5>
-        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <?php
-        $sql_modal = "SELECT codigo, nombre, fecha_vencimiento 
-                      FROM productos 
-                      WHERE MONTH(fecha_vencimiento) = $mesActual 
-                        AND YEAR(fecha_vencimiento) = $anioActual 
-                      ORDER BY fecha_vencimiento ASC";
-        $res_modal = $conn->query($sql_modal);
-        if ($res_modal && $res_modal->num_rows > 0): ?>
-            <table class="table table-bordered">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre</th>
-                        <th>Fecha de Vencimiento</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($fila = $res_modal->fetch_assoc()): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($fila['codigo']) ?></td>
-                            <td><?= htmlspecialchars($fila['nombre']) ?></td>
-                            <td><?= htmlspecialchars($fila['fecha_vencimiento']) ?></td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <p>No hay productos que venzan este mes.</p>
-        <?php endif; ?>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Requiere jQuery y Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-
-                                        <h1>Agregar Moneda</h1>    
-                                        <br>                                    
-
-
- 
-                                        <?php
 include("Conexion/conex.php");
 
-$mensaje = ""; // Inicializar mensaje
+$mensaje = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nombre = trim($_POST["nombre"]);
@@ -459,9 +308,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $tipo = $_POST["tipo"];
     $pais = trim($_POST["pais"]);
     $estado = $_POST["estado"];
-    $valor = ($tipo === "extranjera") ? trim($_POST["valor"]) : "0"; // Si es nacional, valor será 0
+    $valor = ($tipo === "extranjera") ? trim($_POST["valor"]) : "0";
 
-    // Preparar la consulta
     $sql = "INSERT INTO Moneda (nombre, simbolo, tipo, pais, estado, valor) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
 
@@ -469,145 +317,191 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("sssssd", $nombre, $simbolo, $tipo, $pais, $estado, $valor);
         if ($stmt->execute()) {
             $mensaje = '<div id="mensaje-alerta" class="alert alert-success mt-3">✅ Moneda guardada exitosamente.</div>';
-            // Redirigir a la misma página después de guardar y refrescarla
-            header("refresh:3; url=AjustarMoneda.php");
+            header("refresh:3; url=AjusteMoneda.php");
         } else {
             $mensaje = '<div id="mensaje-alerta" class="alert alert-danger mt-3">❌ Error al guardar la moneda.</div>';
         }
         $stmt->close();
     } else {
-        $mensaje = '<div id="mensaje-alerta" class="alert alert-danger mt-3">⚠️ Error en la preparación de la consulta.</div>';
+        $mensaje = '<div id="mensaje-alerta" class="alert alert-warning mt-3">⚠️ Error al preparar la consulta.</div>';
     }
-
 }
-
 $conn->close();
 ?>
 
+    <style>
+        h1 {
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        .emoji-label { font-size: 1.2rem; margin-right: 5px; }
+        .btn-primary {
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #0056b3, #003d80);
+        }
 
-                                        <!-- Aquí se muestra el mensaje si hay alguno -->
-                                            <?php echo $mensaje; ?>
+        /* Ajuste para selects */
+        select.form-select {
+            height: 52px;               /* Igual altura que los inputs */
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            border: 1px solid #ced4da;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+            transition: all 0.2s ease-in-out;
+        }
 
-                                            <form action="" method="POST">
-    <div class="mb-3">
-        <label for="nombre" class="form-label">Nombre de la Moneda</label>
-        <input type="text" class="form-control" id="nombre" name="nombre" required>
-    </div>
-    <div class="mb-3">
-        <label for="simbolo" class="form-label">Símbolo</label>
-        <input type="text" class="form-control" id="simbolo" name="simbolo" required>
-    </div>
-    <div class="mb-3">
-        <label for="tipo" class="form-label">Tipo de Moneda</label>
-        <select class="form-control" id="tipo" name="tipo" required onchange="mostrarValor()">
-            <option value="nacional">Nacional</option>
-            <option value="extranjera">Extranjera</option>
-        </select>
-    </div>
-    <div class="mb-3" id="campo-valor" style="display: none;">
-        <label for="valor" class="form-label">Valor de Conversión</label>
-        <input type="number" class="form-control" id="valor" name="valor" step="0.01" min="0">
-    </div>
-    <div class="mb-3">
-        <label for="pais" class="form-label">País</label>
-        <input type="text" class="form-control" id="pais" name="pais">
-    </div>
-    <div class="mb-3">
-        <label for="estado" class="form-label">Estado</label>
-        <select class="form-control" id="estado" name="estado">
-            <option value="activo">Activo</option>
-            <option value="inactivo">Inactivo</option>
-        </select>
-    </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
-</form>
-                                    </div>
+        select.form-select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0,123,255,0.4);
+        }
+
+    </style>
 
 
 
-<h2>Lista de Monedas</h2>
+        <h1 class="text-center mb-4">🪙 Ajuste de Moneda</h1>
+        <?php echo $mensaje; ?>
+
+        <form action="" method="POST">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label for="nombre" class="form-label">
+                        <span class="emoji-label">🏷️</span>Nombre de la Moneda
+                    </label>
+                    <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ej: Dólar estadounidense" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="simbolo" class="form-label">
+                        <span class="emoji-label">💲</span>Símbolo
+                    </label>
+                    <input type="text" class="form-control" id="simbolo" name="simbolo" placeholder="Ej: $" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="tipo" class="form-label">
+                        <span class="emoji-label">🌍</span>Tipo de Moneda
+                    </label>
+                    <select class="form-select" id="tipo" name="tipo" onchange="mostrarValor()" required>
+                        <option value="nacional">🏠 Nacional</option>
+                        <option value="extranjera">✈️ Extranjera</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6" id="campo-valor" style="display: none;">
+                    <label for="valor" class="form-label">
+                        <span class="emoji-label">📈</span>Valor de Conversión
+                    </label>
+                    <input type="number" class="form-control" id="valor" name="valor" step="0.01" min="0" placeholder="Ej: 36.50">
+                </div>
+
+                <div class="col-md-6">
+                    <label for="pais" class="form-label">
+                        <span class="emoji-label">🌎</span>País
+                    </label>
+                    <input type="text" class="form-control" id="pais" name="pais" placeholder="Ej: Nicaragua">
+                </div>
+
+                <div class="col-md-6">
+                    <label for="estado" class="form-label">
+                        <span class="emoji-label">✅</span>Estado de la Moneda
+                    </label>
+                    <select class="form-select" id="estado" name="estado">
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                </div>
+            
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                        💾 Guardar Moneda
+                    </button>
+                </div>                
+            </div>
+        </form>
+
+
+    <br><br>
+        <h2 class="text-center mb-3">📋 Lista de Monedas</h2>
+
+        <?php
+        include("Conexion/conex.php");
+        $monedas = [];
+        $sql = "
+            SELECT * 
+            FROM Moneda 
+            WHERE (nombre, fecha_creacion) IN (
+                SELECT nombre, MAX(fecha_creacion)
+                FROM Moneda
+                GROUP BY nombre
+            )
+        ";
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+            while($row = $result->fetch_assoc()) {
+                $monedas[] = $row;
+            }
+        } else {
+            echo "<p class='text-center text-muted'>🚫 No hay monedas registradas.</p>";
+        }
+        $conn->close();
+        ?>
+
+        <?php if (!empty($monedas)): ?>
+        <div class="table-responsive">
+            <table class="table table-striped text-center align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>🏷️ Nombre</th>
+                        <th>💲 Símbolo</th>
+                        <th>🌍 Tipo</th>
+                        <th>🇳🇮 País</th>
+                        <th>✅ Estado</th>
+                        <th>📈 Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($monedas as $moneda): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($moneda['nombre']) ?></td>
+                            <td><?= htmlspecialchars($moneda['simbolo']) ?></td>
+                            <td><?= htmlspecialchars($moneda['tipo']) ?></td>
+                            <td><?= htmlspecialchars($moneda['pais']) ?></td>
+                            <td><?= htmlspecialchars($moneda['estado']) ?></td>
+                            <td><?= htmlspecialchars($moneda['valor']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php endif; ?>
+
 
 
 <script>
 function mostrarValor() {
-    var tipo = document.getElementById("tipo").value;
-    var campoValor = document.getElementById("campo-valor");
-    if (tipo === "extranjera") {
-        campoValor.style.display = "block";
-    } else {
-        campoValor.style.display = "none";
-    }
+    const tipo = document.getElementById("tipo").value;
+    document.getElementById("campo-valor").style.display =
+        tipo === "extranjera" ? "block" : "none";
 }
 
-// Ocultar el mensaje después de 3 segundos
-setTimeout(function() {
-    var mensaje = document.getElementById("mensaje-alerta");
-    if (mensaje) {
-        mensaje.style.display = "none";
-    }
+setTimeout(() => {
+    const alerta = document.getElementById("mensaje-alerta");
+    if (alerta) alerta.style.display = "none";
 }, 3000);
 </script>
 
-<?php
-include("Conexion/conex.php");
-
-$monedas = []; // Array para almacenar las monedas
-
-// Obtener las monedas de la base de datos
-$sql = "
-    SELECT * 
-    FROM Moneda 
-    WHERE (nombre, fecha_creacion) IN (
-        SELECT nombre, MAX(fecha_creacion) 
-        FROM Moneda 
-        GROUP BY nombre
-    )
-";
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0) {
-    // Si hay resultados, llenar el array de monedas
-    while($row = $result->fetch_assoc()) {
-        $monedas[] = $row;
-    }
-} else {
-    echo "No hay monedas registradas.";
-}
-
-$conn->close();
-?>
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th scope="col">Nombre</th>
-            <th scope="col">Símbolo</th>
-            <th scope="col">Tipo</th>
-            <th scope="col">País</th>
-            <th scope="col">Estado</th>
-            <th scope="col">Valor</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php
-        // Mostrar las monedas en la tabla
-        foreach ($monedas as $moneda) {
-            echo "<tr>";
-            echo "<td>" . htmlspecialchars($moneda['nombre']) . "</td>";
-            echo "<td>" . htmlspecialchars($moneda['simbolo']) . "</td>";
-            echo "<td>" . htmlspecialchars($moneda['tipo']) . "</td>";
-            echo "<td>" . htmlspecialchars($moneda['pais']) . "</td>";
-            echo "<td>" . htmlspecialchars($moneda['estado']) . "</td>";
-            echo "<td>" . htmlspecialchars($moneda['valor']) . "</td>";
-            echo "</tr>";
-        }
-        ?>
-    </tbody>
-</table>
 
 
 
-                                        
+
+
+
+
                                     </div>
                                 </div>
                             </div> <!-- /.row -->
