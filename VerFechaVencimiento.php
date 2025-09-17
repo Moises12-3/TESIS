@@ -602,12 +602,16 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
+
+
+
 <?php
 require 'Conexion/conex.php'; // Conexión a la base de datos
 
 $sql = "SELECT codigo, nombre, fecha_vencimiento FROM productos WHERE fecha_vencimiento IS NOT NULL ORDER BY fecha_vencimiento ASC";
 $resultado = $conn->query($sql);
 ?>
+
 
 
     <h2>📅 Fechas de Vencimiento de Productos</h2>
@@ -644,17 +648,40 @@ $resultado = $conn->query($sql);
             ?>
         </tbody>
     </table>
-</div>
 
+    
+<!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+
+<!-- Extensiones Buttons -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
+
 <script>
 $(document).ready(function() {
-    // Inicializar DataTable
+    // Inicializar DataTable con botones de exportación y control de cantidad de registros
+
+
     var table = $('#tablaVencimientos').DataTable({
-        "lengthMenu": [5, 10, 20, 25, 50], // Cantidad de elementos por página
-        "order": [[2, "asc"]], // Ordenar por fecha de vencimiento
+        "lengthMenu": [5, 10, 20, 25, 50],
+        "order": [[2, "asc"]],
+        "dom": "<'row mb-2'<'col-sm-6'B><'col-sm-6'l>>" + // Botones a la izquierda, selector de cantidad a la derecha
+            "<'row mb-2'<'col-sm-12'f>>" +               // Filtro de búsqueda
+            "rt" +                                        // Tabla
+            "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",    // Información y paginación
+        "buttons": [
+            {
+                extend: 'excelHtml5',
+                text: '📥 Exportar a Excel',
+                title: 'Fechas_de_Vencimiento',
+                className: 'btn btn-success'
+            }
+        ],
         "language": {
             "search": "Buscar:",
             "lengthMenu": "Mostrar _MENU_ registros",
@@ -668,6 +695,7 @@ $(document).ready(function() {
             "zeroRecords": "No se encontraron registros coincidentes"
         }
     });
+
 
     // Filtrar por rango de fechas
     $.fn.dataTable.ext.search.push(
