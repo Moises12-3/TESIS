@@ -602,18 +602,6 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-
-<h2>Fechas de Vencimiento de Productos</h2>
-
-<!-- Filtro de texto -->
-<input type="text" id="filtroVencimiento" class="form-control" placeholder="Buscar por código, nombre o fecha..." style="width: 300px; margin-bottom: 15px;">
-
-<!-- Filtro por rango de fecha -->
-<div style="margin-bottom: 15px;">
-    <label>Fecha desde: <input type="date" id="fechaDesde"></label>
-    <label style="margin-left: 20px;">Fecha hasta: <input type="date" id="fechaHasta"></label>
-</div>
-
 <?php
 require 'Conexion/conex.php'; // Conexión a la base de datos
 
@@ -621,73 +609,104 @@ $sql = "SELECT codigo, nombre, fecha_vencimiento FROM productos WHERE fecha_venc
 $resultado = $conn->query($sql);
 ?>
 
-<table class="table table-bordered table-hover" id="tablaVencimientos">
-    <thead class="thead-dark">
-        <tr>
-            <th>Código</th>
-            <th>Nombre</th>
-            <th>Fecha de Vencimiento</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php
-        if ($resultado->num_rows > 0) {
-            while ($fila = $resultado->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($fila["codigo"]) . "</td>";
-                echo "<td>" . htmlspecialchars($fila["nombre"]) . "</td>";
-                echo "<td>" . htmlspecialchars($fila["fecha_vencimiento"]) . "</td>";
-                echo "</tr>";
+
+    <h2>📅 Fechas de Vencimiento de Productos</h2>
+
+    <!-- Filtro de rango de fecha -->
+    <div class="form-inline mb-3">
+        <label class="mr-2">🟢 Fecha desde:</label>
+        <input type="date" id="fechaDesde" class="form-control mr-3">
+        <label class="mr-2">🔴 Fecha hasta:</label>
+        <input type="date" id="fechaHasta" class="form-control">
+    </div>
+
+    <table id="tablaVencimientos" class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>🆔 Código</th>
+                <th>📦 Nombre</th>
+                <th>⏰ Fecha de Vencimiento</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            if ($resultado->num_rows > 0) {
+                while ($fila = $resultado->fetch_assoc()) {
+                    echo "<tr>";
+                    echo "<td>" . htmlspecialchars($fila["codigo"]) . "</td>";
+                    echo "<td>" . htmlspecialchars($fila["nombre"]) . "</td>";
+                    echo "<td>" . htmlspecialchars($fila["fecha_vencimiento"]) . "</td>";
+                    echo "</tr>";
+                }
+            } else {
+                echo "<tr><td colspan='3'>No hay productos con fecha de vencimiento.</td></tr>";
             }
-        } else {
-            echo "<tr><td colspan='3'>No hay productos con fecha de vencimiento.</td></tr>";
-        }
-        ?>
-    </tbody>
-</table>
+            ?>
+        </tbody>
+    </table>
+</div>
 
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
 <script>
-function filtrarTabla() {
-    const filtro = document.getElementById('filtroVencimiento').value.toLowerCase();
-    const fechaDesde = document.getElementById('fechaDesde').value;
-    const fechaHasta = document.getElementById('fechaHasta').value;
-
-    const filas = document.querySelectorAll('#tablaVencimientos tbody tr');
-
-    filas.forEach(fila => {
-        const codigo = fila.cells[0].textContent.toLowerCase();
-        const nombre = fila.cells[1].textContent.toLowerCase();
-        const fechaTexto = fila.cells[2].textContent;
-        const fecha = new Date(fechaTexto);
-
-        // Filtro de texto
-        const textoCoincide = codigo.includes(filtro) || nombre.includes(filtro) || fechaTexto.toLowerCase().includes(filtro);
-
-        // Filtro por rango de fecha
-        let fechaValida = true;
-        if (fechaDesde) {
-            fechaValida = fechaValida && (fecha >= new Date(fechaDesde));
-        }
-        if (fechaHasta) {
-            fechaValida = fechaValida && (fecha <= new Date(fechaHasta));
-        }
-
-        if (textoCoincide && fechaValida) {
-            fila.style.display = '';
-        } else {
-            fila.style.display = 'none';
+$(document).ready(function() {
+    // Inicializar DataTable
+    var table = $('#tablaVencimientos').DataTable({
+        "lengthMenu": [5, 10, 20, 25, 50], // Cantidad de elementos por página
+        "order": [[2, "asc"]], // Ordenar por fecha de vencimiento
+        "language": {
+            "search": "Buscar:",
+            "lengthMenu": "Mostrar _MENU_ registros",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            },
+            "zeroRecords": "No se encontraron registros coincidentes"
         }
     });
-}
 
-// Eventos para aplicar filtro en tiempo real
-document.getElementById('filtroVencimiento').addEventListener('keyup', filtrarTabla);
-document.getElementById('fechaDesde').addEventListener('change', filtrarTabla);
-document.getElementById('fechaHasta').addEventListener('change', filtrarTabla);
+    // Filtrar por rango de fechas
+    $.fn.dataTable.ext.search.push(
+        function(settings, data, dataIndex) {
+            var fechaDesde = $('#fechaDesde').val();
+            var fechaHasta = $('#fechaHasta').val();
+            var fechaVencimiento = data[2]; // Columna de fecha de vencimiento
 
-// Inicializar filtro al cargar la página
-document.addEventListener('DOMContentLoaded', filtrarTabla);
+            if (fechaVencimiento) {
+                var fecha = new Date(fechaVencimiento);
+                if ((fechaDesde === "" || fecha >= new Date(fechaDesde)) &&
+                    (fechaHasta === "" || fecha <= new Date(fechaHasta))) {
+                    return true;
+                }
+                return false;
+            }
+            return true;
+        }
+    );
+
+    $('#fechaDesde, #fechaHasta').change(function() {
+        table.draw();
+    });
+});
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
