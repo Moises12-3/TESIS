@@ -25,6 +25,8 @@ $id_usuario = $_SESSION["id"];
     <meta name="description" content="Ela Admin - HTML5 Admin Template">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <link rel="apple-touch-icon" href="images/favicon.png">
     <link rel="shortcut icon" href="images/favicon.png">
 
@@ -426,74 +428,116 @@ $conn->close();
 
 
     <br><br>
-        <h2 class="text-center mb-3">📋 Lista de Monedas</h2>
+<h2 class="text-center mb-3">📋 Lista de Monedas</h2>
 
-        <?php
-        include("Conexion/conex.php");
-        $monedas = [];
-        $sql = "
-            SELECT * 
-            FROM Moneda 
-            WHERE (nombre, fecha_creacion) IN (
-                SELECT nombre, MAX(fecha_creacion)
-                FROM Moneda
-                GROUP BY nombre
-            )
-        ";
-        $result = $conn->query($sql);
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-                $monedas[] = $row;
-            }
-        } else {
-            echo "<p class='text-center text-muted'>🚫 No hay monedas registradas.</p>";
-        }
-        $conn->close();
-        ?>
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <!-- Buscador -->
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">🔍</span>
+                    <input type="text" id="busqueda" class="form-control border-start-0" placeholder="Buscar moneda por nombre o símbolo...">
+                </div>
+            </div>
 
-        <?php if (!empty($monedas)): ?>
-        <div class="table-responsive">
-            <table class="table table-striped text-center align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>🏷️ Nombre</th>
-                        <th>💲 Símbolo</th>
-                        <th>🌍 Tipo</th>
-                        <th>🇳🇮 País</th>
-                        <th>✅ Estado</th>
-                        <th>📈 Valor</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($monedas as $moneda): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($moneda['nombre']) ?></td>
-                            <td><?= htmlspecialchars($moneda['simbolo']) ?></td>
-                            <td><?= htmlspecialchars($moneda['tipo']) ?></td>
-                            <td><?= htmlspecialchars($moneda['pais']) ?></td>
-                            <td><?= htmlspecialchars($moneda['estado']) ?></td>
-                            <td><?= htmlspecialchars($moneda['valor']) ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+            <!-- Selector de cantidad y botón Excel -->
+            <div class="col-md-6 d-flex justify-content-md-end justify-content-start gap-2 flex-wrap">
+                <div class="input-group w-auto">
+                    <label class="input-group-text" for="por_pagina">Mostrar</label>
+                    <select id="por_pagina" class="form-select">
+                        <option value="5">5</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select>
+                </div>
+                <button id="exportarExcel" class="btn btn-success d-flex align-items-center gap-1">
+                    📥 Exportar a Excel
+                </button>
+            </div>
         </div>
-        <?php endif; ?>
+    </div>
+</div>
 
+
+
+
+<div id="tabla-monedas">
+    <!-- Aquí se cargará la tabla vía AJAX -->
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
 <script>
-function mostrarValor() {
-    const tipo = document.getElementById("tipo").value;
-    document.getElementById("campo-valor").style.display =
-        tipo === "extranjera" ? "block" : "none";
+// Función para exportar la tabla a Excel
+$('#exportarExcel').click(function() {
+    var tablaOriginal = document.querySelector('#tabla-monedas table');
+    if (!tablaOriginal) {
+        alert("No hay datos para exportar.");
+        return;
+    }
+
+    // Clonar la tabla
+    var tablaClon = tablaOriginal.cloneNode(true);
+
+    // Función para quitar todos los emojis y caracteres no ASCII básicos
+    function quitarEmojis(texto) {
+        return texto.replace(/[^\x00-\x7F]/g, '').trim();
+    }
+
+    // Limpiar encabezados y celdas
+    tablaClon.querySelectorAll('th, td').forEach(function(celda) {
+        celda.textContent = quitarEmojis(celda.textContent);
+    });
+
+    // Convertir tabla limpia a Excel
+    var wb = XLSX.utils.table_to_book(tablaClon, { sheet: "Monedas" });
+    XLSX.writeFile(wb, "Lista_Monedas.xlsx");
+});
+
+
+
+</script>
+
+
+<script>
+function cargarMonedas(pagina = 1) {
+    const por_pagina = $('#por_pagina').val();
+    const busqueda = $('#busqueda').val();
+    $.ajax({
+        url: 'Configuracion/ver_monedas_ajax.php',
+        type: 'GET',
+        data: { pagina, por_pagina, busqueda },
+        success: function(data) {
+            $('#tabla-monedas').html(data);
+        }
+    });
 }
 
-setTimeout(() => {
-    const alerta = document.getElementById("mensaje-alerta");
-    if (alerta) alerta.style.display = "none";
-}, 3000);
+$(document).ready(function() {
+    // Cargar la tabla al iniciar
+    cargarMonedas();
+
+    // Cambiar cantidad por página
+    $('#por_pagina').change(function() {
+        cargarMonedas();
+    });
+
+    // Buscar mientras escribe
+    $('#busqueda').on('input', function() {
+        cargarMonedas();
+    });
+
+    // Delegar clics en paginación
+    $(document).on('click', '.page-link', function(e) {
+        e.preventDefault();
+        const pagina = $(this).data('pagina');
+        cargarMonedas(pagina);
+    });
+});
 </script>
+
 
 
 
