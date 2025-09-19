@@ -28,6 +28,10 @@ $id_usuario = $_SESSION["id"];
     <link rel="apple-touch-icon" href="images/favicon.png">
     <link rel="shortcut icon" href="images/favicon.png">
 
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.0/normalize.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css">
 
@@ -443,91 +447,127 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 
-                                        
-                                    <h1>Registrar Tipo de Pago</h1>
+
+        <h1 class="text-center mb-4">💳 Registrar Tipo de Pago</h1>
+
+        <!-- Formulario -->
+        <form id="formTipoPago">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">
+                            <span class="emoji-label">🏷️</span> Nombre del Tipo de Pago
+                        </label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ej: Efectivo, Tarjeta..." required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">
+                            <span class="emoji-label">⚙️</span> Estado
+                        </label>
+                        <select class="form-control" id="estado" name="estado">
+                            <option value="activo">🟢 Activo</option>
+                            <option value="inactivo">🔴 Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">
+                            <span class="emoji-label">📝</span> Descripción
+                        </label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="5" placeholder="Ej: Pago en efectivo, transferencia bancaria..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary px-4">
+                    💾 Guardar
+                </button>
+            </div>
+        </form>
+
+        
 
 
 
-                                    <?php
-                                include("Conexion/conex.php");
+<!-- Modal -->
+<div class="modal fade" id="mensajeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">📌 Mensaje</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center" id="mensajeModalBody">
+        <!-- Aquí se mostrará el mensaje -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-                                $mensaje = ""; // Inicializar mensaje
+<!-- Tu formulario y modal (sin cambios) -->
 
-                                // Verificar si el formulario ha sido enviado
-                                if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                                    // Obtener los valores del formulario
-                                    $nombre = trim($_POST["nombre"]);
-                                    $descripcion = trim($_POST["descripcion"]);
-                                    $estado = $_POST["estado"];
+<script>
+document.getElementById('formTipoPago').addEventListener('submit', function(e){
+    e.preventDefault(); // Evita recargar la página
 
-                                    // Preparar la consulta SQL para insertar el tipo de pago
-                                    $sql = "INSERT INTO TipoPago (nombre, descripcion, estado) VALUES (?, ?, ?)";
-                                    $stmt = $conn->prepare($sql);
+    let formData = new FormData(this);
 
-                                    if ($stmt) {
-                                        // Vincular los parámetros
-                                        $stmt->bind_param("sss", $nombre, $descripcion, $estado);
+    fetch('Configuracion/procesar_tipopago.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        const modalBody = document.getElementById('mensajeModalBody');
+        if(data.success){
+            modalBody.innerHTML = `<div class="text-success fs-5">${data.message}</div>`;
+            document.getElementById('formTipoPago').reset();
+        } else {
+            modalBody.innerHTML = `<div class="text-danger fs-5">${data.message}</div>`;
+        }
 
-                                        if ($stmt->execute()) {
-                                            $mensaje = '<div id="mensaje-alerta" class="alert alert-success mt-3">✅ Tipo de pago guardado exitosamente.</div>';
-                                        } else {
-                                            $mensaje = '<div id="mensaje-alerta" class="alert alert-danger mt-3">❌ Error al guardar el tipo de pago.</div>';
-                                        }
+        // Mostrar modal
+        const modalElement = document.getElementById('mensajeModal');
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
 
-                                        $stmt->close();
-                                    } else {
-                                        $mensaje = '<div id="mensaje-alerta" class="alert alert-danger mt-3">⚠️ Error en la preparación de la consulta.</div>';
-                                    }
-                                }
+        // ⏳ Cerrar automáticamente después de 3 segundos
+        setTimeout(() => {
+            modal.hide(); // Usamos directamente hide() sobre la instancia creada
+        }, 3000);
+    })
+    .catch(() => {
+        const modalBody = document.getElementById('mensajeModalBody');
+        modalBody.innerHTML = `<div class="text-danger fs-5">🚫 Error de conexión con el servidor.</div>`;
+        const modal = new bootstrap.Modal(document.getElementById('mensajeModal'));
+        modal.show();
 
-                                ?>
-                                
-                                <script>
-                                function mostrarValor() {
-                                    var tipo = document.getElementById("tipo").value;
-                                    var campoValor = document.getElementById("campo-valor");
-                                    if (tipo === "extranjera") {
-                                        campoValor.style.display = "block";
-                                    } else {
-                                        campoValor.style.display = "none";
-                                    }
-                                }
-
-                                // Ocultar el mensaje después de 3 segundos
-                                setTimeout(function() {
-                                    var mensaje = document.getElementById("mensaje-alerta");
-                                    if (mensaje) {
-                                        mensaje.style.display = "none";
-                                    }
-                                }, 3000);
-                                </script>
+        // ⏳ Cerrar automáticamente después de 3 segundos
+        setTimeout(() => {
+            modal.hide();
+        }, 3000);
+    });
+});
+</script>
 
 
-                                    <!-- Mostrar mensaje si existe -->
-                                    <?php echo $mensaje; ?>
 
-                                    <!-- Formulario para ingresar el tipo de pago -->
-                                    <form action="" method="POST">
-                                        <div class="mb-3">
-                                            <label for="nombre" class="form-label">Nombre del Tipo de Pago</label>
-                                            <input type="text" class="form-control" id="nombre" name="nombre" required>
-                                        </div>
-                                        
-                                        <div class="mb-3">
-                                            <label for="descripcion" class="form-label">Descripción</label>
-                                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
-                                        </div>
 
-                                        <div class="mb-3">
-                                            <label for="estado" class="form-label">Estado</label>
-                                            <select class="form-control" id="estado" name="estado">
-                                                <option value="activo">Activo</option>
-                                                <option value="inactivo">Inactivo</option>
-                                            </select>
-                                        </div>
 
-                                        <button type="submit" class="btn btn-primary">Guardar</button>
-                                    </form>
+
+
+
+
+
+
+
 
                                     <hr>
 
@@ -558,7 +598,7 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
                                     $conn->close();
                                     ?>
 
-                                    <table class="table table-striped">
+                                    <table id="tablaTiposPago" class="table table-striped">
                                         <thead>
                                             <tr>
                                                 <th scope="col">ID</th>
