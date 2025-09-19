@@ -279,7 +279,7 @@ $id_usuario = $_SESSION["id"];
                             <div class="row">
                                 <div class="col-lg-8">
                                     <div class="card-body">
-                                        <h1>Formato de relleno</h1>
+                                        <h1>Agregar unidad de peso</h1>
 
 
                                         <script>
