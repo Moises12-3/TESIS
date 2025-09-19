@@ -570,62 +570,81 @@ document.getElementById('formTipoPago').addEventListener('submit', function(e){
 
 
                                     <hr>
+<?php
+include("Conexion/conex.php");
 
-                                    <!-- Tabla de tipos de pago registrados -->
-                                    <h3 class="mt-5">Tipos de Pago Registrados</h3>
-                                    
-                                    
+$tiposPago = [];
 
+$sql = "SELECT * FROM `TipoPago` ORDER BY id DESC";
+$result = $conn->query($sql);
 
-                                        <?php
-                                    include("Conexion/conex.php");
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        $tiposPago[] = $row;
+    }
+}
 
-                                    $tiposPago = []; // Array para almacenar las monedas
+$conn->close();
+?>
 
-                                    // Obtener las monedas de la base de datos
-                                    $sql = "SELECT * FROM `TipoPago`";
-                                    $result = $conn->query($sql);
+<h3 class="mt-5">💳 Tipos de Pago Registrados</h3>
 
-                                    if ($result->num_rows > 0) {
-                                        // Si hay resultados, llenar el array de monedas
-                                        while($row = $result->fetch_assoc()) {
-                                            $tiposPago[] = $row;
-                                        }
-                                    } else {
-                                        //echo "No hay Tipos de pagos registradas.";
-                                    }
+<table id="tablaTiposPago" class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th scope="col">🆔 ID</th>
+            <th scope="col">🏷️ Nombre</th>
+            <th scope="col">📝 Descripción</th>
+            <th scope="col">⚙️ Estado</th>
+            <th scope="col">📅 Fecha de Creación</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+        if (count($tiposPago) > 0) {
+            foreach ($tiposPago as $tipo) {
+                $estadoEmoji = $tipo['estado'] === 'Efectivo' ? '🟢' : '🔴';
+                echo "<tr>";
+                echo "<td>" . htmlspecialchars($tipo['id']) . "</td>";
+                echo "<td>" . htmlspecialchars($tipo['nombre']) . "</td>";
+                echo "<td>" . htmlspecialchars($tipo['descripcion']) . "</td>";
+                echo "<td>" . $estadoEmoji . " " . htmlspecialchars($tipo['estado']) . "</td>";
+                echo "<td>" . htmlspecialchars($tipo['fecha_creacion']) . "</td>";
+                echo "</tr>";
+            }
+        } else {
+            echo "<tr><td colspan='5'>No hay tipos de pago registrados.</td></tr>";
+        }
+        ?>
+    </tbody>
+</table>
 
-                                    $conn->close();
-                                    ?>
+<!-- DataTables CSS y JS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
-                                    <table id="tablaTiposPago" class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">ID</th>
-                                                <th scope="col">Nombre</th>
-                                                <th scope="col">Descripción</th>
-                                                <th scope="col">Estado</th>
-                                                <th scope="col">Fecha de Creación</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            if (count($tiposPago) > 0) {
-                                                foreach ($tiposPago as $tipo) {
-                                                    echo "<tr>";
-                                                    echo "<td>" . htmlspecialchars($tipo['id']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($tipo['nombre']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($tipo['descripcion']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($tipo['estado']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($tipo['fecha_creacion']) . "</td>";
-                                                    echo "</tr>";
-                                                }
-                                            } else {
-                                                echo "<tr><td colspan='5'>No hay tipos de pago registrados.</td></tr>";
-                                            }
-                                            ?>
-                                        </tbody>
-                                    </table>
+<script>
+$(document).ready(function() {
+    $('#tablaTiposPago').DataTable({
+        "lengthMenu": [ [5, 15, 20, -1], [5, 15, 20, "Todos"] ],
+        "language": {
+            "lengthMenu": "Mostrar _MENU_ registros por página",
+            "zeroRecords": "No se encontraron registros",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "🔍 Buscar:",
+            "paginate": {
+                "first": "⏮️ Primera",
+                "last": "⏭️ Última",
+                "next": "➡️ Siguiente",
+                "previous": "⬅️ Anterior"
+            }
+        }
+    });
+});
+</script>
 
 
 
