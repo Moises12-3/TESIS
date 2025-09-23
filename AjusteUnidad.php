@@ -279,126 +279,110 @@ $id_usuario = $_SESSION["id"];
                             <div class="row">
                                 <div class="col-lg-8">
                                     <div class="card-body">
-                                        <h1>Agregar unidad de peso</h1>
+                                        <h1 class="text-center mb-4">⚖️ Ajuste de Unidades de Peso</h1>
 
 
-                                        <script>
-                                        // Ocultar el mensaje después de 3 segundos
-                                        setTimeout(function() {
-                                            var mensaje = document.getElementById("mensaje-alerta");
-                                            if (mensaje) {
-                                                mensaje.style.display = "none";
-                                            }
-                                        }, 3000);
-                                        </script>
+<?php
+include("Conexion/conex.php");
 
+$mensaje = ""; // Inicializar mensaje
 
+// Guardar unidad
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $nombre = trim($_POST["nombre"]);
+    $simbolo = trim($_POST["simbolo"]);
+    $estado = $_POST["estado"];
 
+    $sql = "INSERT INTO UnidadPeso (nombre, simbolo, estado) VALUES (?, ?, ?)";
+    $stmt = $conn->prepare($sql);
 
-                                        <?php
-                                        include("Conexion/conex.php");
+    if ($stmt) {
+        $stmt->bind_param("sss", $nombre, $simbolo, $estado);
 
-                                        $mensaje = ""; // Inicializar mensaje
+        if ($stmt->execute()) {
+            $mensaje = '<div id="mensaje-alerta" class="alert alert-success mt-3">✅ Unidad de peso guardada exitosamente.</div>';
+        } else {
+            $mensaje = '<div id="mensaje-alerta" class="alert alert-danger mt-3">❌ Error al guardar la unidad de peso.</div>';
+        }
+        $stmt->close();
+    } else {
+        $mensaje = '<div id="mensaje-alerta" class="alert alert-danger mt-3">⚠️ Error en la preparación de la consulta.</div>';
+    }
+}
 
-                                        // Verificar si el formulario ha sido enviado
-                                        if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                                            // Obtener los valores del formulario
-                                            $nombre = trim($_POST["nombre"]);
-                                            $simbolo = trim($_POST["simbolo"]);
-                                            $estado = $_POST["estado"];
+// Consultar unidades
+$sql = "SELECT * FROM UnidadPeso ORDER BY fecha_creacion DESC";
+$result = $conn->query($sql);
+$unidadesPeso = $result->num_rows > 0 ? $result->fetch_all(MYSQLI_ASSOC) : [];
+$conn->close();
+?>
 
-                                            // Preparar la consulta SQL para insertar la unidad de peso
-                                            $sql = "INSERT INTO UnidadPeso (nombre, simbolo, estado) VALUES (?, ?, ?)";
-                                            $stmt = $conn->prepare($sql);
-
-                                            if ($stmt) {
-                                                // Vincular los parámetros
-                                                $stmt->bind_param("sss", $nombre, $simbolo, $estado);
-
-                                                if ($stmt->execute()) {
-                                                    $mensaje = '<div id="mensaje-alerta" class="alert alert-success mt-3">✅ Unidad de peso guardada exitosamente.</div>';
-                                                } else {
-                                                    $mensaje = '<div id="mensaje-alerta" class="alert alert-danger mt-3">❌ Error al guardar la unidad de peso.</div>';
-                                                }
-
-                                                $stmt->close();
-                                            } else {
-                                                $mensaje = '<div id="mensaje-alerta" class="alert alert-danger mt-3">⚠️ Error en la preparación de la consulta.</div>';
-                                            }
-                                        }
-
-                                        // Obtener las unidades de peso registradas
-                                        $sql = "SELECT * FROM UnidadPeso";
-                                        $result = $conn->query($sql);
-                                        $unidadesPeso = [];
-
-                                        if ($result->num_rows > 0) {
-                                            while ($row = $result->fetch_assoc()) {
-                                                $unidadesPeso[] = $row;
-                                            }
-                                        }
-
-                                        $conn->close();
-                                        ?>
-
-                                    <!-- Mostrar mensaje si existe -->
-                                    <?php echo $mensaje; ?>
-
+    <script>
+        setTimeout(function() {
+            var mensaje = document.getElementById("mensaje-alerta");
+            if (mensaje) mensaje.style.display = "none";
+        }, 3000);
+    </script>
                                     <!-- Formulario para ingresar la unidad de peso -->
-                                    <form action="" method="POST">
-                                        <div class="mb-3">
-                                            <label for="nombre" class="form-label">Nombre de la Unidad de Peso</label>
-                                            <input type="text" class="form-control" id="nombre" name="nombre" required>
-                                        </div>
-                                        
-                                        <div class="mb-3">
-                                            <label for="simbolo" class="form-label">Símbolo</label>
-                                            <input type="text" class="form-control" id="simbolo" name="simbolo" required>
-                                        </div>
+                    <h4 class="mb-3">➕ Agregar Unidad</h4>
+                    <form action="" method="POST">
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">🏷️ Nombre</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="simbolo" class="form-label">🔣 Símbolo</label>
+                            <input type="text" class="form-control" id="simbolo" name="simbolo" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="estado" class="form-label">📌 Estado</label>
+                            <select class="form-control" id="estado" name="estado">
+                                <option value="activo">🟢 Activo</option>
+                                <option value="inactivo">🔴 Inactivo</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">💾 Guardar</button>
+                    </form>
 
-                                        <div class="mb-3">
-                                            <label for="estado" class="form-label">Estado</label>
-                                            <select class="form-control" id="estado" name="estado">
-                                                <option value="activo">Activo</option>
-                                                <option value="inactivo">Inactivo</option>
-                                            </select>
-                                        </div>
 
-                                        <button type="submit" class="btn btn-primary">Guardar</button>
-                                    </form>
 
+
+                                    
                                     <hr>
 
-                                    <!-- Tabla de unidades de peso registradas -->
-                                    <h3 class="mt-5">Unidades de Peso Registradas</h3>
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">ID</th>
-                                                <th scope="col">Nombre</th>
-                                                <th scope="col">Símbolo</th>
-                                                <th scope="col">Estado</th>
-                                                <th scope="col">Fecha de Creación</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            if (count($unidadesPeso) > 0) {
-                                                foreach ($unidadesPeso as $unidad) {
-                                                    echo "<tr>";
-                                                    echo "<td>" . htmlspecialchars($unidad['id']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($unidad['nombre']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($unidad['simbolo']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($unidad['estado']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($unidad['fecha_creacion']) . "</td>";
-                                                    echo "</tr>";
-                                                }
-                                            } else {
-                                                echo "<tr><td colspan='5'>No hay unidades de peso registradas.</td></tr>";
-                                            }
-                                            ?>
-                                        </tbody>
-                                    </table>
+                    <h2 class="mb-3">📋 Unidades Registradas</h2>
+                        <table class="table table-striped table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>🏷️ Nombre</th>
+                                    <th>🔣 Símbolo</th>
+                                    <th>📌 Estado</th>
+                                    <th>📅 Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($unidadesPeso)) : ?>
+                                    <?php foreach ($unidadesPeso as $unidad) : ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($unidad["nombre"]); ?></td>
+                                            <td><?php echo htmlspecialchars($unidad["simbolo"]); ?></td>
+                                            <td>
+                                                <?php echo $unidad["estado"] == "activo" ? "🟢 Activo" : "🔴 Inactivo"; ?>
+                                            </td>
+                                            <td><?php echo $unidad["fecha_creacion"]; ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else : ?>
+                                    <tr>
+                                        <td colspan="4" class="text-center">⚠️ No hay unidades registradas</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+
+
+
+
                                     
                                     </div>
                                 </div>
