@@ -28,6 +28,9 @@ $id_usuario = $_SESSION["id"];
     <link rel="apple-touch-icon" href="images/favicon.png">
     <link rel="shortcut icon" href="images/favicon.png">
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.0/normalize.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css">
 
@@ -46,6 +49,8 @@ $id_usuario = $_SESSION["id"];
     <link href="https://cdn.jsdelivr.net/npm/weathericons@2.1.0/css/weather-icons.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/fullcalendar.min.css" rel="stylesheet" />
 
+
+    
    <style>
     #weatherWidget .currentDesc {
         color: #ffffff!important;
@@ -279,36 +284,18 @@ $id_usuario = $_SESSION["id"];
                             <div class="row">
                                 <div class="col-lg-8">
                                     <div class="card-body">
-                                        <h1 class="text-center mb-4">⚖️ Ajuste de Unidades de Peso</h1>
+
+
+
+
+
+
+
+
 
 
 <?php
 include("Conexion/conex.php");
-
-$mensaje = ""; // Inicializar mensaje
-
-// Guardar unidad
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nombre = trim($_POST["nombre"]);
-    $simbolo = trim($_POST["simbolo"]);
-    $estado = $_POST["estado"];
-
-    $sql = "INSERT INTO UnidadPeso (nombre, simbolo, estado) VALUES (?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-
-    if ($stmt) {
-        $stmt->bind_param("sss", $nombre, $simbolo, $estado);
-
-        if ($stmt->execute()) {
-            $mensaje = '<div id="mensaje-alerta" class="alert alert-success mt-3">✅ Unidad de peso guardada exitosamente.</div>';
-        } else {
-            $mensaje = '<div id="mensaje-alerta" class="alert alert-danger mt-3">❌ Error al guardar la unidad de peso.</div>';
-        }
-        $stmt->close();
-    } else {
-        $mensaje = '<div id="mensaje-alerta" class="alert alert-danger mt-3">⚠️ Error en la preparación de la consulta.</div>';
-    }
-}
 
 // Consultar unidades
 $sql = "SELECT * FROM UnidadPeso ORDER BY fecha_creacion DESC";
@@ -317,68 +304,206 @@ $unidadesPeso = $result->num_rows > 0 ? $result->fetch_all(MYSQLI_ASSOC) : [];
 $conn->close();
 ?>
 
-    <script>
-        setTimeout(function() {
-            var mensaje = document.getElementById("mensaje-alerta");
-            if (mensaje) mensaje.style.display = "none";
-        }, 3000);
-    </script>
-                                    <!-- Formulario para ingresar la unidad de peso -->
-                    <h4 class="mb-3">➕ Agregar Unidad</h4>
-                    <form action="" method="POST">
-                        <div class="mb-3">
-                            <label for="nombre" class="form-label">🏷️ Nombre</label>
-                            <input type="text" class="form-control" id="nombre" name="nombre" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="simbolo" class="form-label">🔣 Símbolo</label>
-                            <input type="text" class="form-control" id="simbolo" name="simbolo" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="estado" class="form-label">📌 Estado</label>
-                            <select class="form-control" id="estado" name="estado">
-                                <option value="activo">🟢 Activo</option>
-                                <option value="inactivo">🔴 Inactivo</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">💾 Guardar</button>
-                    </form>
 
 
 
 
-                                    
-                                    <hr>
+<h2 class="mb-3">➕ Agregar Unidad</h2>
+<div id="mensaje-alerta"></div>
+<form id="form-unidad">
+    <div class="row">
+        <!-- Columna 1: Nombre -->
+        <div class="col-md-6 mb-3">
+            <label for="nombre" class="form-label">🏷️ Nombre</label>
+            <input type="text" class="form-control" id="nombre" name="nombre" required>
+        </div>
+        
+        <!-- Columna 2: Símbolo -->
+        <div class="col-md-6 mb-3">
+            <label for="simbolo" class="form-label">🔣 Símbolo</label>
+            <input type="text" class="form-control" id="simbolo" name="simbolo" required>
+        </div>
+    </div>
 
-                    <h2 class="mb-3">📋 Unidades Registradas</h2>
-                        <table class="table table-striped table-hover align-middle">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>🏷️ Nombre</th>
-                                    <th>🔣 Símbolo</th>
-                                    <th>📌 Estado</th>
-                                    <th>📅 Fecha</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (!empty($unidadesPeso)) : ?>
-                                    <?php foreach ($unidadesPeso as $unidad) : ?>
-                                        <tr>
-                                            <td><?php echo htmlspecialchars($unidad["nombre"]); ?></td>
-                                            <td><?php echo htmlspecialchars($unidad["simbolo"]); ?></td>
-                                            <td>
-                                                <?php echo $unidad["estado"] == "activo" ? "🟢 Activo" : "🔴 Inactivo"; ?>
-                                            </td>
-                                            <td><?php echo $unidad["fecha_creacion"]; ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php else : ?>
-                                    <tr>
-                                        <td colspan="4" class="text-center">⚠️ No hay unidades registradas</td>
-                                    </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
+    <div class="row">
+        <!-- Columna 1: Estado -->
+        <div class="col-md-6 mb-3">
+            <label for="estado" class="form-label">📌 Estado</label>
+            <select class="form-control" id="estado" name="estado">
+                <option value="activo">🟢 Activo</option>
+                <option value="inactivo">🔴 Inactivo</option>
+            </select>
+        </div>
+
+        <!-- Columna 2: Botón Guardar -->
+        <div class="col-md-6 mb-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">💾 Guardar</button>
+        </div>
+    </div>
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="modal-alerta" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">🔔 Notificación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="modal-mensaje"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<br><br>
+
+
+
+
+<h2 class="mb-3">📋 Unidades Registradas</h2>
+<table id="tabla-unidades-table" class="table table-bordered table-hover bg-white">
+    <thead class="table-dark">
+        <tr>
+            <th>🏷️ Nombre</th>
+            <th>🔣 Símbolo</th>
+            <th>📌 Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach($unidadesPeso as $u): ?>
+            <tr>
+                <td>📝 <?= htmlspecialchars($u['nombre']) ?></td>
+                <td>🔠 <?= htmlspecialchars($u['simbolo']) ?></td>
+                <td><?= $u['estado']=='activo' ? '🟢 Activo':'🔴 Inactivo' ?></td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
+<!-- JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<script>
+$(document).ready(function() {
+
+
+    
+    var tabla = $('#tabla-unidades-table').DataTable({
+        dom: "<'row mb-3'<'col-sm-6'l><'col-sm-6 text-end'Bf>>" + "rtip",
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                text: '📥 Descargar Excel',
+                title: 'Unidades_de_Peso',
+                className: 'btn btn-success me-2',
+                exportOptions: {
+                    columns: [0,1,2], // columnas a exportar
+                    format: {
+                        header: function ( data, columnIdx ) {
+                            // Quitar emojis de los encabezados
+                            return data.replace(/[\u{1F300}-\u{1FAFF}\u{1F900}-\u{1F9FF}\u{1F600}-\u{1F64F}]/gu,"").trim();
+                        },
+                        body: function ( data, row, column, node ) {
+                            // Quitar emojis de las celdas
+                            return data.replace(/[\u{1F300}-\u{1FAFF}\u{1F900}-\u{1F9FF}\u{1F600}-\u{1F64F}]/gu,"").trim();
+                        }
+                    }
+                }
+            }
+        ],
+        "lengthMenu": [[5, 10, 20, 50], [5, 10, 20, 50]],
+        "pageLength": 5,
+        "language": {
+            "lengthMenu": "Mostrar _MENU_ registros 📄",
+            "zeroRecords": "❌ No se encontraron registros",
+            "info": "Mostrando página _PAGE_ de _PAGES_",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "🔍 Buscar:",
+            "paginate": {
+                "first": "⏮️ Primera",
+                "last": "⏭️ Última",
+                "next": "➡️ Siguiente",
+                "previous": "⬅️ Anterior"
+            }
+        }
+    });
+
+
+
+
+
+
+    // Formulario AJAX para agregar nueva unidad
+    $('#form-unidad').submit(function(e){
+        e.preventDefault();
+        $.post('Configuracion/guardar_ajuste_unidad_guardar.php', $(this).serialize(), function(respuesta){
+            let res = JSON.parse(respuesta);
+
+            // Mostrar mensaje en modal
+            $("#modal-mensaje").html(res.mensaje);
+            var modal = new bootstrap.Modal(document.getElementById("modal-alerta"));
+            modal.show();
+            setTimeout(() => modal.hide(), 3000);
+
+            // Agregar fila a DataTable con emojis
+            if(res.estado=='ok'){
+                var fila = '<tr>'+
+                            '<td>📝 '+res.nombre+'</td>'+
+                            '<td>🔠 '+res.simbolo+'</td>'+
+                            '<td>'+(res.estado=='activo'?'🟢 Activo':'🔴 Inactivo')+'</td>'+
+                           '</tr>';
+                tabla.row.add($(fila)).draw(false);
+                $('#form-unidad')[0].reset();
+            }
+        });
+    });
+
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

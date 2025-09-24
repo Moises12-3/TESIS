@@ -1,30 +1,44 @@
 <?php
 include("../Conexion/conex.php");
-header('Content-Type: application/json');
 
-$response = ["status" => "error", "message" => "Error desconocido"];
+$nombre = trim($_POST["nombre"]);
+$simbolo = trim($_POST["simbolo"]);
+$estado = $_POST["estado"];
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nombre = trim($_POST["nombre"]);
-    $simbolo = trim($_POST["simbolo"]);
-    $estado = $_POST["estado"];
+$sql = "INSERT INTO UnidadPeso (nombre, simbolo, estado) VALUES (?, ?, ?)";
+$stmt = $conn->prepare($sql);
 
-    $sql = "INSERT INTO UnidadPeso (nombre, simbolo, estado) VALUES (?, ?, ?)";
-    $stmt = $conn->prepare($sql);
+$respuesta = [];
 
-    if ($stmt) {
-        $stmt->bind_param("sss", $nombre, $simbolo, $estado);
+if ($stmt) {
+    $stmt->bind_param("sss", $nombre, $simbolo, $estado);
+    if ($stmt->execute()) {
+        $id = $stmt->insert_id;
+        $fila = "<tr>
+                    <td>{$id}</td>
+                    <td>{$nombre}</td>
+                    <td>{$simbolo}</td>
+                    <td>" . ($estado == "activo" ? "🟢 Activo" : "🔴 Inactivo") . "</td>
+                 </tr>";
 
-        if ($stmt->execute()) {
-            $response = ["status" => "success", "message" => "✅ Unidad guardada correctamente."];
-        } else {
-            $response = ["status" => "error", "message" => "❌ Error al guardar en la BD."];
-        }
-        $stmt->close();
+        $respuesta = [
+            "estado" => "ok",
+            "mensaje" => '<div class="alert alert-success mt-3">✅ Unidad guardada exitosamente.</div>',
+            "fila" => $fila
+        ];
     } else {
-        $response = ["status" => "error", "message" => "⚠️ Error en la preparación de la consulta."];
+        $respuesta = [
+            "estado" => "error",
+            "mensaje" => '<div class="alert alert-danger mt-3">❌ Error al guardar.</div>'
+        ];
     }
+    $stmt->close();
+} else {
+    $respuesta = [
+        "estado" => "error",
+        "mensaje" => '<div class="alert alert-warning mt-3">⚠️ Error en la consulta.</div>'
+    ];
 }
 
 $conn->close();
-echo json_encode($response);
+echo json_encode($respuesta);
