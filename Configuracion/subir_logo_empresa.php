@@ -15,13 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $tiposPermitidos = ['image/jpeg','image/png','image/gif','image/webp'];
 
             if (in_array($archivo['type'], $tiposPermitidos)) {
-                $carpetaDestino = __DIR__ . '/images/logo_empresa/';
+                // Guardar directamente en la carpeta images/
+                $carpetaDestino = __DIR__ . '/../images/logo_empresa/'; 
                 if (!is_dir($carpetaDestino)) mkdir($carpetaDestino, 0755, true);
 
                 $extension = pathinfo($archivo['name'], PATHINFO_EXTENSION);
                 $nombreArchivo = $nombre_empresa . '_' . uniqid() . '.' . $extension;
                 $rutaDestino = $carpetaDestino . $nombreArchivo;
-                $rutaRelativa = 'Configuracion/images/logo_empresa/' . $nombreArchivo;
+                $rutaRelativa = 'images/logo_empresa/' . $nombreArchivo; // Ruta relativa para la DB
 
                 if (move_uploaded_file($archivo['tmp_name'], $rutaDestino)) {
                     $stmt = $conn->prepare("UPDATE empresa SET foto_perfil = ? WHERE id = ?");
