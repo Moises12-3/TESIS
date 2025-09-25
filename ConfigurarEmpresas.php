@@ -346,6 +346,17 @@ $('#formLogo').submit(function(e) {
 include("Conexion/conex.php"); // Conexión a la base de datos
 ?>
 
+<?php
+include("Conexion/conex.php"); // Conexión a la base de datos
+
+// Obtener datos de la empresa si existe
+$empresa = null;
+$resultado = $conn->query("SELECT * FROM empresa ORDER BY id DESC LIMIT 1");
+if ($resultado && $resultado->num_rows > 0) {
+    $empresa = $resultado->fetch_assoc();
+}
+?>
+
 <div class="container py-4">
     <h2 class="mb-4 text-primary">🏢 Configuración de Empresa y Usuario Administrador</h2>
 
@@ -357,9 +368,12 @@ include("Conexion/conex.php"); // Conexión a la base de datos
         <div class="card-body">
             <form id="formLogo" enctype="multipart/form-data">
                 <div class="mb-3">
-                    <input type="file" class="form-control" name="logo" id="logo" accept="image/*" required>
-                    <img id="preview" alt="Vista previa del logo" 
-                    style="display:none; max-height:150px; margin-top:10px; border:1px solid #ccc; padding:5px; border-radius:5px;">
+                    <input type="file" class="form-control" name="logo" id="logo" accept="image/*" <?= $empresa ? '' : 'required' ?>>
+                    <?php if($empresa && $empresa['foto_perfil']): ?>
+                        <img id="preview" src="<?= $empresa['foto_perfil'] ?>" alt="Vista previa del logo" style="max-height:150px; margin-top:10px; border:1px solid #ccc; padding:5px; border-radius:5px;">
+                    <?php else: ?>
+                        <img id="preview" alt="Vista previa del logo" style="display:none; max-height:150px; margin-top:10px; border:1px solid #ccc; padding:5px; border-radius:5px;">
+                    <?php endif; ?>
                 </div>
                 <button type="submit" class="btn btn-success">✅ Subir Logo</button>
             </form>
@@ -373,20 +387,21 @@ include("Conexion/conex.php"); // Conexión a la base de datos
         </div>
         <div class="card-body">
             <form id="formEmpresa">
+                <input type="hidden" name="id" value="<?= $empresa ? $empresa['id'] : '' ?>">
                 <div class="row">
                     <!-- Columna izquierda -->
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">🏢 Nombre de la Empresa</label>
-                            <input type="text" class="form-control" name="nombre" placeholder="Ej: Mi Empresa S.A." required>
+                            <input type="text" class="form-control" name="nombre" placeholder="Ej: Mi Empresa S.A." required value="<?= $empresa['nombre'] ?? '' ?>">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">📧 Correo Electrónico</label>
-                            <input type="email" class="form-control" name="correo" placeholder="correo@empresa.com" required>
+                            <input type="email" class="form-control" name="correo" placeholder="correo@empresa.com" required value="<?= $empresa['correo'] ?? '' ?>">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">📠 Fax</label>
-                            <input type="text" class="form-control" name="fax" placeholder="Fax de la empresa">
+                            <input type="text" class="form-control" name="fax" placeholder="Fax de la empresa" value="<?= $empresa['fax'] ?? '' ?>">
                         </div>
                     </div>
 
@@ -394,24 +409,25 @@ include("Conexion/conex.php"); // Conexión a la base de datos
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">📍 Dirección</label>
-                            <input type="text" class="form-control" name="direccion" placeholder="Dirección de la empresa" required>
+                            <input type="text" class="form-control" name="direccion" placeholder="Dirección de la empresa" required value="<?= $empresa['direccion'] ?? '' ?>">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">📞 Teléfono</label>
-                            <input type="text" class="form-control" name="telefono" placeholder="8888-8888">
+                            <input type="text" class="form-control" name="telefono" placeholder="8888-8888" value="<?= $empresa['telefono'] ?? '' ?>">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">🆔 Identidad Jurídica</label>
-                            <input type="text" class="form-control" name="identidad_juridica" placeholder="Registro legal">
+                            <input type="text" class="form-control" name="identidad_juridica" placeholder="Registro legal" value="<?= $empresa['identidad_juridica'] ?? '' ?>">
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary mt-3">💾 Guardar Empresa</button>
+                <button type="submit" class="btn btn-primary mt-3"><?= $empresa ? '✏️ Actualizar Empresa' : '💾 Guardar Empresa' ?></button>
             </form>
         </div>
     </div>
 </div>
+
 
 
 
@@ -535,14 +551,18 @@ $('#formEmpresa').submit(function(e) {
         type: 'POST',
         data: formData,
         success: function(response) {
-            mostrarModal(response);
-            $('#formEmpresa')[0].reset();
+            mostrarModal("✅ Éxito", response, "success");
+
+            // Recargar la página después de 1.5 segundos
+            setTimeout(() => { location.reload(); }, 1500);
         },
         error: function(xhr) {
-            mostrarModal("❌ Error: " + xhr.responseText);
+            mostrarModal("❌ Error", xhr.responseText, "error");
         }
     });
 });
+
+
 
 // Subir logo
 $('#formLogo').submit(function(e) {

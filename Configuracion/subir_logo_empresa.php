@@ -4,7 +4,7 @@ include("../Conexion/conex.php"); // Ajusta la ruta según tu estructura
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Obtener la última empresa registrada
-    $resultado = $conn->query("SELECT id, nombre FROM empresa ORDER BY id DESC LIMIT 1");
+    $resultado = $conn->query("SELECT id, nombre, foto_perfil FROM empresa ORDER BY id DESC LIMIT 1");
     if ($resultado && $resultado->num_rows > 0) {
         $empresa = $resultado->fetch_assoc();
         $id_empresa = $empresa['id'];
@@ -15,20 +15,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $tiposPermitidos = ['image/jpeg','image/png','image/gif','image/webp'];
 
             if (in_array($archivo['type'], $tiposPermitidos)) {
-                // Guardar directamente en la carpeta images/
+                // Carpeta destino
                 $carpetaDestino = __DIR__ . '/../images/logo_empresa/'; 
                 if (!is_dir($carpetaDestino)) mkdir($carpetaDestino, 0755, true);
 
+                // Nombre del archivo
                 $extension = pathinfo($archivo['name'], PATHINFO_EXTENSION);
                 $nombreArchivo = $nombre_empresa . '_' . uniqid() . '.' . $extension;
                 $rutaDestino = $carpetaDestino . $nombreArchivo;
-                $rutaRelativa = 'images/logo_empresa/' . $nombreArchivo; // Ruta relativa para la DB
+                $rutaRelativa = 'images/logo_empresa/' . $nombreArchivo;
 
+                // Eliminar logo anterior si existe
+                if (!empty($empresa['foto_perfil']) && file_exists(__DIR__ . '/../' . $empresa['foto_perfil'])) {
+                    unlink(__DIR__ . '/../' . $empresa['foto_perfil']);
+                }
+
+                // Mover nuevo archivo
                 if (move_uploaded_file($archivo['tmp_name'], $rutaDestino)) {
                     $stmt = $conn->prepare("UPDATE empresa SET foto_perfil = ? WHERE id = ?");
                     $stmt->bind_param("si", $rutaRelativa, $id_empresa);
                     if ($stmt->execute()) {
-                        echo "✅ Logo subido correctamente!";
+                        echo "✅ Logo actualizado correctamente!";
                     } else {
                         http_response_code(500);
                         echo "❌ Error al actualizar la ruta: " . $stmt->error;
