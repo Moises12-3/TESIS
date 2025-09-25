@@ -488,7 +488,20 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 
 
 
-                                                  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -501,17 +514,17 @@ $impuestoEditado = null;
 $sql = "SELECT * FROM Impuesto";
 $result = $conn->query($sql);
 $impuestos = [];
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
+if ($result->num_rows > 0){
+    while ($row = $result->fetch_assoc()){
         $impuestos[] = $row;
     }
 }
 
 // Obtener impuesto para editar
-if (isset($_GET['edit'])) {
+if (isset($_GET['edit'])){
     $id = $_GET['edit'];
     $stmt = $conn->prepare("SELECT * FROM Impuesto WHERE id=?");
-    if ($stmt) {
+    if ($stmt){
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -524,12 +537,7 @@ $conn->close();
 ?>
 
 
-<style>
-.input-borde-negro {
-    border: 2px solid black !important;
-    border-radius: 5px;
-}
-</style>
+
 
 <!-- Modal de Mensaje -->
 <div class="modal fade" id="mensajeModal" tabindex="-1" aria-labelledby="mensajeModalLabel" aria-hidden="true">
@@ -539,9 +547,7 @@ $conn->close();
         <h5 class="modal-title" id="mensajeModalLabel">Mensaje</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
-      <div class="modal-body" id="mensajeModalBody">
-        <!-- Aquí se insertará el mensaje -->
-      </div>
+      <div class="modal-body" id="mensajeModalBody"></div>
     </div>
   </div>
 </div>
@@ -600,8 +606,8 @@ $conn->close();
 
 <hr>
 
-<!-- Tabla con DataTables -->
 <h3>📋 Impuestos Registrados</h3>
+<button id="exportExcel" class="btn btn-success mb-2">📥 Exportar a Excel</button>
 <table id="tabla-impuestos" class="table table-striped">
     <thead>
         <tr>
@@ -612,7 +618,6 @@ $conn->close();
             <th>💰 Tipo</th>
             <th>⚡ Estado</th>
             <th>🗓️ Fecha Creación</th>
-            <th>✏️ Acciones</th>
         </tr>
     </thead>
     <tbody>
@@ -630,11 +635,10 @@ $conn->close();
                 <td>{$tipoEmoji}</td>
                 <td>{$estadoEmoji}</td>
                 <td>🗓️ {$imp['fecha_creacion']}</td>
-                <td><a href='?edit={$imp['id']}' class='btn btn-warning btn-sm'>✏️ Editar</a></td>
             </tr>";
         }
     } else {
-        echo "<tr><td colspan='8'>📭 No hay impuestos registrados.</td></tr>";
+        echo "<tr><td colspan='7'>📭 No hay impuestos registrados.</td></tr>";
     }
     ?>
     </tbody>
@@ -646,12 +650,15 @@ $conn->close();
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- SheetJS -->
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
 <script>
 $(document).ready(function(){
-    // Inicializar DataTable con paginación y selector de cantidad
+    // Inicializar DataTable
     $('#tabla-impuestos').DataTable({
-        "lengthMenu": [5, 15, 25, 50], // Opciones de cantidad
-        "pageLength": 5,               // Cantidad inicial
+        "lengthMenu": [5, 15, 25, 50],
+        "pageLength": 5,
         "language": {
             "lengthMenu": "Mostrar _MENU_ registros",
             "zeroRecords": "📭 No se encontraron resultados",
@@ -659,16 +666,40 @@ $(document).ready(function(){
             "infoEmpty": "No hay registros disponibles",
             "infoFiltered": "(filtrado de _MAX_ registros totales)",
             "search": "🔍 Buscar:",
-            "paginate": {
-                "first": "Primero",
-                "last": "Último",
-                "next": "➡️",
-                "previous": "⬅️"
-            }
+            "paginate": { "first": "Primero", "last": "Último", "next": "➡️", "previous": "⬅️" }
         }
     });
 
-    // Enviar formulario con AJAX
+    // Exportar tabla a Excel sin emojis
+    $('#exportExcel').click(function(){
+        // Crear una copia limpia de la tabla
+        var table = document.getElementById('tabla-impuestos');
+        var wb = XLSX.utils.book_new();
+        var ws_data = [];
+        
+        // Cabecera sin emojis
+        ws_data.push(["ID", "Nombre", "Porcentaje", "Descripción", "Tipo", "Estado", "Fecha Creación"]);
+
+        // Filas sin emojis
+        for(var i=1; i<table.rows.length; i++){
+            var row = [];
+            for(var j=0; j<7; j++){ // solo las 7 columnas visibles
+                var text = table.rows[i].cells[j].innerText;
+
+                // Eliminar emojis con regex
+                text = text.replace(/[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
+                row.push(text.trim());
+            }
+            ws_data.push(row);
+        }
+
+        var ws = XLSX.utils.aoa_to_sheet(ws_data);
+        XLSX.utils.book_append_sheet(wb, ws, "Impuestos");
+        XLSX.writeFile(wb, "Impuestos.xlsx");
+    });
+
+
+    // AJAX para guardar impuesto
     $("#formImpuesto").submit(function(e){
         e.preventDefault();
         var formData = $(this).serialize();
@@ -709,7 +740,25 @@ $(document).ready(function(){
 
 
 
-                          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
