@@ -467,57 +467,63 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                                                   
-                                        <script>
-
-                                        // Ocultar el mensaje después de 3 segundos
-                                        setTimeout(function() {
-                                            var mensaje = document.getElementById("mensaje-alerta");
-                                            if (mensaje) {
-                                                mensaje.style.display = "none";
-                                            }
-                                        }, 3000);
-                                        </script>
 
 
 
-                                        <?php
-                                        include("Conexion/conex.php");
+<?php
+include("Conexion/conex.php");
 
-                                        $impuestoEditado = null;
+$impuestoEditado = null;
 
-                                        // Obtener los impuestos registrados
-                                        $sql = "SELECT * FROM Impuesto";
-                                        $result = $conn->query($sql);
-                                        $impuestos = [];
-                                        if ($result->num_rows > 0) {
-                                            while ($row = $result->fetch_assoc()) {
-                                                $impuestos[] = $row;
-                                            }
-                                        }
+// Obtener los impuestos registrados
+$sql = "SELECT * FROM Impuesto";
+$result = $conn->query($sql);
+$impuestos = [];
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $impuestos[] = $row;
+    }
+}
 
-                                        // Obtener impuesto para editar
-                                        if (isset($_GET['edit'])) {
-                                            $id = $_GET['edit'];
-                                            $stmt = $conn->prepare("SELECT * FROM Impuesto WHERE id=?");
-                                            if ($stmt) {
-                                                $stmt->bind_param("i", $id);
-                                                $stmt->execute();
-                                                $result = $stmt->get_result();
-                                                $impuestoEditado = $result->fetch_assoc();
-                                                $stmt->close();
-                                            }
-                                        }
+// Obtener impuesto para editar
+if (isset($_GET['edit'])) {
+    $id = $_GET['edit'];
+    $stmt = $conn->prepare("SELECT * FROM Impuesto WHERE id=?");
+    if ($stmt) {
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $impuestoEditado = $result->fetch_assoc();
+        $stmt->close();
+    }
+}
 
-                                        $conn->close();
-                                        ?>
+$conn->close();
+?>
 
-                                        <style>
-                                        .input-borde-negro {
-                                            border: 2px solid black !important;
-                                            border-radius: 5px;
-                                        }
-                                        </style>
+
 
 
 <!-- Modal de Mensaje -->
@@ -528,116 +534,120 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
         <h5 class="modal-title" id="mensajeModalLabel">Mensaje</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
-      <div class="modal-body" id="mensajeModalBody">
-        <!-- Aquí se insertará el mensaje -->
-      </div>
+      <div class="modal-body" id="mensajeModalBody"></div>
     </div>
   </div>
 </div>
 
-                                        <form id="formImpuesto" method="POST">
-                                            <?php if ($impuestoEditado): ?>
-                                                <input type="hidden" name="id" value="<?php echo $impuestoEditado['id']; ?>">
-                                                <h3>✏️ Editar Impuesto</h3>
-                                            <?php else: ?>
-                                                <h3>🆕 Nuevo Impuesto</h3>
-                                            <?php endif; ?>
+<!-- Formulario -->
+<form id="formImpuesto" method="POST">
+    <?php if ($impuestoEditado): ?>
+        <input type="hidden" name="id" value="<?php echo $impuestoEditado['id']; ?>">
+        <h3>✏️ Editar Impuesto</h3>
+    <?php else: ?>
+        <h3>🆕 Nuevo Impuesto</h3>
+    <?php endif; ?>
 
-                                            <div id="mensaje-alerta"></div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="nombre">🏷️ Nombre del Impuesto</label>
+                <input type="text" name="nombre" id="nombre" class="form-control" value="<?php echo $impuestoEditado ? htmlspecialchars($impuestoEditado['nombre']) : ''; ?>" required>
+            </div>
+            <div class="mb-3">
+                <label for="porcentaje">📊 Porcentaje</label>
+                <input type="number" step="0.01" name="porcentaje" id="porcentaje" class="form-control" value="<?php echo $impuestoEditado ? htmlspecialchars($impuestoEditado['porcentaje']) : ''; ?>" required>
+            </div>
+            <div class="mb-3">
+                <label for="tipo_impuesto">💰 Tipo de Impuesto</label>
+                <select name="tipo_impuesto" id="tipo_impuesto" class="form-control">
+                    <option value="fijo" <?php echo $impuestoEditado && $impuestoEditado['tipo_impuesto']=='fijo' ? 'selected':''; ?>>Fijo</option>
+                    <option value="porcentaje" <?php echo $impuestoEditado && $impuestoEditado['tipo_impuesto']=='porcentaje' ? 'selected':''; ?>>Porcentaje</option>
+                </select>
+            </div>
+        </div>
 
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="nombre">🏷️ Nombre del Impuesto</label>
-                                                        <input type="text" name="nombre" id="nombre" class="form-control input-borde-negro" value="<?php echo $impuestoEditado ? htmlspecialchars($impuestoEditado['nombre']) : ''; ?>" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="porcentaje">📊 Porcentaje</label>
-                                                        <input type="number" step="0.01" name="porcentaje" id="porcentaje" class="form-control input-borde-negro" value="<?php echo $impuestoEditado ? htmlspecialchars($impuestoEditado['porcentaje']) : ''; ?>" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="tipo_impuesto">💰 Tipo de Impuesto</label>
-                                                        <select name="tipo_impuesto" id="tipo_impuesto" class="form-control input-borde-negro">
-                                                            <option value="fijo" <?php echo $impuestoEditado && $impuestoEditado['tipo_impuesto']=='fijo' ? 'selected':''; ?>>Fijo</option>
-                                                            <option value="porcentaje" <?php echo $impuestoEditado && $impuestoEditado['tipo_impuesto']=='porcentaje' ? 'selected':''; ?>>Porcentaje</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="descripcion">📝 Descripción</label>
+                <textarea name="descripcion" id="descripcion" class="form-control" rows="5"><?php echo $impuestoEditado ? htmlspecialchars($impuestoEditado['descripcion']) : ''; ?></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="estado">⚡ Estado</label>
+                <select name="estado" id="estado" class="form-control">
+                    <option value="activo" <?php echo $impuestoEditado && $impuestoEditado['estado']=='activo' ? 'selected':''; ?>>Activo</option>
+                    <option value="inactivo" <?php echo $impuestoEditado && $impuestoEditado['estado']=='inactivo' ? 'selected':''; ?>>Inactivo</option>
+                </select>
+            </div>
+        </div>
+    </div>
 
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="descripcion">📝 Descripción</label>
-                                                        <textarea name="descripcion" id="descripcion" class="form-control input-borde-negro" rows="5"><?php echo $impuestoEditado ? htmlspecialchars($impuestoEditado['descripcion']) : ''; ?></textarea>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="estado">⚡ Estado</label>
-                                                        <select name="estado" id="estado" class="form-control input-borde-negro">
-                                                            <option value="activo" <?php echo $impuestoEditado && $impuestoEditado['estado']=='activo' ? 'selected':''; ?>>Activo</option>
-                                                            <option value="inactivo" <?php echo $impuestoEditado && $impuestoEditado['estado']=='inactivo' ? 'selected':''; ?>>Inactivo</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
+    <button type="submit" class="btn btn-primary mt-3"><?php echo $impuestoEditado ? 'Actualizar':'Guardar'; ?></button>
+</form>
 
-                                            <button type="submit" class="btn btn-primary mt-3"><?php echo $impuestoEditado ? 'Actualizar':'Guardar'; ?></button>
-                                        </form>
+<hr>
 
-                                        <hr>
-
-
-
-
-
-
-                                        
-
-
+<!-- Tabla con DataTables -->
 <h3>📋 Impuestos Registrados</h3>
-<table id="tabla-impuestos" class="table table-striped">
-    <thead>
-        <tr>
-            <th>🆔 ID</th>
-            <th>🏷️ Nombre</th>
-            <th>📊 Porcentaje</th>
-            <th>📝 Descripción</th>
-            <th>💰 Tipo</th>
-            <th>⚡ Estado</th>
-            <th>🗓️ Fecha Creación</th>
-            <th>✏️ Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-    <?php
-    if(count($impuestos) > 0){
-        foreach($impuestos as $imp){
-            // Emoji para el estado
-            $estadoEmoji = $imp['estado'] == 'activo' ? '✅ Activo' : '❌ Inactivo';
+    <table id="tabla-impuestos" class="table table-striped table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>🆔 ID</th>
+                <th>🏷️ Nombre</th>
+                <th>📊 Porcentaje</th>
+                <th>📝 Descripción</th>
+                <th>💰 Tipo</th>
+                <th>⚡ Estado</th>
+                <th>🗓️ Fecha Creación</th>
+                <th>✏️ Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php
+        if(count($impuestos) > 0){
+            foreach($impuestos as $imp){
+                $estadoEmoji = $imp['estado'] == 'activo' ? '✅ Activo' : '❌ Inactivo';
+                $tipoEmoji = $imp['tipo_impuesto'] == 'fijo' ? '💵 Fijo' : '📈 Porcentaje';
 
-            // Emoji para el tipo de impuesto
-            $tipoEmoji = $imp['tipo_impuesto'] == 'fijo' ? '💵 Fijo' : '📈 Porcentaje';
-
-            echo "<tr>
-                <td>{$imp['id']}</td>
-                <td>".htmlspecialchars($imp['nombre'])."</td>
-                <td>📊 {$imp['porcentaje']}%</td>
-                <td>".htmlspecialchars($imp['descripcion'])."</td>
-                <td>{$tipoEmoji}</td>
-                <td>{$estadoEmoji}</td>
-                <td>🗓️ {$imp['fecha_creacion']}</td>
-                <td><a href='?edit={$imp['id']}' class='btn btn-warning btn-sm'>✏️ Editar</a></td>
-            </tr>";
+                echo "<tr>
+                    <td>{$imp['id']}</td>
+                    <td>".htmlspecialchars($imp['nombre'])."</td>
+                    <td>{$imp['porcentaje']}%</td>
+                    <td>".htmlspecialchars($imp['descripcion'])."</td>
+                    <td>{$tipoEmoji}</td>
+                    <td>{$estadoEmoji}</td>
+                    <td>{$imp['fecha_creacion']}</td>
+                    <td><a href='?edit={$imp['id']}' class='btn btn-warning btn-sm'>✏️ Editar</a></td>
+                </tr>";
+            }
+        } else {
+            echo "<tr><td colspan='8'>📭 No hay impuestos registrados.</td></tr>";
         }
-    } else {
-        echo "<tr><td colspan='8'>📭 No hay impuestos registrados.</td></tr>";
-    }
-    ?>
-    </tbody>
-</table>
-
-
+        ?>
+        </tbody>
+    </table>
 
 <script>
+// Inicializar DataTable
 $(document).ready(function(){
+    $('#tabla-impuestos').DataTable({
+        "pageLength": 5,
+        "lengthMenu": [5, 15, 25],
+        "language": {
+            "lengthMenu": "Mostrar _MENU_ registros por página",
+            "zeroRecords": "📭 No se encontraron resultados",
+            "info": "Mostrando página _PAGE_ de _PAGES_",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros en total)",
+            "search": "🔍 Buscar:",
+            "paginate": {
+                "next": "➡️",
+                "previous": "⬅️"
+            }
+        }
+    });
+
+    // Guardar datos AJAX
     $("#formImpuesto").submit(function(e){
         e.preventDefault();
         var formData = $(this).serialize();
@@ -648,27 +658,21 @@ $(document).ready(function(){
             data: formData,
             dataType: "json",
             success: function(res){
-                // Mostrar mensaje en modal
                 $("#mensajeModalBody").html(res.message);
                 var modalEl = document.getElementById('mensajeModal');
                 var modal = new bootstrap.Modal(modalEl);
                 modal.show();
 
-                // Cerrar modal automáticamente después de 3 segundos
-                setTimeout(function(){
-                    modal.hide();
-                }, 3000);
+                setTimeout(function(){ modal.hide(); }, 3000);
 
-                // Si es un NUEVO impuesto, limpiar formulario
-                if(res.status=="success" && !$("input[name='id']").val()){
-                    $("#formImpuesto")[0].reset();
-                }
-
-                // Si es una ACTUALIZACIÓN, redirigir al cerrar modal
-                if(res.status=="success" && $("input[name='id']").val()){
-                    $('#mensajeModal').on('hidden.bs.modal', function () {
-                        window.location.href = "AjustesImpuestos.php";
-                    });
+                if(res.status=="success"){
+                    if(!$("input[name='id']").val()){
+                        $("#formImpuesto")[0].reset();
+                    } else {
+                        $('#mensajeModal').on('hidden.bs.modal', function () {
+                            window.location.href = "AjustesImpuestos.php";
+                        });
+                    }
                 }
             },
             error: function(){
@@ -676,23 +680,26 @@ $(document).ready(function(){
                 var modalEl = document.getElementById('mensajeModal');
                 var modal = new bootstrap.Modal(modalEl);
                 modal.show();
-
-                // Cerrar modal automáticamente después de 3 segundos
-                setTimeout(function(){
-                    modal.hide();
-                }, 3000);
+                setTimeout(function(){ modal.hide(); }, 3000);
             }
         });
     });
 });
 </script>
-                                        
 
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
 
 
                           
+
+
+
+
+
+
 
 
 
