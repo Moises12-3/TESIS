@@ -28,13 +28,6 @@ $id_usuario = $_SESSION["id"];
     <link rel="apple-touch-icon" href="images/favicon.png">
     <link rel="shortcut icon" href="images/favicon.png">
 
-<!-- DataTables CSS -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-
-<!-- DataTables JS -->
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.0/normalize.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css">
 
@@ -175,62 +168,67 @@ $id_usuario = $_SESSION["id"];
                     <div class="header-left">
 
 
+                        
                         <div class="dropdown for-message">
-                            <a class="nav-link" href="#" onclick="toggleFullscreen()">
-                                    <i class="fa fa-expand"></i>Ver Pantalla completa
-                                </a>
-
-                                <script src>
-                                // Comprueba el estado de pantalla completa al cargar la página
-                                document.addEventListener('DOMContentLoaded', function () {
-                                    if (localStorage.getItem('fullscreen') === 'true') {
-                                        enableFullscreen();
-                                    }
-                                });
-
-                                // Función para activar el modo de pantalla completa
-                                function toggleFullscreen() {
-                                    if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
-                                        enableFullscreen();
-                                    } else {
-                                        disableFullscreen();
-                                    }
-                                }
-
-                                // Activar pantalla completa
-                                function enableFullscreen() {
-                                    if (document.documentElement.requestFullscreen) {
-                                        document.documentElement.requestFullscreen();
-                                    } else if (document.documentElement.mozRequestFullScreen) {
-                                        document.documentElement.mozRequestFullScreen(); // Firefox
-                                    } else if (document.documentElement.webkitRequestFullscreen) {
-                                        document.documentElement.webkitRequestFullscreen(); // Chrome, Safari y Opera
-                                    } else if (document.documentElement.msRequestFullscreen) {
-                                        document.documentElement.msRequestFullscreen(); // IE/Edge
-                                    }
-                                    
-                                    // Guardamos en el localStorage que el modo pantalla completa está activado
-                                    localStorage.setItem('fullscreen', 'true');
-                                }
-
-                                // Desactivar pantalla completa
-                                function disableFullscreen() {
-                                    if (document.exitFullscreen) {
-                                        document.exitFullscreen();
-                                    } else if (document.mozCancelFullScreen) {
-                                        document.mozCancelFullScreen(); // Firefox
-                                    } else if (document.webkitExitFullscreen) {
-                                        document.webkitExitFullscreen(); // Chrome, Safari y Opera
-                                    } else if (document.msExitFullscreen) {
-                                        document.msExitFullscreen(); // IE/Edge
-                                    }
-                                    
-                                    // Guardamos en el localStorage que el modo pantalla completa está desactivado
-                                    localStorage.setItem('fullscreen', 'false');
-                                }
-
-                                </script>                           
+                            <a class="nav-link" href="#" onclick="toggleFullscreen(event)">
+                                <i class="fa fa-expand" id="fullscreenIcon"></i> Ver Pantalla completa
+                            </a>                   
                         </div>
+
+                        <script>
+                        function toggleFullscreen(event) {
+                            event.preventDefault();
+
+                            if (!document.fullscreenElement) {
+                                document.documentElement.requestFullscreen()
+                                    .then(() => {
+                                        sessionStorage.setItem('fullscreenActive', 'true');
+                                        updateIcon(true);
+                                    })
+                                    .catch((err) => {
+                                        alert(`Error: ${err.message} (${err.name})`);
+                                    });
+                            } else {
+                                document.exitFullscreen()
+                                    .then(() => {
+                                        sessionStorage.setItem('fullscreenActive', 'false');
+                                        updateIcon(false);
+                                    });
+                            }
+                        }
+
+                        function updateIcon(isFullscreen) {
+                            const icon = document.getElementById('fullscreenIcon');
+                            if (isFullscreen) {
+                                icon.classList.remove('fa-expand');
+                                icon.classList.add('fa-compress');
+                            } else {
+                                icon.classList.remove('fa-compress');
+                                icon.classList.add('fa-expand');
+                            }
+                        }
+
+                        // Al cargar la página, verifica si el usuario quería pantalla completa
+                        document.addEventListener('DOMContentLoaded', () => {
+                            if (sessionStorage.getItem('fullscreenActive') === 'true') {
+                                // Solo se puede activar tras interacción, así que muestra un mensaje o botón para que el usuario lo active
+                                // Aquí solo actualizamos el icono para reflejar la intención
+                                updateIcon(true);
+                                // Opcional: mostrar mensaje para pedir que active pantalla completa manualmente
+                                console.log("Recuerda activar pantalla completa con el botón si quieres continuar.");
+                            }
+                        });
+
+                        // Detecta cambios en pantalla completa para actualizar el icono
+                        document.addEventListener('fullscreenchange', () => {
+                            updateIcon(!!document.fullscreenElement);
+                            if (!document.fullscreenElement) {
+                                sessionStorage.setItem('fullscreenActive', 'false');
+                            }
+                        });
+                        </script>
+
+
                     </div>
 
                     <div class="user-area dropdown float-right">
@@ -283,182 +281,27 @@ $id_usuario = $_SESSION["id"];
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
-                        <div class="card">
                             <div class="row">
                                 <div class="col-lg-8">
                                     <div class="card-body">
 
+                                    
+
+
+
+
 
                                     
-<?php
-require 'Conexion/conex.php';
-
-$mesActual = date('m');
-$anioActual = date('Y');
-
-// Contar productos que vencen este mes
-$sqlContador = "SELECT COUNT(*) AS total FROM productos 
-                WHERE MONTH(fecha_vencimiento) = $mesActual 
-                  AND YEAR(fecha_vencimiento) = $anioActual 
-                  AND fecha_vencimiento IS NOT NULL";
-$resContador = $conn->query($sqlContador);
-$total_vencimientos = 0;
-
-if ($resContador && $fila = $resContador->fetch_assoc()) {
-    $total_vencimientos = $fila['total'];
-}
-?>
-
-<?php if ($total_vencimientos > 0): ?>
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <strong>Atención:</strong> Tienes <?= $total_vencimientos ?> producto(s) que vencen este mes.
-        <a href="#" class="alert-link" data-toggle="modal" data-target="#modalVencimientos">Ver detalles</a>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-<?php endif; ?>
-
-
-<!-- Modal de productos por vencer -->
-<div class="modal fade" id="modalVencimientos" tabindex="-1" role="dialog" aria-labelledby="tituloModal" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg-warning text-white">
-        <h5 class="modal-title" id="tituloModal">Productos que vencen este mes</h5>
-        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <?php
-        $sql_modal = "SELECT codigo, nombre, fecha_vencimiento 
-                      FROM productos 
-                      WHERE MONTH(fecha_vencimiento) = $mesActual 
-                        AND YEAR(fecha_vencimiento) = $anioActual 
-                      ORDER BY fecha_vencimiento ASC";
-        $res_modal = $conn->query($sql_modal);
-        if ($res_modal && $res_modal->num_rows > 0): ?>
-            <table class="table table-bordered">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre</th>
-                        <th>Fecha de Vencimiento</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($fila = $res_modal->fetch_assoc()): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($fila['codigo']) ?></td>
-                            <td><?= htmlspecialchars($fila['nombre']) ?></td>
-                            <td><?= htmlspecialchars($fila['fecha_vencimiento']) ?></td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <p>No hay productos que venzan este mes.</p>
-        <?php endif; ?>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Requiere jQuery y Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-
-
-
-
-
-<script> 
-    // Ocultar el mensaje después de 3 segundos 
-    setTimeout(function() { 
-        var mensaje = document.getElementById("mensaje-alerta"); 
-        if (mensaje) { mensaje.style.display = "none"; } }, 3000); 
-</script>
-
-<?php
-require 'Conexion/conex.php';
 
-$mesActual = date('m');
-$anioActual = date('Y');
+                                    
 
-// Contar productos que vencen este mes
-$sqlContador = "SELECT COUNT(*) AS total FROM productos 
-                WHERE MONTH(fecha_vencimiento) = $mesActual 
-                  AND YEAR(fecha_vencimiento) = $anioActual 
-                  AND fecha_vencimiento IS NOT NULL";
-$resContador = $conn->query($sqlContador);
-$total_vencimientos = 0;
 
-if ($resContador && $fila = $resContador->fetch_assoc()) {
-    $total_vencimientos = $fila['total'];
-}
-?>
 
 
 
-<!-- Modal de productos por vencer -->
-<div class="modal fade" id="modalVencimientos" tabindex="-1" role="dialog" aria-labelledby="tituloModal" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg-warning text-white">
-        <h5 class="modal-title" id="tituloModal">Productos que vencen este mes</h5>
-        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <?php
-        $sql_modal = "SELECT codigo, nombre, fecha_vencimiento 
-                      FROM productos 
-                      WHERE MONTH(fecha_vencimiento) = $mesActual 
-                        AND YEAR(fecha_vencimiento) = $anioActual 
-                      ORDER BY fecha_vencimiento ASC";
-        $res_modal = $conn->query($sql_modal);
-        if ($res_modal && $res_modal->num_rows > 0): ?>
-            <table class="table table-bordered">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre</th>
-                        <th>Fecha de Vencimiento</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($fila = $res_modal->fetch_assoc()): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($fila['codigo']) ?></td>
-                            <td><?= htmlspecialchars($fila['nombre']) ?></td>
-                            <td><?= htmlspecialchars($fila['fecha_vencimiento']) ?></td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <p>No hay productos que venzan este mes.</p>
-        <?php endif; ?>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- Requiere jQuery y Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 
-                                        
 
 
 
@@ -480,30 +323,7 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                                    
 
 <?php
 include("Conexion/conex.php");
@@ -514,7 +334,7 @@ $impuestoEditado = null;
 $sql = "SELECT * FROM Impuesto";
 $result = $conn->query($sql);
 $impuestos = [];
-if ($result->num_rows > 0){
+if ($result && $result->num_rows > 0){
     while ($row = $result->fetch_assoc()){
         $impuestos[] = $row;
     }
@@ -565,18 +385,18 @@ $conn->close();
     <div class="row">
         <div class="col-md-6">
             <div class="mb-3">
-                <label for="nombre">Nombre del Impuesto</label>
+                <label for="nombre">🏷️ Nombre del Impuesto</label>
                 <input type="text" name="nombre" id="nombre" class="form-control input-borde-negro"
                        value="<?php echo $impuestoEditado ? htmlspecialchars($impuestoEditado['nombre']) : ''; ?>" required>
             </div>
             <div class="mb-3">
-                <label for="porcentaje">Porcentaje</label>
+                <label for="porcentaje">📊 Porcentaje</label>
                 <input type="number" step="0.01" name="porcentaje" id="porcentaje"
                        class="form-control input-borde-negro"
                        value="<?php echo $impuestoEditado ? htmlspecialchars($impuestoEditado['porcentaje']) : ''; ?>" required>
             </div>
             <div class="mb-3">
-                <label for="tipo_impuesto">Tipo de Impuesto</label>
+                <label for="tipo_impuesto">💰 Tipo de Impuesto</label>
                 <select name="tipo_impuesto" id="tipo_impuesto" class="form-control input-borde-negro">
                     <option value="fijo" <?php echo $impuestoEditado && $impuestoEditado['tipo_impuesto']=='fijo' ? 'selected':''; ?>>Fijo</option>
                     <option value="porcentaje" <?php echo $impuestoEditado && $impuestoEditado['tipo_impuesto']=='porcentaje' ? 'selected':''; ?>>Porcentaje</option>
@@ -586,12 +406,12 @@ $conn->close();
 
         <div class="col-md-6">
             <div class="mb-3">
-                <label for="descripcion">Descripción</label>
+                <label for="descripcion">📝 Descripción</label>
                 <textarea name="descripcion" id="descripcion" class="form-control input-borde-negro"
                           rows="5"><?php echo $impuestoEditado ? htmlspecialchars($impuestoEditado['descripcion']) : ''; ?></textarea>
             </div>
             <div class="mb-3">
-                <label for="estado">Estado</label>
+                <label for="estado">⚡ Estado</label>
                 <select name="estado" id="estado" class="form-control input-borde-negro">
                     <option value="activo" <?php echo $impuestoEditado && $impuestoEditado['estado']=='activo' ? 'selected':''; ?>>Activo</option>
                     <option value="inactivo" <?php echo $impuestoEditado && $impuestoEditado['estado']=='inactivo' ? 'selected':''; ?>>Inactivo</option>
@@ -600,13 +420,22 @@ $conn->close();
         </div>
     </div>
 
-    <button type="submit" class="btn btn-primary mt-3"><?php echo $impuestoEditado ? 'Actualizar':'Guardar'; ?></button>
+<div class="d-flex gap-2 mt-3">
+    <button id="btnSubmit" type="submit" class="btn btn-primary">
+        <?php echo $impuestoEditado ? 'Actualizar' : 'Guardar'; ?>
+    </button>
+    <a href="AjustesImpuestos.php" class="btn btn-danger">Limpiar</a>
+</div>
+
+
+
 </form>
 
 <hr>
 
-<h3>Impuestos Registrados</h3>
-<button id="exportExcel" class="btn btn-success mb-2">Exportar a Excel</button>
+<h3>📋 Impuestos Registrados</h3>
+<button id="exportExcel" class="btn btn-success mb-2">📥 Exportar a Excel</button>
+
 <table id="tabla-impuestos" class="table table-striped">
     <thead>
         <tr>
@@ -617,7 +446,7 @@ $conn->close();
             <th>💰 Tipo</th>
             <th>⚡ Estado</th>
             <th>🗓️ Fecha Creación</th>
-            <th>Acciones</th>
+            <th>✏️ Acciones</th>
         </tr>
     </thead>
     <tbody>
@@ -631,52 +460,66 @@ $conn->close();
                 <td><?= $imp['tipo_impuesto'] ?></td>
                 <td><?= $imp['estado'] ?></td>
                 <td><?= $imp['fecha_creacion'] ?></td>
-                <td><a href="?edit=<?= $imp['id'] ?>" class="btn btn-warning btn-sm">Editar</a></td>
+                <td><a href="?edit=<?= $imp['id'] ?>" class="btn btn-warning btn-sm">✏️ Editar</a></td>
             </tr>
         <?php endforeach; ?>
     <?php else: ?>
-        <tr><td colspan="8">No hay impuestos registrados.</td></tr>
+        <tr><td colspan="8">📭 No hay impuestos registrados.</td></tr>
     <?php endif; ?>
     </tbody>
 </table>
 
-<!-- Scripts -->
+<!-- Scripts (orden correcto) -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- SheetJS para exportar Excel -->
 <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 
 <script>
 $(document).ready(function(){
-    // Inicializar DataTable
-    $('#tabla-impuestos').DataTable({
-        "lengthMenu": [5, 15, 25, 50],
+
+    
+    // Inicializar DataTable y guardamos referencia
+    var tabla = $('#tabla-impuestos').DataTable({
+        dom: "<'row mb-3'<'col-sm-6'l><'col-sm-6 text-end'f>>" + "rtip",
+        "lengthMenu": [ [5, 10, 20, 25], [5, 10, 20, 25] ],
         "pageLength": 5,
         "language": {
             "lengthMenu": "Mostrar _MENU_ registros",
             "zeroRecords": "📭 No se encontraron resultados",
-            "info": "Mostrando página _PAGE_ de _PAGES_",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_",
             "infoEmpty": "No hay registros disponibles",
             "infoFiltered": "(filtrado de _MAX_ registros totales)",
             "search": "🔍 Buscar:",
-            "paginate": { "first": "Primero", "last": "Último", "next": "➡️", "previous": "⬅️" }
+            "paginate": { "first": "Primero", "last": "Último", "next": "Siguiente", "previous": "Anterior" }
         }
     });
 
-    // Exportar tabla a Excel sin emojis
+    // Exportar tabla a Excel
     $('#exportExcel').click(function(){
         var table = document.getElementById('tabla-impuestos');
         var wb = XLSX.utils.book_new();
         var ws_data = [];
 
+        // Cabecera limpia (sin emojis)
         ws_data.push(["ID","Nombre","Porcentaje","Descripción","Tipo","Estado","Fecha Creación"]);
 
-        for(var i=1; i<table.rows.length; i++){
+        var tbody = table.tBodies[0];
+        for(var r=0; r<tbody.rows.length; r++){
+            var tr = tbody.rows[r];
+            // Ignorar fila de "No hay registros"
+            if(tr.cells.length < 7) continue;
+
             var row = [];
-            for(var j=0; j<7; j++){ // solo las 7 columnas visibles
-                var text = table.rows[i].cells[j].innerText;
-                text = text.replace(/[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,'');
+            for(var c=0; c<7; c++){ // Solo primeras 7 columnas
+                var text = tr.cells[c].innerText || tr.cells[c].textContent || "";
+                // Quitar emojis simples y signos extraños
+                text = text.replace(/[\u{1F600}-\u{1F64F}\u{2700}-\u{27BF}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}]/gu,"");
+                // Quitar % del porcentaje
+                if(c === 2) text = text.replace('%','').trim();
                 row.push(text.trim());
             }
             ws_data.push(row);
@@ -687,9 +530,12 @@ $(document).ready(function(){
         XLSX.writeFile(wb, "Impuestos.xlsx");
     });
 
+
     // AJAX para guardar/editar impuesto
     $("#formImpuesto").submit(function(e){
         e.preventDefault();
+        $("#btnSubmit").prop('disabled', true);
+
         var formData = $(this).serialize();
         $.ajax({
             type: "POST",
@@ -698,27 +544,54 @@ $(document).ready(function(){
             dataType: "json",
             success: function(res){
                 $("#mensajeModalBody").html(res.message);
-                var modal = new bootstrap.Modal(document.getElementById('mensajeModal'));
-                modal.show();
-                setTimeout(function(){ modal.hide(); }, 3000);
+                var modalEl = document.getElementById('mensajeModal');
+                var bootstrapModal = new bootstrap.Modal(modalEl);
+                bootstrapModal.show();
+                setTimeout(function(){ bootstrapModal.hide(); }, 2000);
 
-                if(res.status=="success" && !$("input[name='id']").val()){
-                    $("#formImpuesto")[0].reset();
+                // Si fue éxito y es NUEVO (no hay ID en el form)
+                if(res.status === "success" && !$("input[name='id']").val()){
+                    // Agregar nueva fila a la tabla
+                    tabla.row.add([
+                        res.data.id,
+                        res.data.nombre,
+                        res.data.porcentaje + "%",
+                        res.data.descripcion,
+                        res.data.tipo_impuesto,
+                        res.data.estado,
+                        res.data.fecha_creacion,
+                        "<a href='?edit="+res.data.id+"' class='btn btn-warning btn-sm'>✏️ Editar</a>"
+                    ]).draw(false);
+                        
+
+                    // Limpiar formulario COMPLETAMENTE
+                    $("#formImpuesto")[0].reset(); // limpia inputs y textarea
+                    $("select").each(function(){ this.selectedIndex = 0; }); // limpia selects
+
+                    // Quitar hidden input si existía
+                    $("input[name='id']").remove();
+                    
                 }
-                if(res.status=="success" && $("input[name='id']").val()){
-                    $('#mensajeModal').on('hidden.bs.modal', function () {
-                        window.location.href = "AjustesImpuestos.php";
-                    });
+
+                // Si fue éxito y es ACTUALIZACIÓN
+                if(res.status === "success" && $("input[name='id']").val()){
+                    // Para simplificar: recargamos la página (porque actualizar fila puntual es más largo)
+                    window.location.href = "AjustesImpuestos.php";
                 }
+
+                $("#btnSubmit").prop('disabled', false);
             },
             error: function(){
-                $("#mensajeModalBody").html("Error en la conexión al servidor.");
-                var modal = new bootstrap.Modal(document.getElementById('mensajeModal'));
-                modal.show();
-                setTimeout(function(){ modal.hide(); }, 3000);
+                $("#mensajeModalBody").html("❌ Error en la conexión al servidor.");
+                var modalEl = document.getElementById('mensajeModal');
+                var bootstrapModal = new bootstrap.Modal(modalEl);
+                bootstrapModal.show();
+                setTimeout(function(){ bootstrapModal.hide(); }, 2000);
+                $("#btnSubmit").prop('disabled', false);
             }
         });
     });
+
 });
 </script>
 
@@ -763,18 +636,6 @@ $(document).ready(function(){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-                                        
                                     </div>
                                 </div>
                             </div> <!-- /.row -->
