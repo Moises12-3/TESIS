@@ -538,7 +538,6 @@ $conn->close();
 
 
 
-
 <!-- Modal de Mensaje -->
 <div class="modal fade" id="mensajeModal" tabindex="-1" aria-labelledby="mensajeModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -552,7 +551,7 @@ $conn->close();
   </div>
 </div>
 
-<!-- Formulario -->
+<!-- Formulario de Impuesto -->
 <form id="formImpuesto" method="POST" class="mb-4">
     <?php if ($impuestoEditado): ?>
         <input type="hidden" name="id" value="<?php echo $impuestoEditado['id']; ?>">
@@ -566,18 +565,18 @@ $conn->close();
     <div class="row">
         <div class="col-md-6">
             <div class="mb-3">
-                <label for="nombre">🏷️ Nombre del Impuesto</label>
+                <label for="nombre">Nombre del Impuesto</label>
                 <input type="text" name="nombre" id="nombre" class="form-control input-borde-negro"
                        value="<?php echo $impuestoEditado ? htmlspecialchars($impuestoEditado['nombre']) : ''; ?>" required>
             </div>
             <div class="mb-3">
-                <label for="porcentaje">📊 Porcentaje</label>
+                <label for="porcentaje">Porcentaje</label>
                 <input type="number" step="0.01" name="porcentaje" id="porcentaje"
                        class="form-control input-borde-negro"
                        value="<?php echo $impuestoEditado ? htmlspecialchars($impuestoEditado['porcentaje']) : ''; ?>" required>
             </div>
             <div class="mb-3">
-                <label for="tipo_impuesto">💰 Tipo de Impuesto</label>
+                <label for="tipo_impuesto">Tipo de Impuesto</label>
                 <select name="tipo_impuesto" id="tipo_impuesto" class="form-control input-borde-negro">
                     <option value="fijo" <?php echo $impuestoEditado && $impuestoEditado['tipo_impuesto']=='fijo' ? 'selected':''; ?>>Fijo</option>
                     <option value="porcentaje" <?php echo $impuestoEditado && $impuestoEditado['tipo_impuesto']=='porcentaje' ? 'selected':''; ?>>Porcentaje</option>
@@ -587,12 +586,12 @@ $conn->close();
 
         <div class="col-md-6">
             <div class="mb-3">
-                <label for="descripcion">📝 Descripción</label>
+                <label for="descripcion">Descripción</label>
                 <textarea name="descripcion" id="descripcion" class="form-control input-borde-negro"
                           rows="5"><?php echo $impuestoEditado ? htmlspecialchars($impuestoEditado['descripcion']) : ''; ?></textarea>
             </div>
             <div class="mb-3">
-                <label for="estado">⚡ Estado</label>
+                <label for="estado">Estado</label>
                 <select name="estado" id="estado" class="form-control input-borde-negro">
                     <option value="activo" <?php echo $impuestoEditado && $impuestoEditado['estado']=='activo' ? 'selected':''; ?>>Activo</option>
                     <option value="inactivo" <?php echo $impuestoEditado && $impuestoEditado['estado']=='inactivo' ? 'selected':''; ?>>Inactivo</option>
@@ -606,8 +605,8 @@ $conn->close();
 
 <hr>
 
-<h3>📋 Impuestos Registrados</h3>
-<button id="exportExcel" class="btn btn-success mb-2">📥 Exportar a Excel</button>
+<h3>Impuestos Registrados</h3>
+<button id="exportExcel" class="btn btn-success mb-2">Exportar a Excel</button>
 <table id="tabla-impuestos" class="table table-striped">
     <thead>
         <tr>
@@ -618,29 +617,26 @@ $conn->close();
             <th>💰 Tipo</th>
             <th>⚡ Estado</th>
             <th>🗓️ Fecha Creación</th>
+            <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
-    <?php
-    if(count($impuestos) > 0){
-        foreach($impuestos as $imp){
-            $estadoEmoji = $imp['estado'] == 'activo' ? '✅ Activo' : '❌ Inactivo';
-            $tipoEmoji = $imp['tipo_impuesto'] == 'fijo' ? '💵 Fijo' : '📈 Porcentaje';
-
-            echo "<tr>
-                <td>{$imp['id']}</td>
-                <td>".htmlspecialchars($imp['nombre'])."</td>
-                <td>📊 {$imp['porcentaje']}%</td>
-                <td>".htmlspecialchars($imp['descripcion'])."</td>
-                <td>{$tipoEmoji}</td>
-                <td>{$estadoEmoji}</td>
-                <td>🗓️ {$imp['fecha_creacion']}</td>
-            </tr>";
-        }
-    } else {
-        echo "<tr><td colspan='7'>📭 No hay impuestos registrados.</td></tr>";
-    }
-    ?>
+    <?php if(count($impuestos) > 0): ?>
+        <?php foreach($impuestos as $imp): ?>
+            <tr>
+                <td><?= $imp['id'] ?></td>
+                <td><?= htmlspecialchars($imp['nombre']) ?></td>
+                <td><?= $imp['porcentaje'] ?>%</td>
+                <td><?= htmlspecialchars($imp['descripcion']) ?></td>
+                <td><?= $imp['tipo_impuesto'] ?></td>
+                <td><?= $imp['estado'] ?></td>
+                <td><?= $imp['fecha_creacion'] ?></td>
+                <td><a href="?edit=<?= $imp['id'] ?>" class="btn btn-warning btn-sm">Editar</a></td>
+            </tr>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <tr><td colspan="8">No hay impuestos registrados.</td></tr>
+    <?php endif; ?>
     </tbody>
 </table>
 
@@ -649,8 +645,6 @@ $conn->close();
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- SheetJS -->
 <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 
 <script>
@@ -672,22 +666,17 @@ $(document).ready(function(){
 
     // Exportar tabla a Excel sin emojis
     $('#exportExcel').click(function(){
-        // Crear una copia limpia de la tabla
         var table = document.getElementById('tabla-impuestos');
         var wb = XLSX.utils.book_new();
         var ws_data = [];
-        
-        // Cabecera sin emojis
-        ws_data.push(["ID", "Nombre", "Porcentaje", "Descripción", "Tipo", "Estado", "Fecha Creación"]);
 
-        // Filas sin emojis
+        ws_data.push(["ID","Nombre","Porcentaje","Descripción","Tipo","Estado","Fecha Creación"]);
+
         for(var i=1; i<table.rows.length; i++){
             var row = [];
             for(var j=0; j<7; j++){ // solo las 7 columnas visibles
                 var text = table.rows[i].cells[j].innerText;
-
-                // Eliminar emojis con regex
-                text = text.replace(/[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
+                text = text.replace(/[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,'');
                 row.push(text.trim());
             }
             ws_data.push(row);
@@ -698,12 +687,10 @@ $(document).ready(function(){
         XLSX.writeFile(wb, "Impuestos.xlsx");
     });
 
-
-    // AJAX para guardar impuesto
+    // AJAX para guardar/editar impuesto
     $("#formImpuesto").submit(function(e){
         e.preventDefault();
         var formData = $(this).serialize();
-
         $.ajax({
             type: "POST",
             url: "Configuracion/guardar_impuesto_ajax.php",
@@ -725,7 +712,7 @@ $(document).ready(function(){
                 }
             },
             error: function(){
-                $("#mensajeModalBody").html("❌ Error en la conexión al servidor.");
+                $("#mensajeModalBody").html("Error en la conexión al servidor.");
                 var modal = new bootstrap.Modal(document.getElementById('mensajeModal'));
                 modal.show();
                 setTimeout(function(){ modal.hide(); }, 3000);
@@ -734,6 +721,7 @@ $(document).ready(function(){
     });
 });
 </script>
+
 
 
 
