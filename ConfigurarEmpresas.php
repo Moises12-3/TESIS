@@ -281,6 +281,17 @@ $id_usuario = $_SESSION["id"];
                                     <div class="card-body">
 
 
+
+
+
+
+
+
+
+
+
+
+
 <?php
 $mensaje_foto = "";
 
@@ -457,6 +468,24 @@ document.getElementById("logo").addEventListener("change", function(event) {
 
     <button type="submit"name="guardar_empresa"  class="btn btn-primary">Guardar Empresa</button>
 </form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
