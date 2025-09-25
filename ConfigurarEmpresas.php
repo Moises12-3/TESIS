@@ -292,137 +292,221 @@ $id_usuario = $_SESSION["id"];
 
 
 
-<?php
-$mensaje_foto = "";
 
-if (isset($_POST['subir_logo'])) {
-    // Validar que exista al menos una empresa
-    $resultado = $conn->query("SELECT id, nombre FROM empresa ORDER BY id DESC LIMIT 1");
-    if ($resultado && $resultado->num_rows > 0) {
-        $empresa = $resultado->fetch_assoc();
-        $id_empresa = $empresa['id'];
-        $nombre_empresa = preg_replace('/[^a-zA-Z0-9]/', '_', $empresa['nombre']); // Limpia el nombre
 
-        if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
-            $archivo = $_FILES['logo'];
-            $tiposPermitidos = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
-            if (in_array($archivo['type'], $tiposPermitidos)) {
-                $carpetaDestino = __DIR__ . '/images/logo_empresa/';
-                if (!is_dir($carpetaDestino)) {
-                    mkdir($carpetaDestino, 0755, true);
-                }
 
-                $extension = pathinfo($archivo['name'], PATHINFO_EXTENSION);
-                // Nombre único para evitar sobrescritura
-                $nombreArchivo = $nombre_empresa . '_' . uniqid() . '.' . $extension;
-                $rutaDestino = $carpetaDestino . $nombreArchivo;
-                $rutaRelativa = 'images/logo_empresa/' . $nombreArchivo;
 
-                if (move_uploaded_file($archivo['tmp_name'], $rutaDestino)) {
-                    // Actualizar la columna foto_perfil en la empresa correspondiente
-                    $stmt = $conn->prepare("UPDATE empresa SET foto_perfil = ? WHERE id = ?");
-                    $stmt->bind_param("si", $rutaRelativa, $id_empresa);
-                    if ($stmt->execute()) {
-                        $mensaje_foto = "¡Logo subido y guardado correctamente!";
-                    } else {
-                        $mensaje_foto = "Error al actualizar la ruta del logo: " . $stmt->error;
-                    }
-                    $stmt->close();
-                } else {
-                    $mensaje_foto = "Error al mover el archivo.";
-                }
-            } else {
-                $mensaje_foto = "Tipo de archivo no permitido. Solo JPG, PNG, GIF o WEBP.";
-            }
-        } else {
-            $mensaje_foto = "No se ha seleccionado ningún archivo o hubo un error en la subida.";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    
+
+<script>
+// Subir logo
+$('#formLogo').submit(function(e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+
+    $.ajax({
+        url: 'Configuracion/subir_logo_empresa.php', // ruta correcta
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+            mostrarModal(response);
+            $('#formLogo')[0].reset();
+            $('#preview').hide();
+        },
+        error: function(xhr) {
+            mostrarModal("❌ Error: " + xhr.responseText);
         }
-    } else {
-        $mensaje_foto = "Debe registrar la empresa antes de subir el logo.";
-    }
-}
-?>
+    });
+});
 
-
-
-<h2 class="mb-4">Configuración de Empresa y Usuario Administrador</h2>
-
-<?php if ($mensaje_foto): ?>
-    <div class="alert alert-info"><?= htmlspecialchars($mensaje_foto) ?></div>
-    
-<script>
-    setTimeout(() => {
-        location.href = 'ConfigurarEmpresas.php';
-    }, 3000); // 3 segundos
 </script>
-    
-<?php endif; ?>
-
 
 
 <?php
-
-$mensaje_info = "";
-if (isset($_POST['guardar_empresa'])) {
-    // Recoger y limpiar datos del formulario
-    $nombre = $conn->real_escape_string($_POST['nombre']);
-    $direccion = $conn->real_escape_string($_POST['direccion']);
-    $correo = $conn->real_escape_string($_POST['correo']);
-    $telefono = $conn->real_escape_string($_POST['telefono']);
-    $fax = $conn->real_escape_string($_POST['fax']);
-    $identidad_juridica = $conn->real_escape_string($_POST['identidad_juridica']);
-    
-    // Generar código_interno único (puedes cambiar la lógica)
-    $codigo_interno = uniqid('EMP_');
-    
-    // Insertar en la tabla empresa
-    $sql = "INSERT INTO empresa (nombre, direccion, correo, telefono, fax, codigo_interno, identidad_juridica) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    
-    $stmt = $conn->prepare($sql);
-    if ($stmt === false) {
-        die("Error en la preparación de la consulta: " . $conn->error);
-    }
-    
-    $stmt->bind_param("sssssss", $nombre, $direccion, $correo, $telefono, $fax, $codigo_interno, $identidad_juridica);
-    
-    if ($stmt->execute()) {
-        $mensaje_info = "Empresa guardada correctamente.";
-    } else {
-        $mensaje_info = "Error al guardar la empresa: " . $stmt->error;
-    }
-    
-    $stmt->close();
-}
-
+include("Conexion/conex.php"); // Conexión a la base de datos
 ?>
 
-<?php if ($mensaje_info): ?>
-    <div class="alert alert-info"><?= htmlspecialchars($mensaje_info) ?></div>
-        
-<script>
-    setTimeout(() => {
-        location.href = 'ConfigurarEmpresas.php';
-    }, 3000); // 3 segundos
-</script>
-    
-<?php endif; ?>
+<div class="container py-4">
+    <h2 class="mb-4 text-primary">🏢 Configuración de Empresa y Usuario Administrador</h2>
 
-
-<form method="POST" action="" enctype="multipart/form-data">
-    <div class="mb-3">
-        <label class="form-label">Logo de la Empresa</label>
-        <input type="file" class="form-control" name="logo" id="logo" accept="image/*" required>
-        <img id="preview" src="#" alt="Vista previa del logo" style="display:none; max-height:150px; margin-top:10px;">
+    <!-- Subir Logo -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            📷 Subir Logo de la Empresa
+        </div>
+        <div class="card-body">
+            <form id="formLogo" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <input type="file" class="form-control" name="logo" id="logo" accept="image/*" required>
+                    <img id="preview" alt="Vista previa del logo" 
+                    style="display:none; max-height:150px; margin-top:10px; border:1px solid #ccc; padding:5px; border-radius:5px;">
+                </div>
+                <button type="submit" class="btn btn-success">✅ Subir Logo</button>
+            </form>
+        </div>
     </div>
-    <button type="submit" name="subir_logo" class="btn btn-primary">Subir foto</button>
-</form>
+
+    <!-- Datos de Empresa -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark">
+            📝 Datos de la Empresa
+        </div>
+        <div class="card-body">
+            <form id="formEmpresa">
+                <div class="row">
+                    <!-- Columna izquierda -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">🏢 Nombre de la Empresa</label>
+                            <input type="text" class="form-control" name="nombre" placeholder="Ej: Mi Empresa S.A." required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">📧 Correo Electrónico</label>
+                            <input type="email" class="form-control" name="correo" placeholder="correo@empresa.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">📠 Fax</label>
+                            <input type="text" class="form-control" name="fax" placeholder="Fax de la empresa">
+                        </div>
+                    </div>
+
+                    <!-- Columna derecha -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">📍 Dirección</label>
+                            <input type="text" class="form-control" name="direccion" placeholder="Dirección de la empresa" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">📞 Teléfono</label>
+                            <input type="text" class="form-control" name="telefono" placeholder="8888-8888">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">🆔 Identidad Jurídica</label>
+                            <input type="text" class="form-control" name="identidad_juridica" placeholder="Registro legal">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">💾 Guardar Empresa</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<!-- Modal Notificación Mejorado -->
+<div class="modal fade" id="modalMensaje" tabindex="-1" aria-labelledby="modalMensajeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+
+      <!-- Encabezado del Modal -->
+      <div class="modal-header" id="modalHeader" style="justify-content:center; background-color:#0d6efd; color:white;">
+        <h5 class="modal-title w-100 text-center" id="modalTitulo">Mensajes</h5>
+      </div>
+
+      <!-- Cuerpo del Modal -->
+      <div class="modal-body p-4 text-center" id="modalContenido" 
+           style="font-size:1rem; background-color:#f8f9fa; border-radius:0 0 10px 10px;">
+        <!-- Mensaje dinámico -->
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+const modalMensaje = new bootstrap.Modal(document.getElementById('modalMensaje'));
+
+function mostrarModal(titulo, mensaje, tipo = "success") {
+    // Configuración según el tipo de mensaje
+    let bgHeader = "#198754"; // verde
+    let textHeader = "#fff";
+    switch(tipo) {
+        case "error":
+            bgHeader = "#dc3545"; // rojo
+            break;
+        case "warning":
+            bgHeader = "#ffc107"; // amarillo
+            textHeader = "#000";
+            break;
+        case "info":
+            bgHeader = "#0dcaf0"; // azul
+            break;
+    }
+
+    // Título y mensaje
+    $('#modalTitulo').html(titulo);
+    $('#modalContenido').html(mensaje);
+
+    // Estilos
+    $('#modalHeader').css({
+        'background-color': bgHeader,
+        'color': textHeader,
+        'font-weight': '600',
+        'text-align': 'center'
+    });
+    $('#modalContenido').css({
+        'background-color': '#f8f9fa',
+        'color': '#212529',
+        'border-radius': '0 0 10px 10px',
+        'padding': '20px',
+        'margin': '0'
+    });
+
+    modalMensaje.show();
+
+    // Desaparece después de 3 segundos
+    setTimeout(() => { modalMensaje.hide(); }, 3000);
+}
+
+</script>
+
+
+
+
+
+
+
+<script>
+
+// Vista previa del logo
 document.getElementById("logo").addEventListener("change", function(event) {
     const file = event.target.files[0];
     const preview = document.getElementById("preview");
-
     if (file && file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -431,43 +515,64 @@ document.getElementById("logo").addEventListener("change", function(event) {
         }
         reader.readAsDataURL(file);
     } else {
-        preview.src = "#";
         preview.style.display = "none";
     }
 });
+
+// Función para mostrar modal
+function mostrarModal(mensaje) {
+    $('#modalContenido').html(mensaje);
+    modalMensaje.show();
+    setTimeout(() => { modalMensaje.hide(); }, 3000); // Desaparece a los 3 segundos
+}
+
+// Guardar datos de la empresa
+$('#formEmpresa').submit(function(e) {
+    e.preventDefault();
+    var formData = $(this).serialize();
+    $.ajax({
+        url: 'Configuracion/guardar_configurarempresas.php',
+        type: 'POST',
+        data: formData,
+        success: function(response) {
+            mostrarModal(response);
+            $('#formEmpresa')[0].reset();
+        },
+        error: function(xhr) {
+            mostrarModal("❌ Error: " + xhr.responseText);
+        }
+    });
+});
+
+// Subir logo
+$('#formLogo').submit(function(e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+    $.ajax({
+        url: 'Configuracion/subir_logo_empresa.php',
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+            mostrarModal(response);
+            $('#formLogo')[0].reset();
+            $('#preview').hide();
+        },
+        error: function(xhr) {
+            mostrarModal("❌ Error: " + xhr.responseText);
+        }
+    });
+});
 </script>
-<br>
-
-<form method="POST" action="">
-    <h5>Datos de la Empresa</h5>
-    <div class="mb-3">
-        <label class="form-label">Nombre de la Empresa</label>
-        <input type="text" class="form-control" name="nombre" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Dirección</label>
-        <input type="text" class="form-control" name="direccion" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Correo Electrónico</label>
-        <input type="email" class="form-control" name="correo" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Teléfono</label>
-        <input type="text" class="form-control" name="telefono">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Fax</label>
-        <input type="text" class="form-control" name="fax">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Identidad Jurídica</label>
-        <input type="text" class="form-control" name="identidad_juridica">
-    </div>
 
 
-    <button type="submit"name="guardar_empresa"  class="btn btn-primary">Guardar Empresa</button>
-</form>
+
+
+
+
+
+
 
 
 
