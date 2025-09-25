@@ -547,7 +547,7 @@ $('#formEmpresa').submit(function(e) {
     e.preventDefault();
     var formData = $(this).serialize();
     $.ajax({
-        url: 'Configuracion/guardar_configurarempresas.php',
+        url: 'Configuracion/guardar_configurar_empresas.php',
         type: 'POST',
         data: formData,
         success: function(response) {
