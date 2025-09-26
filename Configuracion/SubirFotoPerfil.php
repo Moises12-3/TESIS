@@ -20,6 +20,21 @@ if(isset($_FILES['foto']) && $_FILES['foto']['error'] == 0){
         exit;
     }
 
+    // Obtener foto anterior
+    $sqlFoto = "SELECT foto_perfil FROM usuarios WHERE id=?";
+    $stmtFoto = $conn->prepare($sqlFoto);
+    $stmtFoto->bind_param("i", $idUsuario);
+    $stmtFoto->execute();
+    $resultado = $stmtFoto->get_result();
+    $usuario = $resultado->fetch_assoc();
+
+    if(!empty($usuario['foto_perfil'])){
+        $fotoAnterior = "../" . $usuario['foto_perfil']; // Ruta física del servidor
+        if(file_exists($fotoAnterior)){
+            unlink($fotoAnterior); // Eliminar archivo anterior
+        }
+    }
+
     // Nombre único de archivo
     $nombreArchivo = "perfil_" . $idUsuario . "_" . time() . "." . $ext;
     $carpeta = "../images/photo_perfil/";

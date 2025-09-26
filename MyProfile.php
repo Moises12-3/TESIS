@@ -21,7 +21,7 @@ $id_usuario = $_SESSION["id"];
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Inicio</title>
+    <title>👤 Mi Perfil</title>
     <meta name="description" content="Ela Admin - HTML5 Admin Template">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -46,7 +46,6 @@ $id_usuario = $_SESSION["id"];
     <link href="https://cdn.jsdelivr.net/npm/weathericons@2.1.0/css/weather-icons.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/fullcalendar.min.css" rel="stylesheet" />
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
    <style>
@@ -285,10 +284,11 @@ $id_usuario = $_SESSION["id"];
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="row">
-                                <div class="col-lg-8">
+                                <div class="col-lg-10">
                                     <div class="card-body">
                                         
 
+<h1 class="text-center my-4">👤 Bienvenido a tu Perfil 🖼️</h1>
 
 
 
@@ -305,6 +305,23 @@ $id_usuario = $_SESSION["id"];
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+                                    
 
 
 
@@ -333,7 +350,7 @@ $usuario = $resultado->fetch_assoc();
 ?>
 
 <div class="container py-4">
-    <!-- FORMULARIO FOTO PERFIL (Primero) -->
+    <!-- FORMULARIO FOTO PERFIL -->
     <div class="card shadow-lg border-0 rounded-3 mb-4">
         <div class="card-header bg-gradient bg-secondary text-white text-center py-3">
             <h4 class="mb-0">🖼️ Foto de Perfil</h4>
@@ -358,11 +375,11 @@ $usuario = $resultado->fetch_assoc();
         </div>
     </div>
 
-    <!-- FORMULARIO DATOS PERSONALES -->
+    <!-- FORMULARIO DATOS PERSONALES Y CONTRASEÑA -->
     <div class="card shadow-lg border-0 rounded-3">
         <div class="card-header bg-gradient bg-primary text-white text-center py-3">
             <h4 class="mb-0">👤 Mi Perfil</h4>
-            <small class="text-light">Aquí puedes actualizar tu información personal</small>
+            <small class="text-light">Aquí puedes actualizar tu información personal y contraseña</small>
         </div>
         <div class="card-body p-4">
             <form id="formPerfil">
@@ -416,10 +433,23 @@ $usuario = $resultado->fetch_assoc();
                                      ($usuario['rol']=="editor"?"✏️ Editor":"🙋 Usuario"); ?>" readonly>
                         </div>
                     </div>
+                    <!-- Campos de contraseña alineados en fila -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">🔑 Nueva contraseña</label>
+                            <input type="password" class="form-control" name="password" id="password" placeholder="Dejar vacío si no desea cambiar">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">🔑 Confirmar contraseña</label>
+                            <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="Confirmar contraseña">
+                            <div id="mensajePassword" class="form-text text-danger mt-1"></div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="d-grid mt-4">
-                    <button type="submit" class="btn btn-success btn-lg shadow-sm">
+                    <button type="submit" id="btnGuardar" class="btn btn-success btn-lg shadow-sm">
                         💾 Guardar cambios
                     </button>
                 </div>
@@ -463,23 +493,49 @@ $(document).ready(function(){
         });
     });
 
-    // Formulario datos personales
+    // Validación en tiempo real de contraseñas
+    $("#password, #confirm_password").on("keyup", function(){
+        const pass = $("#password").val();
+        const confirm = $("#confirm_password").val();
+        const btnGuardar = $("#btnGuardar");
+        const mensaje = $("#mensajePassword");
+
+        if(pass !== confirm){
+            mensaje.text("Las contraseñas no coinciden");
+            $("#confirm_password").addClass("is-invalid");
+            btnGuardar.prop("disabled", true);
+        } else {
+            mensaje.text("");
+            $("#confirm_password").removeClass("is-invalid");
+            btnGuardar.prop("disabled", false);
+        }
+    });
+
+    // Formulario datos personales y contraseña
     $("#formPerfil").on("submit", function(e){
         e.preventDefault();
+        var btnGuardar = $("#btnGuardar");
+        btnGuardar.prop("disabled", true); // evitar doble envío
+
         $.ajax({
             url: "Configuracion/ActualizarPerfil.php",
             type: "POST",
             data: $(this).serialize(),
             success: function(respuesta){
                 $("#mensaje").html('<div class="alert alert-success text-center">✅ '+respuesta+'</div>');
+                btnGuardar.prop("disabled", false);
+                $("#password, #confirm_password").val(""); // limpiar campos contraseña
             },
             error: function(){
                 $("#mensaje").html('<div class="alert alert-danger text-center">❌ Error al actualizar perfil.</div>');
+                btnGuardar.prop("disabled", false);
             }
         });
     });
 });
 </script>
+
+
 
 
 
