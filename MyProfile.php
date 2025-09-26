@@ -21,7 +21,7 @@ $id_usuario = $_SESSION["id"];
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Mi perfil</title>
+    <title>Inicio</title>
     <meta name="description" content="Ela Admin - HTML5 Admin Template">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -45,6 +45,9 @@ $id_usuario = $_SESSION["id"];
 
     <link href="https://cdn.jsdelivr.net/npm/weathericons@2.1.0/css/weather-icons.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/fullcalendar.min.css" rel="stylesheet" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
    <style>
     #weatherWidget .currentDesc {
@@ -168,62 +171,67 @@ $id_usuario = $_SESSION["id"];
                     <div class="header-left">
 
 
+                        
                         <div class="dropdown for-message">
-                            <a class="nav-link" href="#" onclick="toggleFullscreen()">
-                                    <i class="fa fa-expand"></i>Ver Pantalla completa
-                                </a>
-
-                                <script src>
-                                // Comprueba el estado de pantalla completa al cargar la página
-                                document.addEventListener('DOMContentLoaded', function () {
-                                    if (localStorage.getItem('fullscreen') === 'true') {
-                                        enableFullscreen();
-                                    }
-                                });
-
-                                // Función para activar el modo de pantalla completa
-                                function toggleFullscreen() {
-                                    if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
-                                        enableFullscreen();
-                                    } else {
-                                        disableFullscreen();
-                                    }
-                                }
-
-                                // Activar pantalla completa
-                                function enableFullscreen() {
-                                    if (document.documentElement.requestFullscreen) {
-                                        document.documentElement.requestFullscreen();
-                                    } else if (document.documentElement.mozRequestFullScreen) {
-                                        document.documentElement.mozRequestFullScreen(); // Firefox
-                                    } else if (document.documentElement.webkitRequestFullscreen) {
-                                        document.documentElement.webkitRequestFullscreen(); // Chrome, Safari y Opera
-                                    } else if (document.documentElement.msRequestFullscreen) {
-                                        document.documentElement.msRequestFullscreen(); // IE/Edge
-                                    }
-                                    
-                                    // Guardamos en el localStorage que el modo pantalla completa está activado
-                                    localStorage.setItem('fullscreen', 'true');
-                                }
-
-                                // Desactivar pantalla completa
-                                function disableFullscreen() {
-                                    if (document.exitFullscreen) {
-                                        document.exitFullscreen();
-                                    } else if (document.mozCancelFullScreen) {
-                                        document.mozCancelFullScreen(); // Firefox
-                                    } else if (document.webkitExitFullscreen) {
-                                        document.webkitExitFullscreen(); // Chrome, Safari y Opera
-                                    } else if (document.msExitFullscreen) {
-                                        document.msExitFullscreen(); // IE/Edge
-                                    }
-                                    
-                                    // Guardamos en el localStorage que el modo pantalla completa está desactivado
-                                    localStorage.setItem('fullscreen', 'false');
-                                }
-
-                                </script>                           
+                            <a class="nav-link" href="#" onclick="toggleFullscreen(event)">
+                                <i class="fa fa-expand" id="fullscreenIcon"></i> Ver Pantalla completa
+                            </a>                   
                         </div>
+
+                        <script>
+                        function toggleFullscreen(event) {
+                            event.preventDefault();
+
+                            if (!document.fullscreenElement) {
+                                document.documentElement.requestFullscreen()
+                                    .then(() => {
+                                        sessionStorage.setItem('fullscreenActive', 'true');
+                                        updateIcon(true);
+                                    })
+                                    .catch((err) => {
+                                        alert(`Error: ${err.message} (${err.name})`);
+                                    });
+                            } else {
+                                document.exitFullscreen()
+                                    .then(() => {
+                                        sessionStorage.setItem('fullscreenActive', 'false');
+                                        updateIcon(false);
+                                    });
+                            }
+                        }
+
+                        function updateIcon(isFullscreen) {
+                            const icon = document.getElementById('fullscreenIcon');
+                            if (isFullscreen) {
+                                icon.classList.remove('fa-expand');
+                                icon.classList.add('fa-compress');
+                            } else {
+                                icon.classList.remove('fa-compress');
+                                icon.classList.add('fa-expand');
+                            }
+                        }
+
+                        // Al cargar la página, verifica si el usuario quería pantalla completa
+                        document.addEventListener('DOMContentLoaded', () => {
+                            if (sessionStorage.getItem('fullscreenActive') === 'true') {
+                                // Solo se puede activar tras interacción, así que muestra un mensaje o botón para que el usuario lo active
+                                // Aquí solo actualizamos el icono para reflejar la intención
+                                updateIcon(true);
+                                // Opcional: mostrar mensaje para pedir que active pantalla completa manualmente
+                                console.log("Recuerda activar pantalla completa con el botón si quieres continuar.");
+                            }
+                        });
+
+                        // Detecta cambios en pantalla completa para actualizar el icono
+                        document.addEventListener('fullscreenchange', () => {
+                            updateIcon(!!document.fullscreenElement);
+                            if (!document.fullscreenElement) {
+                                sessionStorage.setItem('fullscreenActive', 'false');
+                            }
+                        });
+                        </script>
+
+
                     </div>
 
                     <div class="user-area dropdown float-right">
@@ -256,6 +264,7 @@ $id_usuario = $_SESSION["id"];
                             <img class="user-avatar rounded-circle" src="<?php echo htmlspecialchars($foto); ?>" alt="Foto de perfil">
                         </a>
 
+
                         <div class="user-menu dropdown-menu">
                             <a class="nav-link" href="MyProfile.php"><i class="fa fa- user"></i>My Profile</a>
 
@@ -278,13 +287,34 @@ $id_usuario = $_SESSION["id"];
                             <div class="row">
                                 <div class="col-lg-8">
                                     <div class="card-body">
-                                        <h1>Información de Usuario</h1>
+                                        
 
 
-                                        <?php
-//session_start();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
 require_once "Conexion/conex.php";
-
 // Validar sesión
 if (!isset($_SESSION['id']) || !isset($_SESSION['usuario'])) {
     header("Location: login.php");
@@ -293,198 +323,198 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['usuario'])) {
 
 $idUsuario = $_SESSION['id'];
 
+// Obtener usuario si existe
 $sql = "SELECT * FROM usuarios WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $idUsuario);
 $stmt->execute();
 $resultado = $stmt->get_result();
-
 $usuario = $resultado->fetch_assoc();
 ?>
 
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<div class="container py-4">
+    <!-- FORMULARIO FOTO PERFIL (Primero) -->
+    <div class="card shadow-lg border-0 rounded-3 mb-4">
+        <div class="card-header bg-gradient bg-secondary text-white text-center py-3">
+            <h4 class="mb-0">🖼️ Foto de Perfil</h4>
+            <small class="text-light">Selecciona tu foto de perfil (JPG, PNG)</small>
+        </div>
+        <div class="card-body p-4 text-center">
+            <?php
+            $fotoPerfil = !empty($usuario['foto_perfil']) ? $usuario['foto_perfil'] : 'default.png';
+            ?>
+            <img src="images/photo_perfil/<?php echo $fotoPerfil; ?>" class="rounded-circle mb-3" width="120" height="120" id="previewFoto">
 
-
-
-    <style>
-        .editable {
-            border: none;
-            background-color: transparent;
-            width: 100%;
-        }
-        .editable:focus {
-            background-color: #f0f0f0;
-            outline: none;
-        }
-        .edit-icon {
-            cursor: pointer;
-            color: #007bff;
-        }
-    </style>
-
-<br>
-
-<?php
-if (isset($_GET['mensaje'])) {
-    echo "<div id='mensaje' class='alert ";
-    switch ($_GET['mensaje']) {
-        case 'incompleto':
-            echo "alert-warning'>Todos los campos son obligatorios.</div>";
-            break;
-        case 'cedula_invalida':
-            echo "alert-danger'>La cédula debe ser numérica.</div>";
-            break;
-        case 'telefono_invalido':
-            echo "alert-danger'>El teléfono debe ser numérico.</div>";
-            break;
-        case 'descuento_invalido':
-            echo "alert-danger'>El descuento debe ser numérico.</div>";
-            break;
-        case 'guardado':
-            echo "alert-success'>Datos guardados exitosamente.</div>";
-            break;
-        case 'error':
-            echo "alert-danger'>Ocurrió un error al guardar los datos. Intente nuevamente.</div>";
-            break;
-    }
-}
-?>
-
-<script type="text/javascript">
-    window.onload = function() {
-        var mensaje = document.getElementById('mensaje');
-        if (mensaje) {
-            setTimeout(function() {
-                mensaje.style.display = 'none';
-            }, 3000);
-        }
-    };
-</script>
-<form id="formSubirFoto" method="POST" enctype="multipart/form-data" action="Configuracion/ActualizarFotoPerfil.php">
-    <div class="card shadow">
-        <div class="card-body">
-            <label for="fotoPerfil" class="form-label">Selecciona una foto de perfil</label>
-            <input type="file" id="fotoPerfil" name="fotoPerfil" class="form-control" accept="image/*" onchange="mostrarVistaPrevia()">
-            <div id="vistaPreviaContainer" class="mt-3" style="display:none;">
-                <img id="vistaPrevia" src="" alt="Vista previa de la imagen" class="img-thumbnail" width="150">
-            </div>
-            <div class="text-end mt-3">
-                <button type="submit" class="btn btn-primary">Subir Foto</button>
-            </div>
+            <form id="formFoto" enctype="multipart/form-data">
+                <input type="hidden" name="id" value="<?php echo $usuario['id']; ?>">
+                <div class="mb-3">
+                    <input type="file" name="foto" class="form-control" accept=".jpg,.jpeg,.png" required id="inputFoto">
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg shadow-sm">📤 Subir Foto</button>
+                </div>
+            </form>
+            <div id="mensajeFoto" class="mt-3"></div>
         </div>
     </div>
-</form>
+
+    <!-- FORMULARIO DATOS PERSONALES -->
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-header bg-gradient bg-primary text-white text-center py-3">
+            <h4 class="mb-0">👤 Mi Perfil</h4>
+            <small class="text-light">Aquí puedes actualizar tu información personal</small>
+        </div>
+        <div class="card-body p-4">
+            <form id="formPerfil">
+                <input type="hidden" name="id" value="<?php echo $usuario['id']; ?>">
+
+                <div class="row g-4">
+                    <!-- Columna izquierda -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">🆔 Usuario</label>
+                            <input type="text" class="form-control" value="<?php echo $usuario['usuario']; ?>" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">📛 Nombre completo</label>
+                            <input type="text" class="form-control" name="nombre" value="<?php echo $usuario['nombre']; ?>" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">🪪 Cédula</label>
+                            <input type="text" class="form-control" name="cedula" value="<?php echo $usuario['cedula']; ?>">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">📞 Teléfono</label>
+                            <input type="text" class="form-control" name="telefono" value="<?php echo $usuario['telefono']; ?>">
+                        </div>
+                    </div>
+
+                    <!-- Columna derecha -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">🏠 Dirección</label>
+                            <textarea class="form-control" name="direccion" rows="1"><?php echo $usuario['direccion']; ?></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">📧 Correo electrónico</label>
+                            <input type="text" class="form-control" value="<?php echo $usuario['email']; ?>" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">💲 Descuento (%)</label>
+                            <input type="text" class="form-control" value="<?php echo $usuario['descuento']; ?>" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">🛡️ Rol de usuario</label>
+                            <input type="text" class="form-control" value="<?php 
+                                echo $usuario['rol']=="admin"?"👑 Administrador":
+                                     ($usuario['rol']=="editor"?"✏️ Editor":"🙋 Usuario"); ?>" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-success btn-lg shadow-sm">
+                        💾 Guardar cambios
+                    </button>
+                </div>
+            </form>
+            <div id="mensaje" class="mt-3"></div>
+        </div>
+    </div>
+</div>
 
 <script>
-    function mostrarVistaPrevia() {
-        const archivo = document.getElementById('fotoPerfil').files[0];
-        const vistaPrevia = document.getElementById('vistaPrevia');
-        const vistaPreviaContainer = document.getElementById('vistaPreviaContainer');
-
-        if (archivo) {
+$(document).ready(function(){
+    // Vista previa inmediata de la foto seleccionada
+    $("#inputFoto").change(function(){
+        const file = this.files[0];
+        if(file){
             const reader = new FileReader();
-
-            reader.onload = function(e) {
-                vistaPrevia.src = e.target.result;
-                vistaPreviaContainer.style.display = 'block'; // Mostrar la vista previa
-            };
-
-            reader.readAsDataURL(archivo);
-        } else {
-            vistaPreviaContainer.style.display = 'none'; // Ocultar la vista previa si no hay archivo seleccionado
-        }
-    }
-</script>
-
-
-
-
-
-<form id="formPerfil" method="POST" action="Configuracion/ActualizarPerfil.php">
-        <div class="card shadow">
-            <div class="card-body">
-                <table class="table table-bordered table-hover">
-                    <?php
-                    $campos = [
-                        'usuario' => 'Usuario',
-                        'nombre' => 'Nombre',
-                        'cedula' => 'Cédula',
-                        'telefono' => 'Teléfono',
-                        'direccion' => 'Dirección',
-                        'descuento' => 'Descuento',
-                        'rol' => 'Rol'
-                    ];
-
-                    foreach ($campos as $campo => $etiqueta) {
-                        echo "<tr>
-                                <th>$etiqueta</th>
-                                <td>
-                                    <div class='d-flex justify-content-between align-items-center'>
-                                        <input type='text' name='$campo' id='$campo' class='editable' value='" . htmlspecialchars($usuario[$campo]) . "' readonly>
-                                        <img src='images/icon/pen-to-square-solid.svg' alt='Editar' class='edit-icon ms-2' id='edit-icon-$campo' onclick='habilitarCampo(\"$campo\")' style='cursor: pointer; width: 20px; height: 20px;'>
-                                    <img src='images/icon/floppy-disk-solid.svg' alt='Guardar' class='save-icon ms-2' id='save-icon-$campo' onclick='guardarCampo(\"$campo\")' style='cursor: pointer; width: 20px; height: 20px; display: none;'>
-                                    </div>
-                                </td>
-                              </tr>";
-                    }
-                    ?>
-                </table>
-                <div class="text-end">
-                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                </div>
-            </div>
-        </div>
-    </form>
-
-
-
-    <script>
-let campoActivo = null; // Guardar el campo activo para edición
-
-function habilitarCampo(idCampo) {
-    // Restaurar los iconos de todos los campos a estado de edición
-    const campos = ['usuario', 'nombre', 'cedula', 'telefono', 'direccion', 'descuento', 'rol'];
-    campos.forEach(campo => {
-        const editIcon = document.getElementById('edit-icon-' + campo);
-        const saveIcon = document.getElementById('save-icon-' + campo);
-        if (campo !== idCampo) {
-            editIcon.style.display = 'inline';
-            saveIcon.style.display = 'none';
-            document.getElementById(campo).setAttribute('readonly', 'readonly');
+            reader.onload = function(e){
+                $("#previewFoto").attr("src", e.target.result);
+            }
+            reader.readAsDataURL(file);
         }
     });
 
-    // Habilitar el campo y cambiar los iconos
-    const input = document.getElementById(idCampo);
-    const editIcon = document.getElementById('edit-icon-' + idCampo);
-    const saveIcon = document.getElementById('save-icon-' + idCampo);
+    // Formulario foto perfil
+    $("#formFoto").on("submit", function(e){
+        e.preventDefault();
+        var formData = new FormData(this);
+        $.ajax({
+            url: "Configuracion/SubirFotoPerfil.php",
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(respuesta){
+                $("#mensajeFoto").html('<div class="alert alert-success text-center">✅ '+respuesta+'</div>');
+                $("#previewFoto").attr("src", "images/photo_perfil/" + respuesta + "?t=" + new Date().getTime());
+            },
+            error: function(){
+                $("#mensajeFoto").html('<div class="alert alert-danger text-center">❌ Error al subir foto.</div>');
+            }
+        });
+    });
 
-    input.removeAttribute('readonly');
-    input.focus();
-
-    // Mostrar el icono de guardar y ocultar el de editar
-    editIcon.style.display = 'none';
-    saveIcon.style.display = 'inline';
-
-    campoActivo = idCampo; // Establecer el campo activo para edición
-}
-
-function guardarCampo(idCampo) {
-    const input = document.getElementById(idCampo);
-    const editIcon = document.getElementById('edit-icon-' + idCampo);
-    const saveIcon = document.getElementById('save-icon-' + idCampo);
-
-    // Guardar el contenido del campo si es necesario
-    // Aquí puedes agregar la lógica de guardar, si es que no estás haciendo una actualización con el formulario.
-
-    // Volver a cambiar los iconos: ocultar el de guardar y mostrar el de editar
-    input.setAttribute('readonly', 'readonly');
-    editIcon.style.display = 'inline';
-    saveIcon.style.display = 'none';
-
-    // Lógica para enviar el formulario o realizar otras acciones.
-}
+    // Formulario datos personales
+    $("#formPerfil").on("submit", function(e){
+        e.preventDefault();
+        $.ajax({
+            url: "Configuracion/ActualizarPerfil.php",
+            type: "POST",
+            data: $(this).serialize(),
+            success: function(respuesta){
+                $("#mensaje").html('<div class="alert alert-success text-center">✅ '+respuesta+'</div>');
+            },
+            error: function(){
+                $("#mensaje").html('<div class="alert alert-danger text-center">❌ Error al actualizar perfil.</div>');
+            }
+        });
+    });
+});
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -517,6 +547,7 @@ function guardarCampo(idCampo) {
         <!-- /.site-footer -->
     </div>
     <!-- /#right-panel -->
+
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@2.2.4/dist/jquery.min.js"></script>
