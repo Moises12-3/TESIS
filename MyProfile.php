@@ -330,6 +330,17 @@ $id_usuario = $_SESSION["id"];
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 <?php
 require_once "Conexion/conex.php";
 // Validar sesión
@@ -371,7 +382,6 @@ $usuario = $resultado->fetch_assoc();
                     <button type="submit" class="btn btn-primary btn-lg shadow-sm">📤 Subir Foto</button>
                 </div>
             </form>
-            <div id="mensajeFoto" class="mt-3"></div>
         </div>
     </div>
 
@@ -435,17 +445,23 @@ $usuario = $resultado->fetch_assoc();
                     </div>
                     <!-- Campos de contraseña alineados en fila -->
                     <div class="row g-3 mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-6 position-relative">
                             <label class="form-label fw-bold">🔑 Nueva contraseña</label>
                             <input type="password" class="form-control" name="password" id="password" placeholder="Dejar vacío si no desea cambiar">
+                            <button type="button" class="btn btn-sm btn-outline-secondary position-absolute top-50 end-0 translate-middle-y me-2" onclick="togglePassword('password', this)">
+                                👁️
+                            </button>
                         </div>
-                        <div class="col-md-6">
+
+                        <div class="col-md-6 position-relative">
                             <label class="form-label fw-bold">🔑 Confirmar contraseña</label>
                             <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="Confirmar contraseña">
+                            <button type="button" class="btn btn-sm btn-outline-secondary position-absolute top-50 end-0 translate-middle-y me-2" onclick="togglePassword('confirm_password', this)">
+                                👁️
+                            </button>
                             <div id="mensajePassword" class="form-text text-danger mt-1"></div>
                         </div>
                     </div>
-
                 </div>
 
                 <div class="d-grid mt-4">
@@ -454,10 +470,38 @@ $usuario = $resultado->fetch_assoc();
                     </button>
                 </div>
             </form>
-            <div id="mensaje" class="mt-3"></div>
         </div>
     </div>
 </div>
+
+<script>
+function togglePassword(idInput, btn) {
+    const input = document.getElementById(idInput);
+    if(input.type === "password") {
+        input.type = "text";
+        btn.textContent = "🙈"; // cambia icono cuando está visible
+    } else {
+        input.type = "password";
+        btn.textContent = "👁️"; // icono original
+    }
+}
+
+</script>
+
+<!-- Modal de notificación -->
+<div class="modal fade" id="modalNotificacion" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center p-4" id="modalMensaje">
+        <!-- El mensaje se insertará dinámicamente -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
 
 <script>
 $(document).ready(function(){
@@ -484,11 +528,11 @@ $(document).ready(function(){
             contentType: false,
             processData: false,
             success: function(respuesta){
-                $("#mensajeFoto").html('<div class="alert alert-success text-center">✅ '+respuesta+'</div>');
                 $("#previewFoto").attr("src", "images/photo_perfil/" + respuesta + "?t=" + new Date().getTime());
+                mostrarModal("✅ Foto de perfil actualizada correctamente");
             },
             error: function(){
-                $("#mensajeFoto").html('<div class="alert alert-danger text-center">❌ Error al subir foto.</div>');
+                mostrarModal("❌ Error al subir foto");
             }
         });
     });
@@ -517,23 +561,73 @@ $(document).ready(function(){
         var btnGuardar = $("#btnGuardar");
         btnGuardar.prop("disabled", true); // evitar doble envío
 
+        // Obtener valores
+        var password = $("#password").val();
+        var confirm_password = $("#confirm_password").val();
+
+        // Validar que coincidan las contraseñas si alguna fue ingresada
+        if(password || confirm_password){
+            if(password !== confirm_password){
+                $("#mensajePassword").text("Las contraseñas no coinciden");
+                btnGuardar.prop("disabled", false);
+                return; // salir sin enviar
+            }
+        }
+
+        // Preparar datos a enviar
+        var datos = $(this).serializeArray();
+        // Si la contraseña está vacía, removerla para no actualizarla
+        if(!password){
+            datos = datos.filter(function(item){
+                return item.name !== "password" && item.name !== "confirm_password";
+            });
+        }
+
         $.ajax({
             url: "Configuracion/ActualizarPerfil.php",
             type: "POST",
-            data: $(this).serialize(),
+            data: $.param(datos), // enviar los datos filtrados
             success: function(respuesta){
-                $("#mensaje").html('<div class="alert alert-success text-center">✅ '+respuesta+'</div>');
+                mostrarModal("✅ Perfil actualizado correctamente");
                 btnGuardar.prop("disabled", false);
-                $("#password, #confirm_password").val(""); // limpiar campos contraseña
+                $("#password, #confirm_password").val(""); // limpiar campos
             },
             error: function(){
-                $("#mensaje").html('<div class="alert alert-danger text-center">❌ Error al actualizar perfil.</div>');
+                mostrarModal("❌ Error al actualizar perfil");
                 btnGuardar.prop("disabled", false);
             }
         });
     });
+
+
+    // Función para mostrar modal y cerrarlo automáticamente en 3 segundos
+    function mostrarModal(mensaje){
+        $("#modalMensaje").text(mensaje);
+        var modal = new bootstrap.Modal(document.getElementById('modalNotificacion'));
+        modal.show();
+        setTimeout(function(){
+            modal.hide();
+        }, 3000);
+    }
 });
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
