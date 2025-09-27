@@ -44,8 +44,6 @@ CREATE TABLE usuarios(
     foto_perfil VARCHAR(255) DEFAULT NULL
 );
 
-INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("maaroncarrasco@gmail.com", "081-030301-1009B", "maaroncarrasco@gmail.com", "6667771234", "Nowhere", "0", "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
-
 CREATE TABLE productos(
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     codigo VARCHAR(255) NOT NULL,
@@ -125,6 +123,12 @@ CREATE TABLE Impuesto (
     estado ENUM('Activo', 'Inactivo') DEFAULT 'Activo',
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("maaroncarrasco@gmail.com", "081-030301-1009B", "maaroncarrasco@gmail.com", "6667771234", "Nowhere", "0", "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
+INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("moises", "Aaron Moises Carrasco Thomas", "081-030301-1009B", "88090180", "Nowhere", 0.00, "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
+
+INSERT INTO `empresa` (`id`, `nombre`, `direccion`, `correo`, `telefono`, `fax`, `codigo_interno`, `identidad_juridica`, `foto_perfil`, `fecha_registro`) VALUES
+(1, 'UNIVERSIDAD', 'Universidad Nacional Comandante Padre Gaspar Garcia Laviana', 'maaroncarrasco@gmail.com', '88090180', '3232', 'EMP_68d4dcef4f446', '32432', 'images/logo_empresa/UNIVERSIDAD_68d4dd13678f5.png', '2025-09-25 06:10:55');
 
 CREATE DATABASE IF NOT EXISTS ConvertidorMedidas;
 USE ConvertidorMedidas;
