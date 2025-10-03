@@ -130,8 +130,8 @@ INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, e
 INSERT INTO `empresa` (`id`, `nombre`, `direccion`, `correo`, `telefono`, `fax`, `codigo_interno`, `identidad_juridica`, `foto_perfil`, `fecha_registro`) VALUES
 (1, 'UNIVERSIDAD', 'Universidad Nacional Comandante Padre Gaspar Garcia Laviana', 'maaroncarrasco@gmail.com', '88090180', '3232', 'EMP_68d4dcef4f446', '32432', 'images/logo_empresa/UNIVERSIDAD_68d4dd13678f5.png', '2025-09-25 06:10:55');
 
-CREATE DATABASE IF NOT EXISTS ConvertidorMedidas;
-USE ConvertidorMedidas;
+-- CREATE DATABASE IF NOT EXISTS ConvertidorMedidas;
+-- USE ConvertidorMedidas;
 
 CREATE TABLE IF NOT EXISTS convertidor_medidas (
     id INT AUTO_INCREMENT PRIMARY KEY,
