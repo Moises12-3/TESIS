@@ -147,7 +147,12 @@ $(function(){
             dataType: "json",
             success: function(res){
                 if(res.status === "success"){
-                    window.location.href = "index.php";
+                    // Si el backend especifica una ruta, usarla; si no, fallback a index.php
+                    if(res.redirect){
+                        window.location.href = res.redirect;
+                    } else {
+                        window.location.href = "index.php";
+                    }
                 } else {
                     const colors = {danger:"text-danger", warning:"text-warning"};
                     $("#modal-message")

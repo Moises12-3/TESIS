@@ -1,0 +1,9 @@
+{
+  "usuarios": [
+    {
+      "id": 1,
+      "email": "admin@ventasphp.com",
+      "password": "$2y$10$Z4v4cU1zMnNdUa4Za8YOJuQdbIIFEziQo5Xa1VS0/7ToCgeVbWdl2"
+    }
+  ]
+}
