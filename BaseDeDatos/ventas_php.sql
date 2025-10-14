@@ -44,18 +44,6 @@ CREATE TABLE usuarios(
     foto_perfil VARCHAR(255) DEFAULT NULL
 );
 
-CREATE TABLE productos(
-    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    codigo VARCHAR(255) NOT NULL,
-    nombre VARCHAR(255) NOT NULL,
-    compra DECIMAL(8,2) NOT NULL,
-    venta DECIMAL(8,2) NOT NULL,
-    fecha_vencimiento DATE NULL,
-    iva DECIMAL(8,2) NOT NULL,
-    existencia INT NOT NULL,
-    idMoneda INT
-);
-
 CREATE TABLE clientes (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
@@ -122,6 +110,22 @@ CREATE TABLE Impuesto (
     tipo_impuesto ENUM('Porcentaje', 'Fijo') DEFAULT 'porcentaje',
     estado ENUM('Activo', 'Inactivo') DEFAULT 'Activo',
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE productos(
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    codigo VARCHAR(255) NOT NULL,
+    nombre VARCHAR(255) NOT NULL,
+    compra DECIMAL(8,2) NOT NULL,
+    venta DECIMAL(8,2) NOT NULL,
+    fecha_vencimiento DATE NULL,
+    iva DECIMAL(8,2) NOT NULL,
+    existencia INT NOT NULL,
+    idMoneda INT,
+    nombre_moneda VARCHAR(100),
+    id_UnidadPeso INT,
+    nombre_UnidadPeso VARCHAR(100)
 );
 
 -- INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("maaroncarrasco@gmail.com", "081-030301-1009B", "maaroncarrasco@gmail.com", "6667771234", "Nowhere", "0", "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");

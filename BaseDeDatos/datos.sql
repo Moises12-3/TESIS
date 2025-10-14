@@ -90,31 +90,6 @@ USE ventas_php;
     ('Cuotas', 'Pago fraccionado en cuotas', 'Contado'),
     ('Débito Automático', 'Cargo automático a cuenta bancaria o tarjeta recurrente', 'Contado');
         
-    INSERT INTO productos (codigo, nombre, compra, venta, fecha_vencimiento, iva, existencia, idMoneda) VALUES
-    ('P001', 'Leche Entera', 0.80, 1.20, '2025-06-30', 0.15, 150, 1),
-    ('P002', 'Arroz Blanco', 0.50, 0.75, NULL, 0.15, 200, 1),
-    ('P003', 'Café Molido', 2.50, 3.50, '2026-01-15', 0.15, 80, 1),
-    ('P004', 'Aceite Vegetal', 1.20, 1.80, '2025-12-10', 0.15, 90, 1),
-    ('P005', 'Azúcar Refinada', 0.45, 0.70, NULL, 0.15, 120, 1),
-    ('P006', 'Harina de Trigo', 0.60, 0.90, NULL, 0.15, 130, 1),
-    ('P007', 'Sal de Mesa', 0.20, 0.40, NULL, 0.15, 250, 1),
-    ('P008', 'Jabón de Baño', 0.70, 1.00, NULL, 0.15, 100, 1),
-    ('P009', 'Pasta Dental', 1.00, 1.50, NULL, 0.15, 95, 1),
-    ('P010', 'Shampoo 400ml', 2.20, 3.00, NULL, 0.15, 70, 1),
-    ('P011', 'Papel Higiénico 4pzs', 1.50, 2.30, NULL, 0.15, 110, 1),
-    ('P012', 'Desodorante', 1.80, 2.50, NULL, 0.15, 85, 1),
-    ('P013', 'Galletas Dulces', 0.90, 1.30, '2025-09-20', 0.15, 140, 1),
-    ('P014', 'Refresco en Polvo', 0.30, 0.60, '2025-10-05', 0.15, 160, 1),
-    ('P015', 'Agua Embotellada 600ml', 0.40, 0.70, NULL, 0.15, 200, 1),
-    ('P016', 'Cerveza Lata', 0.80, 1.50, '2025-11-01', 0.15, 90, 1),
-    ('P017', 'Yogur Natural', 1.00, 1.60, '2025-08-30', 0.15, 60, 1),
-    ('P018', 'Pan Blanco', 0.50, 0.90, '2025-05-01', 0.15, 75, 1),
-    ('P019', 'Salsa de Tomate', 0.70, 1.10, '2025-12-25', 0.15, 100, 1),
-    ('P020', 'Mayonesa 250g', 0.90, 1.40, '2025-10-15', 0.15, 85, 1),
-    ('P021', 'Mantequilla 200g', 1.10, 1.80, '2025-07-10', 0.15, 60, 1),
-    ('P022', 'Frijoles Rojos', 0.55, 0.85, NULL, 0.15, 180, 1),
-    ('P023', 'Atún en Lata', 1.20, 1.90, '2027-02-15', 0.15, 75, 1);
-
     INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, rol, email, password, foto_perfil) VALUES
     ('jdoe', 'Juan Doe', '1234567890123', '123-456-7890', 'Calle Ficticia 123, Managua', 10.00, 'usuario', 'jdoe@example.com', 'password123', NULL),
     ('mgarcia', 'Maria Garcia', '9876543210987', '321-654-0987', 'Avenida Central 456, León', 15.00, 'admin', 'mgarcia@example.com', 'adminpass456', NULL),
