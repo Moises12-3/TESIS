@@ -125,6 +125,7 @@ CREATE TABLE productos(
     idMoneda INT,
     nombre_moneda VARCHAR(100),
     id_UnidadPeso INT,
+    estado ENUM('activo', 'inactivo') NOT NULL DEFAULT 'activo',    
     nombre_UnidadPeso VARCHAR(100)
 );
 
