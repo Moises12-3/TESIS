@@ -284,31 +284,44 @@ $id_usuario = $_SESSION["id"];
                             <div class="row">
                                 <div class="col-lg-8">
                                     <div class="card-body">
-                                    <?php
-                                    require 'Conexion/conex.php'; // Conexión a la base de datos
+<?php
+require 'Conexion/conex.php'; // Conexión a la base de datos
 
-                                    // Verificar si se recibió el ID del producto
-                                    if (!isset($_GET['id']) || empty($_GET['id'])) {
-                                        echo "⚠️ID de producto no proporcionado.";
-                                        exit;
-                                    }
+// Verificar si se recibió el ID del producto
+if (!isset($_GET['id']) || empty($_GET['id'])) {
+    echo "⚠️ID de producto no proporcionado.";
+    exit;
+}
 
-                                    $id = $_GET['id'];
+$id = $_GET['id'];
 
-                                    // Obtener los datos del producto
-                                    $sql = "SELECT * FROM productos WHERE id = ?";
-                                    $stmt = $conn->prepare($sql);
-                                    $stmt->bind_param("i", $id);
-                                    $stmt->execute();
-                                    $resultado = $stmt->get_result();
+// Obtener los datos del producto
+$sql = "SELECT * FROM productos WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$resultado = $stmt->get_result();
 
-                                    if ($resultado->num_rows === 0) {
-                                        echo "❌Producto no encontrado.";
-                                        exit;
-                                    }
+if ($resultado->num_rows === 0) {
+    echo "❌Producto no encontrado.";
+    exit;
+}
 
-                                    $producto = $resultado->fetch_assoc();
-                                    ?>
+$producto = $resultado->fetch_assoc();
+
+// Verificar si el producto está activo
+if ($producto['estado'] !== 'activo') {
+    echo "<div class='alert alert-warning' style='margin: 20px;'>
+            ⚠️ Este producto está inactivo y no se puede editar.<br><br>
+            <strong>Código:</strong> " . htmlspecialchars($producto['codigo']) . "<br>
+            <strong>Nombre:</strong> " . htmlspecialchars($producto['nombre']) . "
+          </div>";
+    echo "<a href='VerProductos.php' class='btn btn-secondary' style='margin: 20px;'>↩️ Volver</a>";
+    exit; // Detener la ejecución para que no se muestre el formulario
+}
+?>
+
+
 
                                         <script>
                                             document.addEventListener("DOMContentLoaded", function () {
