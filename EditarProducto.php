@@ -473,11 +473,17 @@ $id_usuario = $_SESSION["id"];
     <div class="row mb-3">
         <div class="col-md-6">
             <label for="tiene_vencimiento" class="form-label">⏳ ¿Tiene vencimiento?</label>
-            <input type="checkbox" id="tiene_vencimiento" name="tiene_vencimiento">
+            <input 
+                type="checkbox" 
+                id="tiene_vencimiento" 
+                name="tiene_vencimiento" 
+                <?php echo !empty($producto['fecha_vencimiento']) ? 'checked' : ''; ?>>
         </div>
-        <div class="col-md-6" id="fecha_vencimiento_div" style="display: none;">
+        <div class="col-md-6" id="fecha_vencimiento_div" 
+            style="<?php echo !empty($producto['fecha_vencimiento']) ? '' : 'display:none;'; ?>">
             <label for="fecha_vencimiento" class="form-label">📅 Fecha de Vencimiento</label>
-            <input type="date" class="form-control" id="fecha_vencimiento" name="fecha_vencimiento" value="<?php echo $producto['fecha_vencimiento']; ?>">
+            <input type="date" class="form-control" id="fecha_vencimiento" name="fecha_vencimiento" 
+                value="<?php echo $producto['fecha_vencimiento']; ?>">
         </div>
     </div>
 
@@ -490,16 +496,28 @@ $id_usuario = $_SESSION["id"];
 
 
                                             
-    <script>
-        document.getElementById('tiene_vencimiento').addEventListener('change', function() {
-            var vencimientoDiv = document.getElementById('fecha_vencimiento_div');
-            if (this.checked) {
-            vencimientoDiv.style.display = 'block';
+<script>
+    // Mostrar u ocultar el campo de fecha según el checkbox
+    document.addEventListener('DOMContentLoaded', function() {
+        const check = document.getElementById('tiene_vencimiento');
+        const divFecha = document.getElementById('fecha_vencimiento_div');
+        const campoFecha = document.getElementById('fecha_vencimiento');
+
+        function toggleFecha() {
+            if (check.checked) {
+                divFecha.style.display = 'block';
+                campoFecha.required = true;
             } else {
-            vencimientoDiv.style.display = 'none';
+                divFecha.style.display = 'none';
+                campoFecha.value = '';
+                campoFecha.required = false;
             }
-        });
-    </script>
+        }
+
+        check.addEventListener('change', toggleFecha);
+        toggleFecha();
+    });
+</script>
 
 
 
