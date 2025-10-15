@@ -409,33 +409,40 @@ $id_usuario = $_SESSION["id"];
     ?>
     <div class="row mb-3">
         <div class="col-md-6">
-                            <!-- Moneda -->
-                            <label for="moneda" class="form-label">Moneda</label>
-                            <select class="form-select select2" id="moneda" name="moneda" required>
-                                <option value="">-- Selecciona Moneda --</option>
-                                <?php 
-                                $sqlMoneda = "SELECT id, nombre, simbolo, tipo FROM Moneda WHERE estado = 'activo'";
-                                $monedas = $conn->query($sqlMoneda);
-                                while($row = $monedas->fetch_assoc()): 
-                                    $selected = ($row['tipo'] === 'nacional') ? "selected" : "";
-                                ?>
-                                    <option value="<?= $row['id'] ?>" <?= $selected ?>>
-                                        <?= $row['nombre'] ?> (<?= $row['simbolo'] ?>)
-                                    </option>
-                                <?php endwhile; ?>
-                            </select>
+            <!-- Moneda -->
+            <label for="moneda" class="form-label">💱 Moneda</label>
+            <select class="form-select select2" id="moneda" name="moneda" required>
+                <option value="">-- Selecciona Moneda --</option>
+                <?php 
+                $sqlMoneda = "SELECT id, nombre, simbolo, tipo FROM Moneda WHERE estado = 'activo'";
+                $monedas = $conn->query($sqlMoneda);
+                while($row = $monedas->fetch_assoc()): 
+                    // Si el ID de la moneda coincide con el del producto, marcar como seleccionado
+                    $selected = ($row['id'] == $producto['idMoneda']) ? "selected" : "";
+                ?>
+                    <option value="<?= $row['id'] ?>" <?= $selected ?>>
+                        <?= $row['nombre'] ?> (<?= $row['simbolo'] ?>)
+                    </option>
+                <?php endwhile; ?>
+            </select>
         </div>
 
         <div class="col-md-6">
-                            <label for="unidad" class="form-label">Unidad de Peso</label>
-                            <select class="form-select select2" id="unidad" name="unidad" required>
-                                <option value="">-- Selecciona Unidad --</option>
-                                <?php while($row = $unidades->fetch_assoc()): ?>
-                                    <option value="<?= $row['id'] ?>">
-                                        <?= $row['nombre'] ?> (<?= $row['simbolo'] ?>)
-                                    </option>
-                                <?php endwhile; ?>
-                            </select>   
+            <!-- Unidad de Peso -->
+            <label for="unidad" class="form-label">⚖️ Unidad de Peso</label>
+            <select class="form-select select2" id="unidad" name="unidad" required>
+                <option value="">-- Selecciona Unidad --</option>
+                <?php 
+                $sqlUnidadPeso = "SELECT id, nombre, simbolo FROM UnidadPeso WHERE estado = 'activo'";
+                $unidades = $conn->query($sqlUnidadPeso);
+                while($row = $unidades->fetch_assoc()):
+                    $selected = ($row['id'] == $producto['id_UnidadPeso']) ? "selected" : "";
+                ?>
+                    <option value="<?= $row['id'] ?>" <?= $selected ?>>
+                        <?= $row['nombre'] ?> (<?= $row['simbolo'] ?>)
+                    </option>
+                <?php endwhile; ?>
+            </select>   
         </div>
 
 
@@ -469,8 +476,8 @@ $id_usuario = $_SESSION["id"];
             <input type="checkbox" id="tiene_vencimiento" name="tiene_vencimiento">
         </div>
         <div class="col-md-6" id="fecha_vencimiento_div" style="display: none;">
-            <label for="vencimiento" class="form-label">📅 Fecha de Vencimiento</label>
-            <input type="date" class="form-control" id="vencimiento" name="vencimiento">
+            <label for="fecha_vencimiento" class="form-label">📅 Fecha de Vencimiento</label>
+            <input type="date" class="form-control" id="fecha_vencimiento" name="fecha_vencimiento" value="<?php echo $producto['fecha_vencimiento']; ?>">
         </div>
     </div>
 
