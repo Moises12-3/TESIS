@@ -498,70 +498,89 @@ document.getElementById("buscador").addEventListener("keyup", function () {
 </script>
 
                                         <br>
+<?php
+require 'Conexion/conex.php';
+
+// Consulta con JOIN para obtener los nombres de la moneda y unidad de peso
+$sql = "SELECT 
+            p.id, 
+            p.codigo, 
+            p.nombre, 
+            p.compra, 
+            p.venta, 
+            p.iva, 
+            p.existencia, 
+            p.fecha_vencimiento,
+            p.estado,
+            m.nombre AS moneda,
+            u.nombre AS unidad_peso
+        FROM productos p
+        LEFT JOIN Moneda m ON p.idMoneda = m.id
+        LEFT JOIN UnidadPeso u ON p.id_UnidadPeso = u.id";
+
+$resultado = $conn->query($sql);
+?>
+
+<table class="table table-dark" id="tablaProductos">
+    <thead>
+        <tr>
+            <th>🔢Código</th>
+            <th>📝Nombre</th>
+            <th>💰Precio Compra</th>
+            <th>🏷️Precio Venta</th>
+            <th>⚖️IVA</th>
+            <th>📊Existencias</th>
+            <th>⏳Fecha de vencimiento</th>
+            <th>💵Moneda</th>
+            <th>⚖️Unidad de Peso</th>
+            <th>📌Estado</th>
+            <th>✏️Editar</th>
+            <th>🗑️Deshabilitar</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+        if ($resultado->num_rows > 0) {
+            while ($fila = $resultado->fetch_assoc()) {
+                echo "<tr>";
+                echo "<td>" . htmlspecialchars($fila["codigo"]) . "</td>";
+                echo "<td>" . htmlspecialchars($fila["nombre"]) . "</td>";
+                echo "<td>$" . number_format($fila["compra"], 2) . "</td>";
+                echo "<td>$" . number_format($fila["venta"], 2) . "</td>";
+                echo "<td>" . number_format($fila["iva"], 2) . "%</td>";
+                echo "<td>" . htmlspecialchars($fila["existencia"]) . "</td>";
+                echo "<td>" . htmlspecialchars($fila["fecha_vencimiento"]) . "</td>";
+                echo "<td>" . htmlspecialchars($fila["moneda"] ?? '—') . "</td>";
+                echo "<td>" . htmlspecialchars($fila["unidad_peso"] ?? '—') . "</td>";
+
+                // Mostrar estado
+                $estado = $fila["estado"];
+                $labelEstado = $estado === 'activo' ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-secondary">Inactivo</span>';
+                echo "<td>$labelEstado</td>";
+
+                // Botón Editar solo si está activo
+                if ($estado === 'activo') {
+                    echo "<td><a href='EditarProducto.php?id=" . $fila["id"] . "' class='btn btn-primary'>Editar</a></td>";
+                    echo "<td><a href='Configuracion/eliminar_producto.php?id=" . $fila["id"] . "' class='btn btn-warning' onclick='return confirm(\"¿Seguro que deseas deshabilitar este producto?\");'>Deshabilitar</a></td>";
+                } else {
+                    // Si está inactivo, no se permite editar ni reactivar
+                    echo "<td><button class='btn btn-secondary' disabled>Editar</button></td>";
+                    echo "<td><button class='btn btn-secondary' disabled>Deshabilitar</button></td>";
+                }
+
+                echo "</tr>";
+            }
+        } else {
+            echo "<tr><td colspan='12'>No hay productos registrados.</td></tr>";
+        }
+        ?>
+    </tbody>
+</table>
+        
 
 
-                                        <?php
-                                        require 'Conexion/conex.php';
 
-                                        // Consulta con JOIN para obtener los nombres de la moneda y unidad de peso
-                                        $sql = "SELECT 
-                                                    p.id, 
-                                                    p.codigo, 
-                                                    p.nombre, 
-                                                    p.compra, 
-                                                    p.venta, 
-                                                    p.iva, 
-                                                    p.existencia, 
-                                                    p.fecha_vencimiento,
-                                                    m.nombre AS moneda,
-                                                    u.nombre AS unidad_peso
-                                                FROM productos p
-                                                LEFT JOIN Moneda m ON p.idMoneda = m.id
-                                                LEFT JOIN UnidadPeso u ON p.id_UnidadPeso = u.id";
 
-                                        $resultado = $conn->query($sql);
-                                        ?>
-
-                                        <table class="table table-dark" id="tablaProductos">
-                                            <thead>
-                                                <tr>
-                                                    <th>🔢Código</th>
-                                                    <th>📝Nombre</th>
-                                                    <th>💰Precio Compra</th>
-                                                    <th>🏷️Precio Venta</th>
-                                                    <th>⚖️IVA</th>
-                                                    <th>📊Existencias</th>
-                                                    <th>⏳Fecha de vencimiento</th>
-                                                    <th>💵Moneda</th>
-                                                    <th>⚖️Unidad de Peso</th>
-                                                    <th>✏️Editar</th>
-                                                    <th>🗑️Eliminar</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php
-                                                if ($resultado->num_rows > 0) {
-                                                    while ($fila = $resultado->fetch_assoc()) {
-                                                        echo "<tr>";
-                                                        echo "<td>" . htmlspecialchars($fila["codigo"]) . "</td>";
-                                                        echo "<td>" . htmlspecialchars($fila["nombre"]) . "</td>";
-                                                        echo "<td>$" . number_format($fila["compra"], 2) . "</td>";
-                                                        echo "<td>$" . number_format($fila["venta"], 2) . "</td>";
-                                                        echo "<td>" . number_format($fila["iva"], 2) . "%</td>";
-                                                        echo "<td>" . htmlspecialchars($fila["existencia"]) . "</td>";
-                                                        echo "<td>" . htmlspecialchars($fila["fecha_vencimiento"]) . "</td>";
-                                                        echo "<td>" . htmlspecialchars($fila["moneda"] ?? '—') . "</td>";
-                                                        echo "<td>" . htmlspecialchars($fila["unidad_peso"] ?? '—') . "</td>";
-                                                        echo "<td><a href='EditarProducto.php?id=" . $fila["id"] . "' class='btn btn-primary'>Editar</a></td>";
-                                                        echo "<td><a href='Configuracion/eliminar_producto.php?id=" . $fila["id"] . "' class='btn btn-danger' onclick='return confirm(\"¿Seguro que deseas eliminar este producto?\");'>Eliminar</a></td>";
-                                                        echo "</tr>";
-                                                    }
-                                                } else {
-                                                    echo "<tr><td colspan='11'>No hay productos registrados.</td></tr>";
-                                                }
-                                                ?>
-                                            </tbody>
-                                        </table>
 
                                         <nav>
     <ul class="pagination justify-content-center" id="paginacionProductos"></ul>
