@@ -136,8 +136,40 @@ USE ventas_php;
     ('Samuel Rojas', '8901234567891', '999-888-7777', 'Calle Los Alpes 1717, Carazo', 10.00),
     ('Antonio López', '4561237894562', '222-333-4445', 'Avenida San Juan 1818, León', 7.00),
     ('Pedro Pérez', '6541239876543', '333-444-5556', 'Calle Sol 1919, Estelí', 5.00),
-    ('Patricia Gómez', '5678904321234', '444-555-6667', 'Avenida La Paz 2020, Jinotega', 6.00);
-
+    ('Patricia Gómez', '5678904321234', '444-555-6667', 'Avenida La Paz 2020, Jinotega', 6.00);    
+    
+    INSERT INTO productos (codigo, nombre, compra, venta, fecha_vencimiento, iva, existencia, idMoneda, nombre_moneda, id_UnidadPeso, estado, nombre_UnidadPeso)
+    VALUES
+    ('P001', 'Producto Activo 1', 10.00, 15.00, '2026-12-31', 15.00, 100, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P002', 'Producto Inactivo 2', 20.00, 30.00, '2026-06-30', 15.00, 50, 2, 'Córdoba', 7, 'inactivo', 'Kilogramo'),
+    ('P003', 'Producto Activo 3', 5.50, 8.50, '2025-11-30', 15.00, 200, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P004', 'Producto Inactivo 4', 12.00, 18.00, '2025-10-15', 15.00, 30, 2, 'Córdoba', 7, 'inactivo', 'Kilogramo'),
+    ('P005', 'Producto Activo 5', 8.00, 12.00, '2026-05-20', 15.00, 150, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P006', 'Producto Activo 6', 15.00, 22.00, '2026-08-01', 15.00, 80, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P007', 'Producto Inactivo 7', 25.00, 35.00, '2025-12-31', 15.00, 40, 2, 'Córdoba', 7, 'inactivo', 'Kilogramo'),
+    ('P008', 'Producto Activo 8', 7.50, 11.50, '2026-03-15', 15.00, 120, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P009', 'Producto Activo 9', 9.00, 14.00, '2026-07-30', 15.00, 90, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P010', 'Producto Inactivo 10', 18.00, 27.00, '2025-09-30', 15.00, 60, 2, 'Córdoba', 7, 'inactivo', 'Kilogramo'),
+    ('P011', 'Producto Activo 11', 11.00, 16.50, '2026-11-20', 15.00, 75, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P012', 'Producto Activo 12', 6.00, 9.50, '2026-06-10', 15.00, 130, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P013', 'Producto Inactivo 13', 14.00, 21.00, '2025-08-25', 15.00, 55, 2, 'Córdoba', 7, 'inactivo', 'Kilogramo'),
+    ('P014', 'Producto Activo 14', 10.50, 15.50, '2026-04-05', 15.00, 95, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P015', 'Producto Activo 15', 20.00, 30.00, '2026-09-12', 15.00, 70, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P016', 'Producto Inactivo 16', 17.00, 25.50, '2025-07-15', 15.00, 45, 2, 'Córdoba', 7, 'inactivo', 'Kilogramo'),
+    ('P017', 'Producto Activo 17', 8.50, 13.00, '2026-02-28', 15.00, 110, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P018', 'Producto Activo 18', 12.00, 18.00, '2026-10-22', 15.00, 85, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P019', 'Producto Inactivo 19', 22.00, 33.00, '2025-06-30', 15.00, 35, 2, 'Córdoba', 7, 'inactivo', 'Kilogramo'),
+    ('P020', 'Producto Activo 20', 9.50, 14.50, '2026-01-15', 15.00, 100, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P021', 'Producto Activo 21', 16.00, 24.00, '2026-08-05', 15.00, 65, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P022', 'Producto Inactivo 22', 19.00, 28.50, '2025-11-10', 15.00, 50, 2, 'Córdoba', 7, 'inactivo', 'Kilogramo'),
+    ('P023', 'Producto Activo 23', 7.00, 10.50, '2026-05-30', 15.00, 140, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P024', 'Producto Activo 24', 13.00, 19.50, '2026-12-15', 15.00, 60, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P025', 'Producto Inactivo 25', 21.00, 31.50, '2025-10-20', 15.00, 40, 2, 'Córdoba', 7, 'inactivo', 'Kilogramo'),
+    ('P026', 'Producto Activo 26', 6.50, 10.00, '2026-03-05', 15.00, 120, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P027', 'Producto Activo 27', 15.50, 23.00, '2026-09-25', 15.00, 75, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P028', 'Producto Inactivo 28', 11.00, 16.50, '2025-12-05', 15.00, 55, 2, 'Córdoba', 7, 'inactivo', 'Kilogramo'),
+    ('P029', 'Producto Activo 29', 9.00, 13.50, '2026-06-18', 15.00, 90, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
+    ('P030', 'Producto Activo 30', 14.00, 21.00, '2026-07-12', 15.00, 80, 2, 'Córdoba', 7, 'activo', 'Kilogramo');
 
 
 
