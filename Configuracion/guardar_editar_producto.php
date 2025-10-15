@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     );
 
     if ($stmt->execute()) {
-        header("Location: ../VerProductos.php?mensaje=actualizado");
+        header("Location: ../VerProductos.php");
         exit;
     } else {
         echo "❌ Error al actualizar el producto: " . $stmt->error;
