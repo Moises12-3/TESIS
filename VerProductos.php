@@ -457,6 +457,15 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 
     <!-- Botón para exportar a Excel -->
     <button id="exportarExcel" class="btn btn-success ms-3">📊Exportar a Excel</button>
+
+    <!-- Select para cantidad de filas -->
+    <label for="selectFilas" class="ms-3 me-1 mb-0">Filas por página:</label>
+    <select id="selectFilas" class="form-select" style="width: 80px;">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+    </select>
 </div>
 
 
@@ -464,16 +473,10 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 
 <script>
 document.getElementById("exportarExcel").addEventListener("click", function () {
-    // Obtener la tabla HTML
     var tabla = document.getElementById("tablaProductos");
-
-    // Crear un libro de trabajo
     var wb = XLSX.utils.table_to_book(tabla, { sheet: "Productos" });
-
-    // Exportar el libro de trabajo como archivo Excel
     XLSX.writeFile(wb, "productos.xlsx");
 });
-
 </script>
 
 <script>
@@ -494,6 +497,70 @@ document.getElementById("buscador").addEventListener("keyup", function () {
         paginacion.style.display = "flex";
         mostrarPagina(1);
     }
+});
+</script>
+
+<script>
+// Configuración de paginación
+let filasPorPagina = parseInt(document.getElementById("selectFilas").value);
+let paginaActual = 1;
+
+function mostrarPagina(pagina) {
+    let filas = document.querySelectorAll("#tablaProductos tbody tr");
+    let totalPaginas = Math.ceil(filas.length / filasPorPagina);
+
+    paginaActual = pagina;
+
+    filas.forEach((fila, indice) => {
+        fila.style.display = (indice >= (pagina - 1) * filasPorPagina && indice < pagina * filasPorPagina) ? "" : "none";
+    });
+
+    renderizarPaginacion(totalPaginas);
+}
+
+function renderizarPaginacion(totalPaginas) {
+    let paginacion = document.getElementById("paginacionProductos");
+    paginacion.innerHTML = "";
+
+    let anterior = document.createElement("li");
+    anterior.className = "page-item" + (paginaActual === 1 ? " disabled" : "");
+    anterior.innerHTML = `<a class="page-link" href="#">Anterior</a>`;
+    anterior.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (paginaActual > 1) mostrarPagina(paginaActual - 1);
+    });
+    paginacion.appendChild(anterior);
+
+    for (let i = 1; i <= totalPaginas; i++) {
+        let boton = document.createElement("li");
+        boton.className = "page-item" + (i === paginaActual ? " active" : "");
+        boton.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+        boton.addEventListener("click", function (e) {
+            e.preventDefault();
+            mostrarPagina(i);
+        });
+        paginacion.appendChild(boton);
+    }
+
+    let siguiente = document.createElement("li");
+    siguiente.className = "page-item" + (paginaActual === totalPaginas ? " disabled" : "");
+    siguiente.innerHTML = `<a class="page-link" href="#">Siguiente</a>`;
+    siguiente.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (paginaActual < totalPaginas) mostrarPagina(paginaActual + 1);
+    });
+    paginacion.appendChild(siguiente);
+}
+
+// Actualizar filas por página cuando cambia el select
+document.getElementById("selectFilas").addEventListener("change", function() {
+    filasPorPagina = parseInt(this.value);
+    mostrarPagina(1); // Reiniciar a la página 1
+});
+
+// Inicializar paginación al cargar
+document.addEventListener("DOMContentLoaded", function() {
+    mostrarPagina(1);
 });
 </script>
 
