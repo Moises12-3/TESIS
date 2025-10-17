@@ -47,6 +47,8 @@ $id_usuario = $_SESSION["id"];
     <link href="https://cdn.jsdelivr.net/npm/weathericons@2.1.0/css/weather-icons.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/fullcalendar.min.css" rel="stylesheet" />
 
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
    <style>
     #weatherWidget .currentDesc {
         color: #ffffff!important;
@@ -486,7 +488,78 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
                 <div id="mensajeError" class="alert d-none mt-3" role="alert"></div>
 
 
+
+
+
+<?php
+include("Conexion/conex.php");
+
+// Consultas para Moneda y Tipo de Pago
+$sqlMoneda = "SELECT id, nombre, simbolo, tipo FROM Moneda WHERE estado = 'activo'";
+$sqlTipoPago = "SELECT id, nombre FROM TipoPago";
+
+$monedas = $conn->query($sqlMoneda);
+$tiposPago = $conn->query($sqlTipoPago);
+?>
+
+
+
+                <!-- Moneda -->
+                <div class="mb-3">
+                    <label for="moneda" class="form-label">Moneda</label>
+                    <select class="form-select select2" id="moneda" name="moneda" required>
+                        <option value="">-- Selecciona Moneda --</option>
+                        <?php 
+                        while($row = $monedas->fetch_assoc()): 
+                            $selected = ($row['tipo'] === 'nacional') ? "selected" : "";
+                        ?>
+                            <option value="<?= $row['id'] ?>" <?= $selected ?>>
+                                <?= $row['nombre'] ?> (<?= $row['simbolo'] ?>)
+                            </option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+
+                <!-- Tipo de Pago -->
+                <div class="mb-3">
+                    <label for="tipoPago" class="form-label">Tipo de Pago</label>
+                    <select class="form-select select2" id="tipoPago" name="tipoPago" required>
+                        <option value="">-- Selecciona Tipo de Pago --</option>
+                        <?php 
+                        while($row = $tiposPago->fetch_assoc()): 
+                            $selected = (strtoupper($row['nombre']) === 'EFECTIVO') ? "selected" : "";
+                        ?>
+                            <option value="<?= $row['id'] ?>" <?= $selected ?>>
+                                <?= $row['nombre'] ?>
+                            </option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: "Selecciona una opción",
+            allowClear: true,
+            width: '100%'
+        });
+    });
+</script>
+
+
+
+
+
+                
+
+
             </div>
+
         </div>
 
         
