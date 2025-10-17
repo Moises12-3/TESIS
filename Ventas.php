@@ -665,17 +665,20 @@ function calcularVuelto() {
             }
         });
 
-        // Realiza la búsqueda en la BD
         function buscarProducto(codigo) {
-            let productoEncontrado = false; // Simula que el producto no se encuentra
-
             var xhr = new XMLHttpRequest();
             xhr.open("GET", "Configuracion/buscar_producto.php?codigo=" + codigo, true);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     let producto = JSON.parse(xhr.responseText);
+
                     if (producto) {
-                        agregarProducto(producto.id, producto.codigo, producto.nombre, producto.venta);
+                        if (producto.error) {
+                            // Si viene el mensaje de error desde PHP
+                            mostrarMensajeError(producto.error);
+                        } else {
+                            agregarProducto(producto.id, producto.codigo, producto.nombre, producto.venta);
+                        }
                     } else {
                         mostrarMensajeError("Producto no encontrado.");
                     }
