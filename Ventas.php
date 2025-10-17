@@ -488,9 +488,6 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
                 <div id="mensajeError" class="alert d-none mt-3" role="alert"></div>
 
 
-
-
-
 <?php
 include("Conexion/conex.php");
 
@@ -555,11 +552,7 @@ $tiposPago = $conn->query($sqlTipoPago);
 
 
 
-                
-
-
             </div>
-
         </div>
 
         
