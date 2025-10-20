@@ -573,6 +573,7 @@ $tiposPago = $conn->query($sqlTipoPago);
             <tr>
                 <th>Código</th>
                 <th>Nombre</th>
+                <th>Unidad</th>
                 <th>Precio Venta</th>
                 <th>Cantidad</th>
                 <th>Total Individual</th>
@@ -589,7 +590,7 @@ $tiposPago = $conn->query($sqlTipoPago);
         let productosSeleccionados = [];
 
         // Función para agregar productos escaneados
-        function agregarProducto(id, codigo, nombre, precio) {
+        function agregarProducto(id, codigo, nombre, precio, nombre_UnidadPeso) {
             let productoExistente = productosSeleccionados.find(p => p.id === id);
 
             if (productoExistente) {
@@ -600,7 +601,8 @@ $tiposPago = $conn->query($sqlTipoPago);
                     codigo: codigo,
                     nombre: nombre,
                     precio: parseFloat(precio),
-                    cantidad: 1
+                    cantidad: 1,                    
+                    nombre_UnidadPeso: nombre_UnidadPeso  // <--- Agregar esto
                 });
             }
 
@@ -630,6 +632,7 @@ $tiposPago = $conn->query($sqlTipoPago);
         fila.innerHTML = `
             <td>${producto.codigo}</td>
             <td>${producto.nombre}</td>
+            <td>${producto.nombre_UnidadPeso || ''}</td>
             <td>$${producto.precio.toFixed(2)}</td>
             <td>
                 <input type="number" class="form-control form-control-sm" value="${producto.cantidad}" min="1"
@@ -737,13 +740,19 @@ function calcularVuelto() {
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     let producto = JSON.parse(xhr.responseText);
-
+                    console.log(producto); // <--- Verifica que tenga "nombre_UnidadPeso"
+                    
                     if (producto) {
                         if (producto.error) {
-                            // Si viene el mensaje de error desde PHP
                             mostrarMensajeError(producto.error);
                         } else {
-                            agregarProducto(producto.id, producto.codigo, producto.nombre, producto.venta);
+                            agregarProducto(
+                                producto.id,
+                                producto.codigo,
+                                producto.nombre,
+                                producto.venta,
+                                producto.nombre_UnidadPeso
+                            );
                         }
                     } else {
                         mostrarMensajeError("Producto no encontrado.");
