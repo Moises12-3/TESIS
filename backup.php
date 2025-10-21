@@ -27,7 +27,7 @@ if(isset($_POST['crear_bd'])){
     }
 
     // Crear base de datos
-    $conn->query("CREATE DATABASE IF NOT EXISTS {$database}");
+    $conn->query("CREATE DATABASE IF NOT EXISTS {$database} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     $conn->close();
 
     // Archivos SQL a ejecutar
@@ -36,7 +36,8 @@ if(isset($_POST['crear_bd'])){
     foreach($sql_files as $sql_file){
         if(file_exists($sql_file)){
             // Redirigir salida y errores a nul para que no se muestre en pantalla
-            $command = "\"C:\\xampp\\mysql\\bin\\mysql\" --user={$username} --password={$password} --host={$servername} --port={$port} {$database} < {$sql_file} > nul 2>&1";
+            $command = "\"C:\\xampp\\mysql\\bin\\mysql\" --default-character-set=utf8mb4 --user={$username} --password={$password} --host={$servername} --port={$port} {$database} < {$sql_file} > nul 2>&1";
+            // $command = "\"C:\\xampp\\mysql\\bin\\mysql\" --user={$username} --password={$password} --host={$servername} --port={$port} {$database} < {$sql_file} > nul 2>&1";
             
             system($command, $return_var);
 
@@ -75,10 +76,11 @@ if(isset($_POST['restore'])){
             die("Conexión fallida: " . $conn->connect_error);
         }
 
-        $conn->query("CREATE DATABASE IF NOT EXISTS {$database}");
+        $conn->query("CREATE DATABASE IF NOT EXISTS {$database} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
         $conn->close();
 
-        $command = "\"C:\\xampp\\mysql\\bin\\mysql\" --user={$username} --password={$password} --host={$servername} --port={$port} {$database} < {$restore_file}";
+        $command = "\"C:\\xampp\\mysql\\bin\\mysql\" --default-character-set=utf8mb4 --user={$username} --password={$password} --host={$servername} --port={$port} {$database} < {$sql_file} > nul 2>&1";
+        //$command = "\"C:\\xampp\\mysql\\bin\\mysql\" --user={$username} --password={$password} --host={$servername} --port={$port} {$database} < {$restore_file}";
         system($command, $output);
 
         $mensaje = "🔄 Restauración completada.";
@@ -101,6 +103,7 @@ if($fondo_images){
 <head>
     <meta charset="UTF-8">
     <title>💾 Respaldo y Restauración de Base de Datos</title>
+    <meta charset="UTF-8">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
