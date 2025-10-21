@@ -2,8 +2,8 @@
 USE ventas_php;
 
     INSERT INTO Moneda (nombre, simbolo, tipo, pais, estado, valor) VALUES    
-    ('Colon', 'CRC', 'nacional', 'Costa Rica', 'activo', 600.00),
-    ('Córdoba', 'NIO', 'extranjera', 'Nicaragua', 'activo', 35.00),
+    ('Colon', 'CRC', 'extranjera', 'Costa Rica', 'activo', 600.00),
+    ('Córdoba', 'NIO', 'nacional', 'Nicaragua', 'activo', 35.00),
     ('Dólar Estadounidense', 'USD', 'extranjera', 'Estados Unidos', 'activo', 1.00),
     ('Peso Mexicano', 'MXN', 'extranjera', 'México', 'activo', 18.00),
     ('Dólar Canadiense', 'CAD', 'extranjera', 'Canadá', 'activo', 1.35),

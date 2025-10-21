@@ -1,6 +1,9 @@
 DROP DATABASE IF EXISTS ventas_php;
 
-CREATE DATABASE ventas_php;
+CREATE DATABASE ventas_php
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
 
 USE ventas_php;
 
@@ -16,7 +19,7 @@ CREATE TABLE IF NOT EXISTS empresa (
     identidad_juridica VARCHAR(100),
     foto_perfil VARCHAR(255) DEFAULT NULL,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Tabla usuario (administrador)
 CREATE TABLE IF NOT EXISTS usuario (
@@ -27,7 +30,7 @@ CREATE TABLE IF NOT EXISTS usuario (
     contrasena VARCHAR(255) NOT NULL,
     rol VARCHAR(50) DEFAULT 'Administrador',
     FOREIGN KEY (id_empresa) REFERENCES empresa(id) ON DELETE CASCADE
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE usuarios(
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -42,7 +45,7 @@ CREATE TABLE usuarios(
     password VARCHAR(255) NOT NULL,
 
     foto_perfil VARCHAR(255) DEFAULT NULL
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE clientes (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -51,7 +54,7 @@ CREATE TABLE clientes (
     telefono VARCHAR(25) NOT NULL,
     direccion VARCHAR(255) NOT NULL,
     descuento DECIMAL(5,2) NOT NULL DEFAULT 0
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 
 CREATE TABLE ventas(
@@ -64,7 +67,7 @@ CREATE TABLE ventas(
     numeroFactura VARCHAR(20) UNIQUE,
     idUsuario BIGINT NOT NULL,
     idCliente BIGINT
-);  
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE productos_ventas(
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -73,7 +76,7 @@ CREATE TABLE productos_ventas(
     numeroFactura VARCHAR(20),
     idProducto BIGINT NOT NULL,
     idVenta BIGINT NOT NULL
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE Moneda (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -84,7 +87,7 @@ CREATE TABLE Moneda (
     estado ENUM('activo', 'inactivo') NOT NULL DEFAULT 'activo',
     valor DECIMAL(10,2) DEFAULT NULL, -- Solo se usa si la moneda es extranjera
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE TipoPago (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -92,7 +95,7 @@ CREATE TABLE TipoPago (
     descripcion TEXT,
     estado ENUM('Efectivo', 'Contado') DEFAULT 'Efectivo',
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE UnidadPeso (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -100,7 +103,7 @@ CREATE TABLE UnidadPeso (
     simbolo VARCHAR(10) NOT NULL,
     estado ENUM('activo', 'inactivo') DEFAULT 'activo',
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE Impuesto (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -110,7 +113,7 @@ CREATE TABLE Impuesto (
     tipo_impuesto ENUM('Porcentaje', 'Fijo') DEFAULT 'porcentaje',
     estado ENUM('Activo', 'Inactivo') DEFAULT 'Activo',
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 
 CREATE TABLE productos(
@@ -127,7 +130,7 @@ CREATE TABLE productos(
     id_UnidadPeso INT,
     estado ENUM('activo', 'inactivo') NOT NULL DEFAULT 'activo',    
     nombre_UnidadPeso VARCHAR(100)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("maaroncarrasco@gmail.com", "081-030301-1009B", "maaroncarrasco@gmail.com", "6667771234", "Nowhere", "0", "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
 INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("moises", "Aaron Moises Carrasco Thomas", "081-030301-1009B", "88090180", "Nowhere", 0.00, "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
@@ -144,7 +147,7 @@ CREATE TABLE IF NOT EXISTS convertidor_medidas (
     unidad_origen VARCHAR(50) NOT NULL,
     unidad_destino VARCHAR(50) NOT NULL,
     factor_conversion DECIMAL(15,10) NOT NULL
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Inserción de datos comunes
 INSERT INTO convertidor_medidas (tipo_medida, unidad_origen, unidad_destino, factor_conversion) VALUES

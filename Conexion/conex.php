@@ -15,4 +15,7 @@ if ($conn->connect_error) {
 
 // Quita este `echo` en producción
 // echo "Conexión exitosa";
+
+// Esto es clave para que reconozca tildes y ñ
+$conn->set_charset("utf8mb4");
 ?>
