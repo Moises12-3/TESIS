@@ -830,6 +830,16 @@ document.getElementById("btnRealizarVenta").addEventListener("click", function()
                 return; // Detener el proceso de guardado
             }
 
+            // ✅ NUEVA VALIDACIÓN: El monto pagado debe ser >= total con descuento
+            const totalTexto = document.getElementById("totalDescuento").textContent.replace('$', '');
+            const totalConDescuento = parseFloat(totalTexto) || 0;
+
+            if (montoPagado < totalConDescuento) {
+                mostrarMensaje("El monto pagado no puede ser menor al total con descuento.", "warning");
+                montoPagadoInput.focus();
+                return; // Detener el proceso de guardado
+            }
+
             // Si todo está correcto, procesar la venta
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "Configuracion/procesar_venta.php", true);
@@ -840,7 +850,12 @@ document.getElementById("btnRealizarVenta").addEventListener("click", function()
 
                     if (respuesta.status === "success") {
                         mostrarMensaje(respuesta.message, "success");
-                        // Aquí ya no borramos la tabla, solo el mensaje
+
+                        // 🔄 Espera 3 segundos y recarga la página
+                        setTimeout(() => {
+                            window.location.href = "ventas.php";
+                        }, 3000);
+
                     } else {
                         mostrarMensaje(respuesta.message, "error");
                     }
@@ -863,6 +878,7 @@ document.getElementById("btnRealizarVenta").addEventListener("click", function()
         mostrarMensaje("Por favor, seleccione al menos un producto.", "warning");
     }
 });
+
 
 
         
