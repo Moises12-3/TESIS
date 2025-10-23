@@ -469,40 +469,40 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
                 <div id="mensajeError" class="alert d-none mt-3" role="alert"></div>
 
 
-<?php
-include("Conexion/conex.php");
+                <?php
+                include("Conexion/conex.php");
 
-// Consultas para Moneda y Tipo de Pago
-$sqlCliente = "SELECT id, nombre FROM Clientes"; 
-$sqlMoneda = "SELECT id, nombre, simbolo, tipo FROM Moneda WHERE estado = 'activo'";
-$sqlTipoPago = "SELECT id, nombre FROM TipoPago";
+                // Consultas para Moneda y Tipo de Pago
+                $sqlCliente = "SELECT id, nombre FROM Clientes"; 
+                $sqlMoneda = "SELECT id, nombre, simbolo, tipo FROM Moneda WHERE estado = 'activo'";
+                $sqlTipoPago = "SELECT id, nombre FROM TipoPago";
 
-$clientes = $conn->query($sqlCliente);
-$monedas = $conn->query($sqlMoneda);
-$tiposPago = $conn->query($sqlTipoPago);
-?>
+                $clientes = $conn->query($sqlCliente);
+                $monedas = $conn->query($sqlMoneda);
+                $tiposPago = $conn->query($sqlTipoPago);
+                ?>
 
-<!-- Selector de clientes -->
-<div class="mb-3">
-    <label for="clienteSeleccionado" class="form-label">👤 Cliente</label>
-    <select class="form-select select2" id="clienteSeleccionado" name="clienteSeleccionado" required>
-        <option value="">-- Selecciona Cliente --</option>
-        <?php while($row = $clientes->fetch_assoc()): ?>
-            <option value="<?= $row['id'] ?>">
-                <?= htmlspecialchars($row['nombre'], ENT_QUOTES, 'UTF-8') ?>
-            </option>
-        <?php endwhile; ?>
-    </select>
-</div>
+                <!-- Selector de clientes -->
+                <div class="mb-3">
+                    <label for="clienteSeleccionado" class="form-label">👤 Cliente</label>
+                    <select class="form-select select2" id="clienteSeleccionado" name="clienteSeleccionado" required>
+                        <option value="">-- Selecciona Cliente --</option>
+                        <?php while($row = $clientes->fetch_assoc()): ?>
+                            <option value="<?= $row['id'] ?>">
+                                <?= htmlspecialchars($row['nombre'], ENT_QUOTES, 'UTF-8') ?>
+                            </option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
 
-<div class="mb-3">
-    <label for="descuentoCliente" class="form-label">💸 Descuento del Cliente (%)</label>
-    <input type="number" id="descuentoCliente" name="descuentoCliente"
-           class="form-control form-control-sm" placeholder="Descuento %" value="0" min="0" max="100">
-</div>
+                <div class="mb-3">
+                    <label for="descuentoCliente" class="form-label">💸 Descuento del Cliente (%)</label>
+                    <input type="number" id="descuentoCliente" name="descuentoCliente"
+                        class="form-control form-control-sm" placeholder="Descuento %" value="0" min="0" max="100">
+                </div>
 
-<!-- Campo oculto para guardar el ID del cliente -->
-<input type="hidden" id="inputClienteId" name="inputClienteId">
+                <!-- Campo oculto para guardar el ID del cliente -->
+                <input type="hidden" id="inputClienteId" name="inputClienteId">
 
 
                 <!-- Moneda -->
@@ -550,7 +550,14 @@ $(document).ready(function() {
         allowClear: true,
         width: '100%'
     });
-
+                    $(document).ready(function() {
+                        // Inicializar Select2 en todos los selects con class="select2"
+                        $('.select2').select2({
+                            placeholder: "Selecciona una opción",
+                            allowClear: true,
+                            width: '100%'
+                        });
+                    });
     // Cargar clientes al iniciar
     cargarClientes();
 
@@ -812,9 +819,18 @@ document.getElementById("btnRealizarVenta").addEventListener("click", function()
         const clienteId = document.getElementById("inputClienteId").value;
 
         if (clienteId) {
-            const montoPagado = parseFloat(document.getElementById("montoCliente").value) || 0;
+            const montoPagadoInput = document.getElementById("montoCliente");
+            const montoPagado = parseFloat(montoPagadoInput.value) || 0;
             const vuelto = parseFloat(document.getElementById("vueltoCliente").textContent.replace('$', '')) || 0;
 
+            // 🚫 Validar que el campo de monto pagado no esté vacío ni sea 0
+            if (montoPagado <= 0 || montoPagadoInput.value.trim() === "") {
+                mostrarMensaje("Por favor, ingrese el monto pagado por el cliente.", "warning");
+                montoPagadoInput.focus();
+                return; // Detener el proceso de guardado
+            }
+
+            // Si todo está correcto, procesar la venta
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "Configuracion/procesar_venta.php", true);
             xhr.setRequestHeader("Content-Type", "application/json");
@@ -824,16 +840,7 @@ document.getElementById("btnRealizarVenta").addEventListener("click", function()
 
                     if (respuesta.status === "success") {
                         mostrarMensaje(respuesta.message, "success");
-                        productosSeleccionados = [];
-                        actualizarTabla();
-
-                        // Limpiar cliente
-                        document.getElementById("clienteSeleccionado").value = "";
-                        document.getElementById("clienteId").textContent = "";
-                        document.getElementById("descuentoCliente").value = "";
-                        document.getElementById("inputClienteId").value = "";
-                        document.getElementById("montoCliente").value = "";
-                        document.getElementById("vueltoCliente").textContent = "$0.00";
+                        // Aquí ya no borramos la tabla, solo el mensaje
                     } else {
                         mostrarMensaje(respuesta.message, "error");
                     }
@@ -857,8 +864,11 @@ document.getElementById("btnRealizarVenta").addEventListener("click", function()
     }
 });
 
+
         
         // Función para mostrar mensajes en la página y limpiar la pantalla después de 3 segundos
+
+        // Función para mostrar mensajes en la página sin borrar la tabla
         function mostrarMensaje(mensaje, tipo) {
             let mensajeVenta = document.getElementById("mensajeVenta");
             let icono = "";
@@ -879,14 +889,11 @@ document.getElementById("btnRealizarVenta").addEventListener("click", function()
             mensajeVenta.innerHTML = icono + mensaje;
             mensajeVenta.classList.remove("d-none");
 
+            // Mantiene la tabla visible, solo oculta el mensaje después de 3 segundos
             setTimeout(() => {
                 mensajeVenta.classList.add("d-none");
-                productosSeleccionados = [];
-                actualizarTabla();
-                document.getElementById("buscadorVenta").value = "";
             }, 3000);
         }
-
 
     </script>
 
