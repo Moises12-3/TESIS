@@ -457,28 +457,9 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
     <div class="row">
         <!-- Columna izquierda: Cliente -->
         <div class="col-md-4">
-            <!-- Selector de clientes -->
-            <label for="clienteSeleccionado" class="form-label">👤 <strong>Cliente:</strong></label>
-            
-            <!-- Buscador -->
-            <input type="text" id="buscarCliente" class="form-control mb-2" placeholder="🔎 Buscar cliente...">
-
-            <!-- Lista de clientes -->
-            <select id="clienteSeleccionado" class="form-control mb-3">
-                <option value="" disabled selected>📋Seleccione un cliente</option>
-            </select>
-
             <!-- Información del cliente -->
             <div id="infoCliente" class="card p-3 shadow-sm">
-                <div class="blanco d-none">
-                    <strong>🆔 ID Cliente:</strong> <span id="clienteId"></span><br>
-                </div>
 
-                <label for="descuentoCliente" class="form-label mt-2">💸<strong>Descuento (%):</strong></label>
-                <input type="text" id="descuentoCliente" class="form-control" placeholder="Ej: 10"><br>
-
-                <!-- Input oculto -->
-                <input type="hidden" id="inputClienteId" name="cliente_id">
 
                     <!-- Barra de búsqueda para escaneo -->
                 <label for="descuentoCliente" class="form-label mt-2">💸<strong>Escanea el codigo del producto:</strong></label>
@@ -492,13 +473,36 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 include("Conexion/conex.php");
 
 // Consultas para Moneda y Tipo de Pago
+$sqlCliente = "SELECT id, nombre FROM Clientes"; 
 $sqlMoneda = "SELECT id, nombre, simbolo, tipo FROM Moneda WHERE estado = 'activo'";
 $sqlTipoPago = "SELECT id, nombre FROM TipoPago";
 
+$clientes = $conn->query($sqlCliente);
 $monedas = $conn->query($sqlMoneda);
 $tiposPago = $conn->query($sqlTipoPago);
 ?>
 
+<!-- Selector de clientes -->
+<div class="mb-3">
+    <label for="clienteSeleccionado" class="form-label">👤 Cliente</label>
+    <select class="form-select select2" id="clienteSeleccionado" name="clienteSeleccionado" required>
+        <option value="">-- Selecciona Cliente --</option>
+        <?php while($row = $clientes->fetch_assoc()): ?>
+            <option value="<?= $row['id'] ?>">
+                <?= htmlspecialchars($row['nombre'], ENT_QUOTES, 'UTF-8') ?>
+            </option>
+        <?php endwhile; ?>
+    </select>
+</div>
+
+<div class="mb-3">
+    <label for="descuentoCliente" class="form-label">💸 Descuento del Cliente (%)</label>
+    <input type="number" id="descuentoCliente" name="descuentoCliente"
+           class="form-control form-control-sm" placeholder="Descuento %" value="0" min="0" max="100">
+</div>
+
+<!-- Campo oculto para guardar el ID del cliente -->
+<input type="hidden" id="inputClienteId" name="inputClienteId">
 
 
                 <!-- Moneda -->
@@ -539,13 +543,39 @@ $tiposPago = $conn->query($sqlTipoPago);
 <!-- Select2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $('.select2').select2({
-            placeholder: "Selecciona una opción",
-            allowClear: true,
-            width: '100%'
-        });
+$(document).ready(function() {
+    // Inicializa Select2 (si no lo hiciste ya)
+    $('#clienteSeleccionado').select2({
+        placeholder: "Selecciona un cliente",
+        allowClear: true,
+        width: '100%'
     });
+
+    // Cargar clientes al iniciar
+    cargarClientes();
+
+    // Si tienes un input para buscar clientes con id="buscarCliente" lo usaremos;
+    // si no existe, evitamos errores.
+    if (document.getElementById('buscarCliente')) {
+        document.getElementById('buscarCliente').addEventListener('input', function() {
+            let q = this.value.trim();
+            cargarClientes(q);
+        });
+    }
+
+    // Manejar cambio de cliente
+    $('#clienteSeleccionado').on('change', function() {
+        let clienteId = $(this).val();
+        if (clienteId) {
+            mostrarInfoCliente(clienteId);
+        } else {
+            // Si se limpia selección, dejar 0
+            $('#descuentoCliente').val(0);
+            $('#inputClienteId').val('');
+            actualizarTabla();
+        }
+    });
+});
 </script>
 
 
@@ -922,41 +952,39 @@ document.getElementById("clienteSeleccionado").addEventListener("change", functi
         mostrarInfoCliente(clienteId);
     } else {
         document.getElementById("clienteId").textContent = "";
-        document.getElementById("descuentoCliente").textContent = "";
+        document.getElementById("descuentoCliente").value = "0";
     }
 });
 
+
+
 // Función para obtener y mostrar la información del cliente seleccionado
 function mostrarInfoCliente(clienteId) {
-    // Primero vaciamos el campo inputClienteId al seleccionar un cliente
-    document.getElementById("inputClienteId").value = ""; 
-
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "Configuracion/obtener_info_cliente.php?id=" + clienteId, true);
+    xhr.open("GET", "Configuracion/obtener_info_cliente.php?id=" + encodeURIComponent(clienteId), true);
     xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            try {
-                let cliente = JSON.parse(xhr.responseText);
-                if (cliente) {
-                    // Si el cliente es encontrado, mostramos su información
-                    document.getElementById("clienteId").textContent = cliente.id;
-                    document.getElementById("descuentoCliente").value = cliente.descuento + "";
-                    document.getElementById("inputClienteId").value = cliente.id;
+        if (xhr.readyState === 4) {
+            // Log para depuración (puedes quitar luego)
+            console.log("Respuesta obtener_info_cliente.php:", xhr.status, xhr.responseText);
 
-                    // ✅ Volver a calcular tabla con el nuevo descuento
-                    actualizarTabla();
-
-                } else {
-                    document.getElementById("clienteId").textContent = "No encontrado";
-                    document.getElementById("descuentoCliente").value = "N/A";
-                    document.getElementById("inputClienteId").value = "";
-
-                    actualizarTabla(); // Por si se limpia también se actualiza
+            if (xhr.status === 200) {
+                try {
+                    let cliente = JSON.parse(xhr.responseText);
+                    if (cliente) {
+                        $('#descuentoCliente').val(cliente.descuento !== undefined ? cliente.descuento : 0);
+                        $('#inputClienteId').val(cliente.id);
+                        actualizarTabla();
+                    } else {
+                        // No existe cliente
+                        $('#descuentoCliente').val(0);
+                        $('#inputClienteId').val('');
+                        actualizarTabla();
+                    }
+                } catch (e) {
+                    console.error("Error al parsear JSON de cliente:", e);
                 }
-            } catch (e) {
-                console.error("Error al parsear JSON:", e);
-                document.getElementById("inputClienteId").value = "";
-                actualizarTabla(); // Por si ocurre un error, también se actualiza
+            } else {
+                console.error("Error en la petición de cliente. Status:", xhr.status);
             }
         }
     };
@@ -966,16 +994,30 @@ function mostrarInfoCliente(clienteId) {
 
 
 
-// Evento para detectar el cambio en el select de clientes
-document.getElementById("clienteSelect").addEventListener("change", function() {
-    const clienteId = this.value; // Obtener el ID del cliente seleccionado
-    mostrarInfoCliente(clienteId); // Llamar a la función para actualizar la información
-});
 
 
 
 
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
