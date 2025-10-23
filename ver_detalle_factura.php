@@ -479,9 +479,11 @@ if ($result_factura->num_rows > 0) {
         pv.cantidad, 
         pv.precio, 
         p.codigo,
-        p.nombre AS producto_nombre
+        p.nombre AS producto_nombre,
+        up.nombre AS unidad
     FROM productos_ventas pv
     LEFT JOIN productos p ON pv.idProducto = p.id
+    LEFT JOIN UnidadPeso up ON p.id_UnidadPeso = up.id
     WHERE pv.numeroFactura = '$numeroFactura'";
     
     $result_productos = $conn->query($sql_productos);
@@ -601,6 +603,7 @@ if ($result_empresa->num_rows > 0) {
             <tr>
                 <th>Código</th>
                 <th>Cantidad</th>
+                <th>Unidad</th>
                 <th>Descripción</th>
                 <th>Precio Unitario</th>
                 <th>Descuento</th>
@@ -618,6 +621,7 @@ if ($result_empresa->num_rows > 0) {
                     echo "<tr>
                         <td>{$prod['codigo']}</td>
                         <td>{$prod['cantidad']}</td>
+                        <td>{$prod['unidad']}</td> <!-- Mostrar unidad -->
                         <td>{$prod['producto_nombre']}</td>
                         <td>$" . number_format($prod['precio'], 2) . "</td>
                         <td>{$descuento}%</td>
