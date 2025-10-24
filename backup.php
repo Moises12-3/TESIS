@@ -1,10 +1,22 @@
 <?php
+// === LEER CONFIGURACIÓN DESDE JSON ===
+$configPath = __DIR__ . '/conexion/conexion.json';
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$database = "ventas_php";
-$port = "33067"; // Ajusta al puerto correcto de tu XAMPP
+if (!file_exists($configPath)) {
+    die("❌ Error: No se encontró el archivo de configuración JSON.");
+}
+
+$config = json_decode(file_get_contents($configPath), true);
+
+if ($config === null) {
+    die("❌ Error: No se pudo leer el archivo JSON. Verifica su formato.");
+}
+
+$servername = $config['servername'];
+$username   = $config['username'];
+$password   = $config['password'];
+$database   = $config['database'];
+$port       = $config['port'];
 
 $mensaje = "";
 

@@ -1,0 +1,7 @@
+{
+    "servername": "localhost",
+    "username": "root",
+    "password": "",
+    "database": "ventas_php",
+    "port": "33067"
+}
