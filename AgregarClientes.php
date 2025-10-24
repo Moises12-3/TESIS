@@ -7,9 +7,59 @@ if (!isset($_SESSION["usuario"])) {
     exit();
 }
 
-// Obtener datos de la sesión
+// Obtener dato de la sesión (se asume que aquí está el email)
 $usuario = $_SESSION["usuario"];
-$id_usuario = $_SESSION["id"];
+$id_usuario = isset($_SESSION["id"]) ? $_SESSION["id"] : null;
+
+// Ruta del JSON
+$jsonPath = __DIR__ . '/json/credencial.json';
+
+// Comprobar existencia del archivo JSON
+if (!file_exists($jsonPath)) {
+    // Si no existe el JSON, por seguridad podrías forzar cierre o permitir acceso.
+//    header("Location: cerrar_sesion.php");
+//    exit();
+    // Por ahora permitimos continuar (o ajusta según tu necesidad)
+} else {
+    $jsonContent = file_get_contents($jsonPath);
+    $data = json_decode($jsonContent, true);
+
+    if ($data === null) {
+        // JSON mal formado: mejor cerrar sesión por seguridad
+        header("Location: cerrar_sesion.php");
+        exit();
+    }
+
+    $match = false;
+    if (isset($data['usuarios']) && is_array($data['usuarios'])) {
+        foreach ($data['usuarios'] as $u) {
+            // Normalizamos ambos a minúsculas por si acaso
+            if (isset($u['email']) && mb_strtolower($u['email']) === mb_strtolower($usuario)) {
+                $match = true;
+                break;
+            }
+        }
+    }
+
+    // === COMPORTAMIENTO SOLICITADO ===
+    // Si se encontró algún usuario con el mismo email que la sesión -> redirigir a cerrar_sesion.php
+    if ($match) {
+        header("Location: cerrar_sesion.php");
+        exit();
+    }
+
+    /* 
+    // === OPCIÓN ALTERNATIVA (MAS COMÚN) ===
+    // Si quieres en cambio cerrar sesión cuando NO se encuentre el email en el JSON,
+    // reemplaza la condición anterior por:
+    if (!$match) {
+        header("Location: cerrar_sesion.php");
+        exit();
+    }
+    */
+}
+
+// Si llega aquí, la sesión es válida según la lógica actual y el script continúa...
 ?>
 
 
