@@ -115,6 +115,17 @@ CREATE TABLE Impuesto (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS proveedores (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    cedula VARCHAR(50),
+    telefono VARCHAR(25),
+    correo VARCHAR(255),
+    direccion VARCHAR(255),
+    empresa VARCHAR(255),
+    estado ENUM('activo', 'inactivo') DEFAULT 'activo',
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE productos(
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
