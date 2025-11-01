@@ -1,31 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+<?php
+include '../Conexion/conex.php';
 
+// Consulta proveedores
+$sql = "SELECT * FROM proveedores ORDER BY id DESC";
+$result = $conn->query($sql);
+?>
 
 <!-- DataTables CSS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+
+<!-- jQuery (ya cargado en proveedor.php, si no, incluye) -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 <!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 
-
-
-
-
-<body>
-
-<?php
-include '../Conexion/conex.php';
-
-$sql = "SELECT * FROM proveedores ORDER BY id DESC";
-$result = $conn->query($sql);
-?>
 
 <table id="tablaProveedoresData" class="table table-bordered table-hover align-middle text-center">
     <thead class="table-primary">
@@ -60,8 +50,31 @@ $result = $conn->query($sql);
     </tbody>
 </table>
 
-<?php $conn->close(); ?>
 
+<script>
+$(document).ready(function() {
+    $('#tablaProveedoresData').DataTable({
+        responsive: true,
+        pageLength: 5, // filas por página por defecto
+        lengthMenu: [5, 10, 25, 50, 100],
+        language: {
+            lengthMenu: "Mostrar _MENU_ registros por página",
+            zeroRecords: "No se encontraron resultados 😢",
+            info: "Mostrando página _PAGE_ de _PAGES_",
+            infoEmpty: "No hay registros disponibles",
+            infoFiltered: "(filtrado de _MAX_ registros totales)",
+            search: "🔍 Buscar:",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "Siguiente ➡️",
+                previous: "⬅️ Anterior"
+            }
+        },
+        order: [[0, "desc"]] // Ordenar por ID descendente
+    });
+});
+</script>
 
-</body>
-</html>
+<?php $conn->close(); ?>  
+
