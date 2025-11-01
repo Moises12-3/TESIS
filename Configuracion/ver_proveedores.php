@@ -1,7 +1,7 @@
 <?php
 include '../Conexion/conex.php';
 
-// Consulta proveedores
+// Consulta proveedores (último registro primero)
 $sql = "SELECT * FROM proveedores ORDER BY id DESC";
 $result = $conn->query($sql);
 ?>
@@ -26,7 +26,8 @@ $result = $conn->query($sql);
 <table id="tablaProveedoresData" class="table table-bordered table-hover align-middle text-center">
     <thead class="table-primary">
         <tr>
-            <th>🆔 ID</th>
+            <th>🆔 #</th> <!-- numeración automática -->
+            <th>ID</th> <!-- ID real de la tabla -->
             <th>👤 Nombre</th>
             <th>🪪 Cédula</th>
             <th>📞 Teléfono</th>
@@ -40,6 +41,7 @@ $result = $conn->query($sql);
         <?php if ($result->num_rows > 0): ?>
             <?php while($row = $result->fetch_assoc()): ?>
                 <tr>
+                    <td></td> <!-- DataTables generará la numeración -->
                     <td><?= $row['id'] ?></td>
                     <td><?= htmlspecialchars($row['nombre']) ?></td>
                     <td><?= htmlspecialchars($row['cedula']) ?></td>
@@ -51,18 +53,18 @@ $result = $conn->query($sql);
                 </tr>
             <?php endwhile; ?>
         <?php else: ?>
-            <tr><td colspan="8">⚠️ No hay proveedores registrados.</td></tr>
+            <tr><td colspan="9">⚠️ No hay proveedores registrados.</td></tr>
         <?php endif; ?>
     </tbody>
 </table>
 
 <script>
 $(document).ready(function() {
-    $('#tablaProveedoresData').DataTable({
+    var table = $('#tablaProveedoresData').DataTable({
         responsive: true,
-        pageLength: 5, // filas por página por defecto
-        lengthMenu: [ [5, 10, 25, 50, 100], [5, 10, 25, 50, 100] ], // opciones para mostrar
-        order: [[0, "desc"]],
+        pageLength: 5,
+        lengthMenu: [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
+        order: [[1, "desc"]], // ordena por ID descendente
         language: {
             lengthMenu: "Mostrar _MENU_ registros por página",
             zeroRecords: "No se encontraron resultados 😢",
@@ -77,15 +79,23 @@ $(document).ready(function() {
                 previous: "⬅️ Anterior"
             }
         },
-        dom: 'Bflrtip', // Botones + lengthMenu + tabla
+        dom: 'Bflrtip',
         buttons: [
             {
                 extend: 'excelHtml5',
                 text: '📥 Exportar a Excel',
                 className: 'btn btn-success mb-2',
                 title: 'Proveedores',
-                exportOptions: {
-                    columns: ':visible' // solo columnas visibles
+                exportOptions: { columns: ':visible' }
+            }
+        ],
+        columnDefs: [
+            {
+                targets: 0, // primera columna para numeración
+                searchable: false,
+                orderable: false,
+                render: function (data, type, row, meta) {
+                    return meta.row + 1; // numeración automática
                 }
             }
         ]
