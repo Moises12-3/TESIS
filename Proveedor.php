@@ -374,29 +374,29 @@ if (!file_exists($jsonPath)) {
     </div>
     <div class="col-md-6">
       <label for="cedula" class="form-label">🆔 Cédula</label>
-      <input type="text" name="cedula" id="cedula" class="form-control">
+      <input type="text" name="cedula" id="cedula" class="form-control" required>
     </div>
   </div>
 
   <div class="row mb-3">
     <div class="col-md-6">
       <label for="telefono" class="form-label">📞 Teléfono</label>
-      <input type="text" name="telefono" id="telefono" class="form-control">
+      <input type="text" name="telefono" id="telefono" class="form-control" required>
     </div>
     <div class="col-md-6">
       <label for="correo" class="form-label">📧 Correo</label>
-      <input type="email" name="correo" id="correo" class="form-control">
+      <input type="email" name="correo" id="correo" class="form-control" required>
     </div>
   </div>
 
   <div class="mb-3">
     <label for="direccion" class="form-label">🏠 Dirección</label>
-    <input type="text" name="direccion" id="direccion" class="form-control">
+    <input type="text" name="direccion" id="direccion" class="form-control" required>
   </div>
 
   <div class="mb-3">
     <label for="empresa" class="form-label">🏢 Empresa</label>
-    <input type="text" name="empresa" id="empresa" class="form-control">
+    <input type="text" name="empresa" id="empresa" class="form-control" required>
   </div>
 
   <button type="submit" class="btn btn-success w-100">💾 Guardar Proveedor</button>
