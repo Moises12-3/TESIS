@@ -8,14 +8,20 @@ $result = $conn->query($sql);
 
 <!-- DataTables CSS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
 
-<!-- jQuery (ya cargado en proveedor.php, si no, incluye) -->
+<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 <!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 
+<!-- DataTables Buttons JS -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
 
 <table id="tablaProveedoresData" class="table table-bordered table-hover align-middle text-center">
     <thead class="table-primary">
@@ -50,13 +56,13 @@ $result = $conn->query($sql);
     </tbody>
 </table>
 
-
 <script>
 $(document).ready(function() {
     $('#tablaProveedoresData').DataTable({
         responsive: true,
         pageLength: 5, // filas por página por defecto
-        lengthMenu: [5, 10, 25, 50, 100],
+        lengthMenu: [ [5, 10, 25, 50, 100], [5, 10, 25, 50, 100] ], // opciones para mostrar
+        order: [[0, "desc"]],
         language: {
             lengthMenu: "Mostrar _MENU_ registros por página",
             zeroRecords: "No se encontraron resultados 😢",
@@ -71,10 +77,20 @@ $(document).ready(function() {
                 previous: "⬅️ Anterior"
             }
         },
-        order: [[0, "desc"]] // Ordenar por ID descendente
+        dom: 'Bflrtip', // Botones + lengthMenu + tabla
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                text: '📥 Exportar a Excel',
+                className: 'btn btn-success mb-2',
+                title: 'Proveedores',
+                exportOptions: {
+                    columns: ':visible' // solo columnas visibles
+                }
+            }
+        ]
     });
 });
 </script>
 
-<?php $conn->close(); ?>  
-
+<?php $conn->close(); ?>
