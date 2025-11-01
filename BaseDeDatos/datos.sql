@@ -170,6 +170,30 @@ USE ventas_php;
     ('P028', 'Producto Inactivo 28', 11.00, 16.50, '2025-12-05', 15.00, 55, 2, 'Córdoba', 7, 'inactivo', 'Kilogramo'),
     ('P029', 'Producto Activo 29', 9.00, 13.50, '2026-06-18', 15.00, 90, 2, 'Córdoba', 7, 'activo', 'Kilogramo'),
     ('P030', 'Producto Activo 30', 14.00, 21.00, '2026-07-12', 15.00, 80, 2, 'Córdoba', 7, 'activo', 'Kilogramo');
+    
+    INSERT INTO proveedores (nombre, cedula, telefono, correo, direccion, empresa, estado) VALUES
+    ('Juan Pérez', '081-010101-0001A', '88880001', 'juan.perez@gmail.com', 'Calle 1, Managua', 'Proveedora ABC', 'activo'),
+    ('María López', '081-010102-0002B', '88880002', 'maria.lopez@gmail.com', 'Calle 2, León', 'Distribuidora XYZ', 'activo'),
+    ('Carlos Ramírez', '081-010103-0003C', '88880003', 'carlos.ramirez@gmail.com', 'Calle 3, Chinandega', 'Suministros LMN', 'activo'),
+    ('Ana Torres', '081-010104-0004D', '88880004', 'ana.torres@gmail.com', 'Calle 4, Granada', 'Proveedora ABC', 'activo'),
+    ('Luis Fernández', '081-010105-0005E', '88880005', 'luis.fernandez@gmail.com', 'Calle 5, Masaya', 'Distribuidora XYZ', 'activo'),
+    ('Sofía Morales', '081-010106-0006F', '88880006', 'sofia.morales@gmail.com', 'Calle 6, Managua', 'Suministros LMN', 'activo'),
+    ('Miguel Sánchez', '081-010107-0007G', '88880007', 'miguel.sanchez@gmail.com', 'Calle 7, Estelí', 'Proveedora ABC', 'activo'),
+    ('Isabel Herrera', '081-010108-0008H', '88880008', 'isabel.herrera@gmail.com', 'Calle 8, Matagalpa', 'Distribuidora XYZ', 'activo'),
+    ('Jorge Castillo', '081-010109-0009I', '88880009', 'jorge.castillo@gmail.com', 'Calle 9, Jinotega', 'Suministros LMN', 'activo'),
+    ('Patricia Gómez', '081-010110-0010J', '88880010', 'patricia.gomez@gmail.com', 'Calle 10, Rivas', 'Proveedora ABC', 'activo'),
+    ('Ricardo Díaz', '081-010111-0011K', '88880011', 'ricardo.diaz@gmail.com', 'Calle 11, Boaco', 'Distribuidora XYZ', 'activo'),
+    ('Verónica Cruz', '081-010112-0012L', '88880012', 'veronica.cruz@gmail.com', 'Calle 12, Carazo', 'Suministros LMN', 'activo'),
+    ('Fernando Rivera', '081-010113-0013M', '88880013', 'fernando.rivera@gmail.com', 'Calle 13, Chontales', 'Proveedora ABC', 'activo'),
+    ('Lorena Martínez', '081-010114-0014N', '88880014', 'lorena.martinez@gmail.com', 'Calle 14, Madriz', 'Distribuidora XYZ', 'activo'),
+    ('Andrés Vargas', '081-010115-0015O', '88880015', 'andres.vargas@gmail.com', 'Calle 15, Nueva Segovia', 'Suministros LMN', 'activo'),
+    ('Claudia Peña', '081-010116-0016P', '88880016', 'claudia.pena@gmail.com', 'Calle 16, León', 'Proveedora ABC', 'activo'),
+    ('Diego Romero', '081-010117-0017Q', '88880017', 'diego.romero@gmail.com', 'Calle 17, Managua', 'Distribuidora XYZ', 'activo'),
+    ('Sandra Ortiz', '081-010118-0018R', '88880018', 'sandra.ortiz@gmail.com', 'Calle 18, Masaya', 'Suministros LMN', 'activo'),
+    ('Pedro Jiménez', '081-010119-0019S', '88880019', 'pedro.jimenez@gmail.com', 'Calle 19, Chinandega', 'Proveedora ABC', 'activo'),
+    ('Gabriela Ruiz', '081-010120-0020T', '88880020', 'gabriela.ruiz@gmail.com', 'Calle 20, Granada', 'Distribuidora XYZ', 'activo');
+
+
 
 
 
