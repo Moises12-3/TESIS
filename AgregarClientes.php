@@ -171,6 +171,9 @@ if (!file_exists($jsonPath)) {
                     </ul>
                 </li>
                 <li>
+                    <a href="Proveedor.php"><i class="menu-icon fa fa-truck"></i>Proveedor</a>
+                </li>
+                <li>
                     <a href="Ventas.php"><i class="menu-icon fa fa-shopping-cart"></i>Vender</a>
                 </li>
                 <li class="menu-item-has-children dropdown">
