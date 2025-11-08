@@ -337,6 +337,14 @@ if (!file_exists($jsonPath)) {
                             <div class="row">
                                 <div class="col-lg-8">
                                     <div class="card-body">
+
+
+
+
+
+
+
+                                    
 <?php
 require 'Conexion/conex.php'; // Conexión a la base de datos
 
@@ -545,6 +553,30 @@ if ($producto['estado'] !== 'activo') {
                 name="tiene_vencimiento" 
                 <?php echo !empty($producto['fecha_vencimiento']) ? 'checked' : ''; ?>>
         </div>
+
+        
+
+        <div class="col-md-6">
+            <label for="proveedor" class="form-label">🏭 Proveedor</label>
+            <select class="form-select select2" id="proveedor" name="proveedor" required>
+                <option value="">-- Selecciona Proveedor --</option>
+                <?php 
+                // Consulta de proveedores activos
+                $sqlProveedores = "SELECT id, nombre, empresa FROM proveedores WHERE estado = 'activo'";
+                $proveedores = $conn->query($sqlProveedores);
+                while($row = $proveedores->fetch_assoc()): 
+                    // Si el proveedor coincide con el del producto, lo marcamos como seleccionado
+                    $selected = ($row['id'] == $producto['idProveedor']) ? 'selected' : '';
+                ?>
+                    <option value="<?= $row['id'] ?>" <?= $selected ?>>
+                        <?= $row['nombre'] ?><?= !empty($row['empresa']) ? ' - ' . $row['empresa'] : '' ?>
+                    </option>
+                <?php endwhile; ?>
+            </select>
+        </div>
+
+
+
         <div class="col-md-6" id="fecha_vencimiento_div" 
             style="<?php echo !empty($producto['fecha_vencimiento']) ? '' : 'display:none;'; ?>">
             <label for="fecha_vencimiento" class="form-label">📅 Fecha de Vencimiento</label>

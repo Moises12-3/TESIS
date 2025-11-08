@@ -597,6 +597,8 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 
 
 
+
+
                         
 
         <!-- Bootstrap JS -->
@@ -619,15 +621,35 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 
     </div>
     <div class="row mb-3">
+
+                    
         <div class="col-md-6 d-flex align-items-center">
             <input type="checkbox" class="form-check-input me-2" id="tiene_vencimiento" name="tiene_vencimiento">
             <label for="tiene_vencimiento" class="form-check-label">⏳ ¿Tiene fecha de vencimiento?</label>
         </div>
+
+        <div class="col-md-6">
+            <label for="proveedor" class="form-label">🏭 Proveedor</label>
+            <select class="form-select select2" id="proveedor" name="proveedor" required>
+                <option value="">-- Selecciona Proveedor --</option>
+                <?php 
+                // Consulta de proveedores activos
+                $sqlProveedores = "SELECT id, nombre, empresa FROM proveedores WHERE estado = 'activo'";
+                $proveedores = $conn->query($sqlProveedores);
+                while($row = $proveedores->fetch_assoc()): ?>
+                    <option value="<?= $row['id'] ?>">
+                        <?= $row['nombre'] ?> <?= !empty($row['empresa']) ? ' - ' . $row['empresa'] : '' ?>
+                    </option>
+                <?php endwhile; ?>
+            </select>
+        </div>
+
         <div class="col-md-6" id="fecha_vencimiento_div" style="display: none;">
             <label for="vencimiento" class="form-label">📅 Fecha de Vencimiento</label>
             <input type="date" class="form-control" id="vencimiento" name="vencimiento">
         </div>
     </div>
+
 
     <div class="text-center mt-4">
         <button type="submit" class="btn btn-success btn-lg px-4">💾 Guardar Producto</button>

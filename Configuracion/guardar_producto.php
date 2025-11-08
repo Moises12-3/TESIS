@@ -11,10 +11,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $iva = $_POST['iva'];
     $idMoneda = $_POST['moneda'];
     $idUnidadPeso = $_POST['unidad'];
+    $idProveedor = $_POST['proveedor']; // 🏭 Nuevo campo
     $vencimiento = isset($_POST['tiene_vencimiento']) && $_POST['tiene_vencimiento'] == 'on' ? $_POST['vencimiento'] : NULL;
 
     // Validaciones básicas
-    if (empty($codigo) || empty($nombre) || empty($compra) || empty($venta) || empty($existencia) || empty($idMoneda) || empty($idUnidadPeso)) {
+    if (empty($codigo) || empty($nombre) || empty($compra) || empty($venta) || empty($existencia) || empty($idMoneda) || empty($idUnidadPeso) || empty($idProveedor)) {
         echo "Por favor, complete todos los campos obligatorios.";
         exit();
     }
@@ -68,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // 🔹 Obtener nombre y símbolo de la moneda seleccionada
+    // 🔹 Obtener nombre de la moneda seleccionada
     $sqlMoneda = "SELECT nombre, simbolo FROM Moneda WHERE id = ?";
     $stmtMoneda = $conn->prepare($sqlMoneda);
     $stmtMoneda->bind_param("i", $idMoneda);
@@ -77,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmtMoneda->fetch();
     $stmtMoneda->close();
 
-    // 🔹 Obtener nombre y símbolo de la unidad seleccionada
+    // 🔹 Obtener nombre de la unidad seleccionada
     $sqlUnidad = "SELECT nombre, simbolo FROM UnidadPeso WHERE id = ?";
     $stmtUnidad = $conn->prepare($sqlUnidad);
     $stmtUnidad->bind_param("i", $idUnidadPeso);
@@ -85,6 +86,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmtUnidad->bind_result($nombreUnidad, $simboloUnidad);
     $stmtUnidad->fetch();
     $stmtUnidad->close();
+
+    // 🔹 Obtener nombre del proveedor seleccionado
+    $sqlProveedor = "SELECT nombre FROM proveedores WHERE id = ?";
+    $stmtProveedor = $conn->prepare($sqlProveedor);
+    $stmtProveedor->bind_param("i", $idProveedor);
+    $stmtProveedor->execute();
+    $stmtProveedor->bind_result($nombreProveedor);
+    $stmtProveedor->fetch();
+    $stmtProveedor->close();
 
     // Cálculo del precio unitario con IVA
     $precioUnitario = $compra / max($existencia, 1);
@@ -96,10 +106,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // 🔹 Insertar producto completo
-    $sql = "INSERT INTO productos (codigo, nombre, compra, venta, existencia, fecha_vencimiento, iva, 
-                                   idMoneda, nombre_moneda, id_UnidadPeso, nombre_UnidadPeso)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    // 🔹 Insertar producto completo (con proveedor)
+    $sql = "INSERT INTO productos (
+                codigo, nombre, compra, venta, existencia, fecha_vencimiento, iva,
+                idMoneda, nombre_moneda, id_UnidadPeso, nombre_UnidadPeso,
+                idProveedor, nombre_proveedor
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
@@ -108,7 +121,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $stmt->bind_param(
-        "ssddisdisis",
+        "ssddisdisisis",
         $codigo,
         $nombre,
         $compra,
@@ -119,7 +132,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $idMoneda,
         $nombreMoneda,
         $idUnidadPeso,
-        $nombreUnidad
+        $nombreUnidad,
+        $idProveedor,
+        $nombreProveedor
     );
 
     if ($stmt->execute()) {

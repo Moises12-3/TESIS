@@ -12,6 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $iva = $_POST['iva'];
     $idMoneda = $_POST['moneda'];
     $idUnidadPeso = $_POST['unidad'];
+    $idProveedor = $_POST['proveedor']; // ✅ Nuevo campo
     $fecha_vencimiento = !empty($_POST['fecha_vencimiento']) ? $_POST['fecha_vencimiento'] : null;
 
     // Calcular el Precio Unitario con IVA
@@ -25,9 +26,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // Actualizar el producto en la base de datos
+    // ✅ Actualizar el producto incluyendo el proveedor
     $sql = "UPDATE productos 
-            SET codigo = ?, nombre = ?, compra = ?, venta = ?, existencia = ?, iva = ?, idMoneda = ?, id_UnidadPeso = ?, fecha_vencimiento = ?
+            SET codigo = ?, 
+                nombre = ?, 
+                compra = ?, 
+                venta = ?, 
+                existencia = ?, 
+                iva = ?, 
+                idMoneda = ?, 
+                id_UnidadPeso = ?, 
+                idProveedor = ?, 
+                fecha_vencimiento = ?
             WHERE id = ?";
 
     $stmt = $conn->prepare($sql);
@@ -36,8 +46,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Error al preparar la consulta: " . $conn->error);
     }
 
-    // Vincular parámetros (la fecha se pasa como tipo 's')
-    $stmt->bind_param("ssddidissi", 
+    // ✅ Vincular parámetros (se agregó idProveedor antes de la fecha)
+    $stmt->bind_param("ssddidiiisi", 
         $codigo, 
         $nombre, 
         $compra, 
@@ -46,11 +56,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $iva, 
         $idMoneda, 
         $idUnidadPeso, 
+        $idProveedor, 
         $fecha_vencimiento, 
         $id
     );
 
     if ($stmt->execute()) {
+        //header("Location: ../EditarProducto.php?id=$id&mensaje=actualizado");
         header("Location: ../VerProductos.php");
         exit;
     } else {

@@ -140,7 +140,11 @@ CREATE TABLE productos(
     nombre_moneda VARCHAR(100),
     id_UnidadPeso INT,
     estado ENUM('activo', 'inactivo') NOT NULL DEFAULT 'activo',    
-    nombre_UnidadPeso VARCHAR(100)
+    nombre_UnidadPeso VARCHAR(100),
+
+    idProveedor INT,
+    nombre_proveedor VARCHAR(255)
+
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("maaroncarrasco@gmail.com", "081-030301-1009B", "maaroncarrasco@gmail.com", "6667771234", "Nowhere", "0", "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");

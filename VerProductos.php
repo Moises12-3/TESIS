@@ -500,6 +500,12 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 
                                         
 
+
+
+
+
+
+
 <h2 class="text-center mb-4">📦 Lista de Productos 🛒</h2>
 
 <!-- Contenedor con flexbox para alinear elementos horizontalmente -->
@@ -622,6 +628,7 @@ document.addEventListener("DOMContentLoaded", function() {
 require 'Conexion/conex.php';
 
 // Consulta con JOIN para obtener los nombres de la moneda y unidad de peso
+
 $sql = "SELECT 
             p.id, 
             p.codigo, 
@@ -633,10 +640,14 @@ $sql = "SELECT
             p.fecha_vencimiento,
             p.estado,
             m.nombre AS moneda,
-            u.nombre AS unidad_peso
+            u.nombre AS unidad_peso,
+            pr.nombre AS proveedor
         FROM productos p
         LEFT JOIN Moneda m ON p.idMoneda = m.id
-        LEFT JOIN UnidadPeso u ON p.id_UnidadPeso = u.id";
+        LEFT JOIN UnidadPeso u ON p.id_UnidadPeso = u.id
+        LEFT JOIN proveedores pr ON p.idProveedor = pr.id";
+
+
 
 $resultado = $conn->query($sql);
 ?>
@@ -653,6 +664,7 @@ $resultado = $conn->query($sql);
             <th>⏳Fecha de vencimiento</th>
             <th>💵Moneda</th>
             <th>⚖️Unidad de Peso</th>
+            <th>🏭Proveedor</th> <!-- ✅ Nuevo -->
             <th>📌Estado</th>
             <th>✏️Editar</th>
             <th>🗑️Deshabilitar</th>
@@ -672,6 +684,8 @@ $resultado = $conn->query($sql);
                 echo "<td>" . htmlspecialchars($fila["fecha_vencimiento"]) . "</td>";
                 echo "<td>" . htmlspecialchars($fila["moneda"] ?? '—') . "</td>";
                 echo "<td>" . htmlspecialchars($fila["unidad_peso"] ?? '—') . "</td>";
+                echo "<td>" . htmlspecialchars($fila["proveedor"] ?? '—') . "</td>";
+
 
                 // Mostrar estado
                 $estado = $fila["estado"];
@@ -793,6 +807,19 @@ document.addEventListener("DOMContentLoaded", function() {
                                                 }
                                             }, 5000);
                                         </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                                     </div>
                                 </div>
