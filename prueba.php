@@ -127,6 +127,9 @@ $id_usuario = $_SESSION["id"];
                 <li>
                     <a href="Ventas.php"><i class="menu-icon fa fa-shopping-cart"></i>Vender</a>
                 </li>
+                <li>
+                    <a href="Devolucion.php"><i class="menu-icon fa fa-rotate-left"></i>Devoluciones</a>
+                </li>
                 <li class="menu-item-has-children dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="menu-icon fa fa-pie-chart"></i>Reportes de ventas
