@@ -351,27 +351,29 @@ if (!file_exists($jsonPath)) {
 
 
 
+
+                                    
     <h2 class="text-center mb-4">🧾 Consultar Factura</h2>
 
+    <form id="formFactura" class="d-flex mb-4">
+        <input type="text" name="numeroFactura" id="numeroFactura" class="form-control me-2" placeholder="Ingrese número de factura" required>
+        <button type="submit" class="btn btn-primary">Buscar</button>
+    </form>
 
-<form id="formFactura" class="d-flex mb-4">
-    <input type="text" name="numeroFactura" id="numeroFactura" class="form-control me-2" placeholder="Ingrese número de factura" required>
-    <button type="submit" class="btn btn-primary">Buscar</button>
-</form>
-
-<div id="resultado"></div>
+    <div id="resultado"></div>
 
 <script>
 $(document).ready(function(){
+    // Buscar factura
     $("#formFactura").on("submit", function(e){
-        e.preventDefault(); // evita recargar la página
+        e.preventDefault();
 
         var numeroFactura = $("#numeroFactura").val();
 
         $.ajax({
-            url: "Configuracion/buscar_factura_post.php", // archivo que recibe el POST
-            type: "POST", // se envía por POST
-            data: { numeroFactura: numeroFactura }, // datos enviados en POST
+            url: "Configuracion/buscar_factura_post.php",
+            type: "POST",
+            data: { numeroFactura: numeroFactura },
             beforeSend: function() {
                 $("#resultado").html('<div class="alert alert-info">Buscando factura...</div>');
             },
@@ -380,6 +382,26 @@ $(document).ready(function(){
             },
             error: function() {
                 $("#resultado").html('<div class="alert alert-danger">Ocurrió un error al buscar la factura.</div>');
+            }
+        });
+    });
+
+    // Enviar devolución
+    $(document).on("submit", "#formDevolucion", function(e){
+        e.preventDefault();
+
+        $.ajax({
+            url: "Configuracion/registrar_factura_devolucion.php",
+            type: "POST",
+            data: $(this).serialize(),
+            beforeSend: function() {
+                $("#resultado").append('<div class="alert alert-info mt-3">Procesando devolución...</div>');
+            },
+            success: function(data) {
+                $("#resultado").html(data);
+            },
+            error: function() {
+                $("#resultado").append('<div class="alert alert-danger mt-3">Error al registrar la devolución.</div>');
             }
         });
     });

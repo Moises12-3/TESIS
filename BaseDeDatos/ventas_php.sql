@@ -147,6 +147,29 @@ CREATE TABLE productos(
 
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS devoluciones (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    idVenta BIGINT NOT NULL,
+    numeroFactura VARCHAR(20) NOT NULL,
+    idProducto BIGINT NOT NULL,
+    cantidad_devuelta INT NOT NULL,
+    fecha_devolucion DATETIME DEFAULT CURRENT_TIMESTAMP,     
+    cantidad_vendida INT NOT NULL,
+    cantidad_devuelta_previa INT NOT NULL DEFAULT 0,
+
+    motivo VARCHAR(255) DEFAULT NULL
+    -- FOREIGN KEY (idVenta) REFERENCES ventas(id) ON DELETE CASCADE,
+    -- FOREIGN KEY (idProducto) REFERENCES productos(id) ON DELETE CASCADE
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+
+
+
+
+ ALTER TABLE ventas ENGINE=InnoDB;
+ ALTER TABLE productos ENGINE=InnoDB;
+ ALTER TABLE devoluciones ENGINE=InnoDB;
+
 -- INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("maaroncarrasco@gmail.com", "081-030301-1009B", "maaroncarrasco@gmail.com", "6667771234", "Nowhere", "0", "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
 INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("moises", "Aaron Moises Carrasco Thomas", "081-030301-1009B", "88090180", "Nowhere", 0.00, "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
 

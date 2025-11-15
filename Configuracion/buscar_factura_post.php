@@ -18,16 +18,17 @@ if (isset($_POST['numeroFactura']) && !empty($_POST['numeroFactura'])) {
 
     if ($venta) {
         // Productos de la venta
-        $sqlProductos = "SELECT pv.cantidad, pv.precio, p.nombre, p.codigo
+        $sqlProductos = "SELECT pv.idProducto, pv.cantidad, pv.precio, p.nombre, p.codigo
                          FROM productos_ventas pv
                          INNER JOIN productos p ON pv.idProducto = p.id
-                         WHERE pv.numeroFactura = ?";
-        $stmt = $conn->prepare($sqlProductos);
-        $stmt->bind_param("s", $numeroFactura);
-        $stmt->execute();
-        $productos = $stmt->get_result();
+                         WHERE pv.numeroFactura = ?";  
 
-        // Construir HTML
+        $stmtProductos = $conn->prepare($sqlProductos);
+        $stmtProductos->bind_param("s", $numeroFactura);
+        $stmtProductos->execute();
+        $productos = $stmtProductos->get_result();
+
+        // Mostrar info de la venta
         echo '<div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <h5 class="card-title">Factura: '.htmlspecialchars($numeroFactura).'</h5>
@@ -42,28 +43,56 @@ if (isset($_POST['numeroFactura']) && !empty($_POST['numeroFactura'])) {
                 </div>
               </div>';
 
+        // Formulario de devolución con validación
         echo '<h4>📦 Detalle de Productos</h4>
+              <form id="formDevolucion" method="post" action="procesar_devolucion.php">
+              <input type="hidden" name="numeroFactura" value="'.htmlspecialchars($numeroFactura).'">
+              <input type="hidden" name="idVenta" value="'.$venta['idVenta'].'">
+              <div class="mb-3">
+                  <label for="motivo" class="form-label">Motivo de la devolución</label>
+                  <input type="text" class="form-control" name="motivo" placeholder="Ejemplo: producto dañado" required>
+              </div>
+
               <table class="table table-bordered table-striped">
                 <thead class="table-dark">
                     <tr>
+                        <th>Devolver</th>
                         <th>Código</th>
                         <th>Producto</th>
-                        <th>Cantidad</th>
+                        <th>Cantidad vendida</th>
                         <th>Precio Unitario (C$)</th>
                         <th>Subtotal (C$)</th>
+                        <th>Cantidad a devolver</th>
                     </tr>
                 </thead>
                 <tbody>';
+
         while ($row = $productos->fetch_assoc()) {
+            $subtotal = $row['cantidad'] * $row['precio'];
             echo '<tr>
+                    <td><input type="checkbox" name="productos['.$row['idProducto'].'][check]" value="1"></td>
                     <td>'.htmlspecialchars($row['codigo']).'</td>
                     <td>'.htmlspecialchars($row['nombre']).'</td>
                     <td>'.$row['cantidad'].'</td>
                     <td>'.number_format($row['precio'],2).'</td>
-                    <td>'.number_format($row['precio'] * $row['cantidad'],2).'</td>
+                    <td>'.number_format($subtotal,2).'</td>
+                    <td><input type="number" class="form-control" 
+                               name="productos['.$row['idProducto'].'][cantidad]" 
+                               min="1" max="'.$row['cantidad'].'" disabled></td>
                   </tr>';
         }
-        echo '</tbody></table>';
+
+        echo '</tbody></table>
+              <button type="submit" class="btn btn-success">Registrar devolución</button>
+              </form>
+
+              <script>
+              // Habilitar input cantidad solo si está marcado el checkbox
+              $("#formDevolucion input[type=checkbox]").change(function(){
+                  $(this).closest("tr").find("input[type=number]").prop("disabled", !this.checked);
+              });
+              </script>';
+
     } else {
         echo '<div class="alert alert-danger text-center">❌ No se encontró la factura con el número ingresado.</div>';
     }
