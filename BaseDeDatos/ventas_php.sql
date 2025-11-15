@@ -147,21 +147,29 @@ CREATE TABLE productos(
 
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+
 CREATE TABLE IF NOT EXISTS devoluciones (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    idVenta BIGINT NOT NULL,
-    numeroFactura VARCHAR(20) NOT NULL,
-    idProducto BIGINT NOT NULL,
-    cantidad_devuelta INT NOT NULL,
-    fecha_devolucion DATETIME DEFAULT CURRENT_TIMESTAMP,     
-    cantidad_vendida INT NOT NULL,
-    cantidad_devuelta_previa INT NOT NULL DEFAULT 0,
 
-    motivo VARCHAR(255) DEFAULT NULL
-    -- FOREIGN KEY (idVenta) REFERENCES ventas(id) ON DELETE CASCADE,
-    -- FOREIGN KEY (idProducto) REFERENCES productos(id) ON DELETE CASCADE
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    idVenta BIGINT NOT NULL,              -- Relación con la venta
+    numeroFactura VARCHAR(20) NOT NULL,   -- Número de factura original
 
+    idProducto BIGINT NOT NULL,           -- Producto devuelto
+    cantidad_vendida INT NOT NULL,        -- Cantidad que se vendió originalmente
+    cantidad_devuelta INT NOT NULL,       -- Cantidad devuelta en esta operación
+    cantidad_devuelta_previa INT NOT NULL DEFAULT 0,  -- Cantidad devuelta anteriormente
+
+    motivo VARCHAR(255) DEFAULT NULL,     -- Motivo de la devolución
+    fecha_devolucion DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    -- Llaves foráneas opcionales (descoméntalas si existen las tablas referenciadas)
+    -- FOREIGN KEY (idVenta) REFERENCES ventas(id),
+    -- FOREIGN KEY (idProducto) REFERENCES productos(id)
+    
+    INDEX(idVenta),
+    INDEX(idProducto),
+    INDEX(numeroFactura)
+);
 
 
 
