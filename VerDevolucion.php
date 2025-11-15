@@ -352,9 +352,9 @@ if (!file_exists($jsonPath)) {
 
 
 <?php
-require 'Conexion/conex.php'; // Asegúrate de la ruta correcta
+require 'Conexion/conex.php'; // Ajusta la ruta según corresponda
 
-// Consulta todas las devoluciones con información de ventas y productos
+// Consulta todas las devoluciones con información de ventas, productos, cliente y usuario
 $sql = "SELECT 
             d.id,
             d.numeroFactura,
@@ -369,11 +369,22 @@ $sql = "SELECT
             v.descuento AS descuento_venta,
             v.monto_pagado_cliente,
             v.monto_devuelto,
+            c.nombre AS nombre_cliente,
+            c.cedula AS cedula_cliente,
+            c.telefono AS telefono_cliente,
+            c.direccion AS direccion_cliente,
+            u.nombre AS usuario_venta,
             p.nombre AS nombre_producto,
-            p.codigo AS codigo_producto
+            p.codigo AS codigo_producto,
+            pv.precio AS precio_unitario,
+            (pv.cantidad * pv.precio) AS subtotal_producto,
+            (d.cantidad_devuelta * pv.precio) AS monto_devuelto_producto
         FROM devoluciones d
         INNER JOIN ventas v ON d.idVenta = v.id
+        INNER JOIN productos_ventas pv ON d.idProducto = pv.idProducto AND d.idVenta = pv.idVenta
         INNER JOIN productos p ON d.idProducto = p.id
+        LEFT JOIN clientes c ON v.idCliente = c.id
+        LEFT JOIN usuarios u ON v.idUsuario = u.id
         ORDER BY d.fecha_devolucion DESC";
 
 $result = $conn->query($sql);
@@ -382,21 +393,30 @@ $result = $conn->query($sql);
 
 
 
+
     <h2 class="text-center mb-4">📦 Devoluciones Registradas</h2>
 
     <?php if ($result && $result->num_rows > 0): ?>
-    <div >
-        <table class="table table-striped table-bordered">
-            <thead class="table-dark">
+        
+        <table class="table table-striped table-bordered table-hover">
+            <thead class="table-dark text-center">
                 <tr>
                     <th>ID</th>
                     <th>Factura</th>
+                    <th>Cliente</th>
+                    <th>Cédula</th>
+                    <th>Teléfono</th>
+                    <th>Dirección</th>
                     <th>Producto</th>
                     <th>Código</th>
                     <th>Cantidad Vendida</th>
+                    <th>Precio Unitario (C$)</th>
+                    <th>Subtotal Producto (C$)</th>
                     <th>Cantidad Devuelta</th>
                     <th>Devuelto Previamente</th>
+                    <th>Monto Devuelto Producto (C$)</th>
                     <th>Motivo</th>
+                    <th>Usuario Venta</th>
                     <th>Fecha de Devolución</th>
                     <th>Total Venta (C$)</th>
                     <th>Descuento (%)</th>
@@ -407,24 +427,32 @@ $result = $conn->query($sql);
             <tbody>
             <?php while($row = $result->fetch_assoc()): ?>
                 <tr>
-                    <td><?= $row['id'] ?></td>
+                    <td class="text-center"><?= $row['id'] ?></td>
                     <td><?= htmlspecialchars($row['numeroFactura']) ?></td>
+                    <td><?= htmlspecialchars($row['nombre_cliente'] ?? 'Sin Cliente') ?></td>
+                    <td><?= htmlspecialchars($row['cedula_cliente'] ?? '-') ?></td>
+                    <td><?= htmlspecialchars($row['telefono_cliente'] ?? '-') ?></td>
+                    <td><?= htmlspecialchars($row['direccion_cliente'] ?? '-') ?></td>
                     <td><?= htmlspecialchars($row['nombre_producto']) ?></td>
                     <td><?= htmlspecialchars($row['codigo_producto']) ?></td>
-                    <td><?= $row['cantidad_vendida'] ?></td>
-                    <td><?= $row['cantidad_devuelta'] ?></td>
-                    <td><?= $row['cantidad_devuelta_previa'] ?></td>
+                    <td class="text-center"><?= $row['cantidad_vendida'] ?></td>
+                    <td class="text-end"><?= number_format($row['precio_unitario'],2) ?></td>
+                    <td class="text-end"><?= number_format($row['subtotal_producto'],2) ?></td>
+                    <td class="text-center"><?= $row['cantidad_devuelta'] ?></td>
+                    <td class="text-center"><?= $row['cantidad_devuelta_previa'] ?></td>
+                    <td class="text-end"><?= number_format($row['monto_devuelto_producto'],2) ?></td>
                     <td><?= htmlspecialchars($row['motivo']) ?></td>
-                    <td><?= $row['fecha_devolucion'] ?></td>
-                    <td><?= number_format($row['total_venta'],2) ?></td>
-                    <td><?= $row['descuento_venta'] ?></td>
-                    <td><?= number_format($row['monto_pagado_cliente'],2) ?></td>
-                    <td><?= number_format($row['monto_devuelto'],2) ?></td>
+                    <td><?= htmlspecialchars($row['usuario_venta'] ?? '-') ?></td>
+                    <td class="text-center"><?= $row['fecha_devolucion'] ?></td>
+                    <td class="text-end"><?= number_format($row['total_venta'],2) ?></td>
+                    <td class="text-center"><?= $row['descuento_venta'] ?></td>
+                    <td class="text-end"><?= number_format($row['monto_pagado_cliente'],2) ?></td>
+                    <td class="text-end"><?= number_format($row['monto_devuelto'],2) ?></td>
                 </tr>
             <?php endwhile; ?>
             </tbody>
         </table>
-    </div>
+    
     <?php else: ?>
         <div class="alert alert-info text-center">No se encontraron devoluciones registradas.</div>
     <?php endif; ?>
