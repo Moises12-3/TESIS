@@ -649,6 +649,7 @@ async function imprimirFactura(btn) {
 
 
 
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const selectFilas = document.getElementById("selectFilas");
