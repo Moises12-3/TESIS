@@ -351,111 +351,216 @@ if (!file_exists($jsonPath)) {
 
 
 
-<?php
-require 'Conexion/conex.php'; // Ajusta la ruta según corresponda
 
-// Consulta todas las devoluciones con información de ventas, productos, cliente y usuario
-$sql = "SELECT 
-            d.id,
-            d.numeroFactura,
-            d.idVenta,
-            d.idProducto,
-            d.cantidad_vendida,
-            d.cantidad_devuelta,
-            d.cantidad_devuelta_previa,
-            d.motivo,
-            d.fecha_devolucion,
-            v.total AS total_venta,
-            v.descuento AS descuento_venta,
-            v.monto_pagado_cliente,
-            v.monto_devuelto,
-            c.nombre AS nombre_cliente,
-            c.cedula AS cedula_cliente,
-            c.telefono AS telefono_cliente,
-            c.direccion AS direccion_cliente,
-            u.nombre AS usuario_venta,
-            p.nombre AS nombre_producto,
-            p.codigo AS codigo_producto,
-            pv.precio AS precio_unitario,
-            (pv.cantidad * pv.precio) AS subtotal_producto,
-            (d.cantidad_devuelta * pv.precio) AS monto_devuelto_producto
-        FROM devoluciones d
-        INNER JOIN ventas v ON d.idVenta = v.id
-        INNER JOIN productos_ventas pv ON d.idProducto = pv.idProducto AND d.idVenta = pv.idVenta
-        INNER JOIN productos p ON d.idProducto = p.id
-        LEFT JOIN clientes c ON v.idCliente = c.id
-        LEFT JOIN usuarios u ON v.idUsuario = u.id
-        ORDER BY d.fecha_devolucion DESC";
+<h2 class="text-center mb-4">📦 Devoluciones Registradas</h2>
 
-$result = $conn->query($sql);
-?>
+<!-- BUSCADOR + LIMITE -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <input type="text" id="buscar" class="form-control" placeholder="Buscar...">
+    </div>
+
+    <div class="col-md-2">
+        <select id="limite" class="form-select">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <button id="exportarExcel" class="btn btn-success w-100">Exportar a Excel</button>
+    </div>
+</div>
 
 
+<!-- AQUI SE CARGA LA TABLA -->
+<div id="contenedorTabla"></div>
+
+
+<!-- SheetJS -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script>
+// ==============================
+// CARGAR TABLA POR AJAX
+// ==============================
+function cargarTabla(pagina = 1) {
+
+    let buscar = document.getElementById("buscar").value;
+    let limite = document.getElementById("limite").value;
+
+    let datos = new FormData();
+    datos.append("buscar", buscar);
+    datos.append("limite", limite);
+    datos.append("pagina", pagina);
+
+    fetch("Configuracion/Conf_ver_devolucion.php", {
+        method: "POST",
+        body: datos
+    })
+    .then(res => res.text())
+    .then(html => {
+        document.getElementById("contenedorTabla").innerHTML = html;
+    });
+}
+
+// Eventos
+document.getElementById("buscar").addEventListener("keyup", function() {
+    cargarTabla();
+});
+
+document.getElementById("limite").addEventListener("change", function() {
+    cargarTabla();
+});
+
+// Cargar tabla al entrar
+cargarTabla();
+
+document.getElementById("exportarExcel").addEventListener("click", function() {
+    // Tomar la tabla dentro del contenedor
+    let tabla = document.querySelector("#contenedorTabla table");
+    if (!tabla) {
+        alert("No hay datos para exportar");
+        return;
+    }
+
+    // Convertir tabla a hoja de Excel
+    let wb = XLSX.utils.table_to_book(tabla, { sheet: "Devoluciones" });
+
+    // Descargar archivo
+    XLSX.writeFile(wb, "Devoluciones.xlsx");
+});
 
 
 
-    <h2 class="text-center mb-4">📦 Devoluciones Registradas</h2>
 
-    <?php if ($result && $result->num_rows > 0): ?>
-        
-        <table class="table table-striped table-bordered table-hover">
-            <thead class="table-dark text-center">
+
+// Imprimir fila específica SIN abrir nueva pestaña
+function imprimirFila(btn) {
+    let fila = btn.closest("tr");
+
+    // Datos de la empresa (puedes obtenerlos dinámicamente con PHP si quieres)
+    const empresa = {
+        nombre: "UNIVERSIDAD",
+        direccion: "Universidad Nacional Comandante Padre Gaspar Garcia Laviana",
+        correo: "maaroncarrasco@gmail.com",
+        telefono: "88090180",
+        logo: "images/logo_empresa/UNIVERSIDAD_68d4dd13678f5.png"
+    };
+
+    // Contenedor para impresión
+    let contenedorImpresion = document.getElementById("impresion");
+    if (!contenedorImpresion) {
+        contenedorImpresion = document.createElement("div");
+        contenedorImpresion.id = "impresion";
+        contenedorImpresion.style.display = "none";
+        document.body.appendChild(contenedorImpresion);
+    }
+
+    // Construir contenido HTML
+    contenedorImpresion.innerHTML = `
+    <div style="max-width:800px;margin:0 auto;font-family:Arial,sans-serif;">
+        <!-- Encabezado Empresa -->
+        <div style="display:flex;align-items:center;margin-bottom:20px;">
+            <img src="${empresa.logo}" style="height:80px;margin-right:20px;">
+            <div>
+                <h2 style="margin:0;">${empresa.nombre}</h2>
+                <p style="margin:0;font-size:14px;">
+                    ${empresa.direccion}<br>
+                    📧 ${empresa.correo} | 📞 ${empresa.telefono}
+                </p>
+            </div>
+        </div>
+        <hr>
+
+        <h3 class="text-center mb-4">📦 Factura de Devolución</h3>
+
+        <!-- Datos Cliente y Factura -->
+        <div style="display:flex;justify-content:space-between;margin-bottom:20px;font-size:14px;">
+            <div>
+                <strong>Cliente:</strong> ${fila.children[2].innerText}<br>
+                <strong>Cédula:</strong> ${fila.children[3].innerText}<br>
+                <strong>Teléfono:</strong> ${fila.children[4].innerText}<br>
+                <strong>Dirección:</strong> ${fila.children[5].innerText}
+            </div>
+            <div>
+                <strong>Factura N°:</strong> ${fila.children[1].innerText}<br>
+                <strong>Fecha:</strong> ${fila.children[17].innerText}<br>
+                <strong>Usuario:</strong> ${fila.children[16].innerText}
+            </div>
+        </div>
+
+        <!-- Tabla Productos -->
+        <table class="table table-bordered" style="width:100%;border-collapse:collapse;font-size:14px;">
+            <thead style="background-color:#343a40;color:white;text-align:center;">
                 <tr>
-                    <th>ID</th>
-                    <th>Factura</th>
-                    <th>Cliente</th>
-                    <th>Cédula</th>
-                    <th>Teléfono</th>
-                    <th>Dirección</th>
                     <th>Producto</th>
                     <th>Código</th>
-                    <th>Cantidad Vendida</th>
-                    <th>Precio Unitario (C$)</th>
-                    <th>Subtotal Producto (C$)</th>
-                    <th>Cantidad Devuelta</th>
-                    <th>Devuelto Previamente</th>
-                    <th>Monto Devuelto Producto (C$)</th>
-                    <th>Motivo</th>
-                    <th>Usuario Venta</th>
-                    <th>Fecha de Devolución</th>
-                    <th>Total Venta (C$)</th>
-                    <th>Descuento (%)</th>
-                    <th>Monto Pagado (C$)</th>
-                    <th>Monto Devuelto Actual (C$)</th>
+                    <th>Cant. Vendida</th>
+                    <th>Cant. Devuelta</th>
+                    <th>Precio Unit.</th>
+                    <th>Subtotal</th>
+                    <th>Devuelto</th>
                 </tr>
             </thead>
             <tbody>
-            <?php while($row = $result->fetch_assoc()): ?>
                 <tr>
-                    <td class="text-center"><?= $row['id'] ?></td>
-                    <td><?= htmlspecialchars($row['numeroFactura']) ?></td>
-                    <td><?= htmlspecialchars($row['nombre_cliente'] ?? 'Sin Cliente') ?></td>
-                    <td><?= htmlspecialchars($row['cedula_cliente'] ?? '-') ?></td>
-                    <td><?= htmlspecialchars($row['telefono_cliente'] ?? '-') ?></td>
-                    <td><?= htmlspecialchars($row['direccion_cliente'] ?? '-') ?></td>
-                    <td><?= htmlspecialchars($row['nombre_producto']) ?></td>
-                    <td><?= htmlspecialchars($row['codigo_producto']) ?></td>
-                    <td class="text-center"><?= $row['cantidad_vendida'] ?></td>
-                    <td class="text-end"><?= number_format($row['precio_unitario'],2) ?></td>
-                    <td class="text-end"><?= number_format($row['subtotal_producto'],2) ?></td>
-                    <td class="text-center"><?= $row['cantidad_devuelta'] ?></td>
-                    <td class="text-center"><?= $row['cantidad_devuelta_previa'] ?></td>
-                    <td class="text-end"><?= number_format($row['monto_devuelto_producto'],2) ?></td>
-                    <td><?= htmlspecialchars($row['motivo']) ?></td>
-                    <td><?= htmlspecialchars($row['usuario_venta'] ?? '-') ?></td>
-                    <td class="text-center"><?= $row['fecha_devolucion'] ?></td>
-                    <td class="text-end"><?= number_format($row['total_venta'],2) ?></td>
-                    <td class="text-center"><?= $row['descuento_venta'] ?></td>
-                    <td class="text-end"><?= number_format($row['monto_pagado_cliente'],2) ?></td>
-                    <td class="text-end"><?= number_format($row['monto_devuelto'],2) ?></td>
+                    <td>${fila.children[7].innerText}</td>
+                    <td>${fila.children[8].innerText}</td>
+                    <td class="text-center">${fila.children[9].innerText}</td>
+                    <td class="text-center">${fila.children[11].innerText}</td>
+                    <td class="text-end">${fila.children[10].innerText}</td>
+                    <td class="text-end">${fila.children[11].innerText}</td>
+                    <td class="text-end">${fila.children[21].innerText}</td>
                 </tr>
-            <?php endwhile; ?>
             </tbody>
         </table>
-    
-    <?php else: ?>
-        <div class="alert alert-info text-center">No se encontraron devoluciones registradas.</div>
-    <?php endif; ?>
+
+        <!-- Totales -->
+        <div style="display:flex;justify-content:flex-end;margin-top:20px;font-size:14px;">
+            <table style="width:300px;">
+                <tr>
+                    <th>Total Venta:</th>
+                    <td style="text-align:right;">${fila.children[18].innerText}</td>
+                </tr>
+                <tr>
+                    <th>Descuento:</th>
+                    <td style="text-align:right;">${fila.children[19].innerText}</td>
+                </tr>
+                <tr>
+                    <th>Pagado:</th>
+                    <td style="text-align:right;">${fila.children[20].innerText}</td>
+                </tr>
+                <tr>
+                    <th>Devuelto:</th>
+                    <td style="text-align:right;">${fila.children[21].innerText}</td>
+                </tr>
+            </table>
+        </div>
+
+        <p style="margin-top:40px;font-size:12px;text-align:center;">
+            Gracias por su preferencia.
+        </p>
+    </div>
+    `;
+
+    // Imprimir desde el mismo div
+    let originalContenido = document.body.innerHTML;
+    document.body.innerHTML = contenedorImpresion.innerHTML;
+    window.print();
+    document.body.innerHTML = originalContenido;
+
+    // Restaurar tabla y eventos
+    cargarTabla();
+}
+
+
+
+
+
+</script>
 
 
 
