@@ -538,40 +538,116 @@ $result = $conn->query($sql);
 
 <div class="paginacion">
     <table class="table table-bordered table-hover table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>#</th>
-                <th>Fecha</th>
-                <th>Número de Factura</th>
-                <th>Total</th>
-                <th>Usuario</th>
-                <th>Cliente</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="tablaFacturas">
-        <?php if ($result->num_rows > 0): 
-            while($row = $result->fetch_assoc()): ?>
-                <tr>
-                    <td><?= $row['id'] ?></td>
-                    <td><?= date("d-m-Y H:i", strtotime($row['fecha'])) ?></td>
-                    <td><?= htmlspecialchars($row['numeroFactura']) ?></td>
-                    <td>$<?= number_format($row['total'], 2) ?></td>
-                    <td><?= htmlspecialchars($row['usuario_nombre']) ?></td>
-                    <td><?= htmlspecialchars($row['cliente_nombre']) ?></td>
-                    <td>
-                        <a href="ver_detalle_factura.php?id=<?= $row['numeroFactura'] ?>" class="btn btn-sm btn-primary">Ver Detalle</a>
-                    </td>
+            <thead class="table-dark">
+                <tr>                    
+                    <th>Imprimir</th> <!-- NUEVA COLUMNA -->
+                    <th>#</th>
+                    <th>Fecha</th>
+                    <th>Número de Factura</th>
+                    <th>Total</th>
+                    <th>Usuario</th>
+                    <th>Cliente</th>
+                    <th>Acciones</th>
                 </tr>
-        <?php endwhile; else: ?>
-            <tr><td colspan="7" class="text-center">No hay facturas registradas.</td></tr>
-        <?php endif; ?>
-        </tbody>
+            </thead>
+            <tbody id="tablaFacturas">
+            <?php if ($result->num_rows > 0): 
+                while($row = $result->fetch_assoc()): ?>
+                    <tr>                        
+                        <td>
+                            <!-- BOTÓN DE IMPRIMIR SIN ABRIR OTRA VENTANA -->
+                            <button class="btn btn-sm btn-success" onclick="imprimirFactura(this)">
+                                🖨️
+                            </button>
+                        </td>
+                        <td><?= $row['id'] ?></td>
+                        <td><?= date("d-m-Y H:i", strtotime($row['fecha'])) ?></td>
+                        <td><?= htmlspecialchars($row['numeroFactura']) ?></td>
+                        <td>$<?= number_format($row['total'], 2) ?></td>
+                        <td><?= htmlspecialchars($row['usuario_nombre']) ?></td>
+                        <td><?= htmlspecialchars($row['cliente_nombre']) ?></td>
+                        <td>
+                            <a href="ver_detalle_factura.php?id=<?= $row['numeroFactura'] ?>" class="btn btn-sm btn-primary">Ver Detalle</a>
+                        </td>
+                        
+                    </tr>
+            <?php endwhile; else: ?>
+                <tr><td colspan="8" class="text-center">No hay facturas registradas.</td></tr>
+            <?php endif; ?>
+            </tbody>
+
     </table>
 </div>
 
 <!-- 👇 Aquí debe ir la paginación, fuera de la tabla -->
 <div id="paginacionBotones" class="d-flex justify-content-center mt-3"></div>
+
+
+
+<div id="impresion" style="display:none;"></div> <!-- Contenedor oculto para impresión -->
+
+<script>
+async function imprimirFactura(btn) {
+    let fila = btn.closest("tr");
+
+    // Obtener datos de la empresa desde PHP
+    let empresa = {};
+    try {
+        const response = await fetch('Configuracion/get_empresa.php');
+        empresa = await response.json();
+    } catch (error) {
+        console.error("Error al obtener datos de la empresa:", error);
+    }
+
+    // Construir contenido de la factura
+    const contenedor = document.getElementById("impresion");
+    contenedor.innerHTML = `
+    <div style="max-width:800px;margin:0 auto;font-family:Arial,sans-serif;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <div>
+                <img src="${empresa.foto_perfil}" alt="Logo" style="height:80px;">
+            </div>
+            <div style="text-align:right;">
+                <h3>${empresa.nombre}</h3>
+                <p style="margin:0;">${empresa.direccion}</p>
+                <p style="margin:0;">Correo: ${empresa.correo}</p>
+                <p style="margin:0;">Tel: ${empresa.telefono}</p>
+            </div>
+        </div>
+
+        <h2 style="text-align:center;">📦 Factura de Devolución</h2>
+        <hr>
+
+        <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
+            <div>
+                <strong>Cliente:</strong> ${fila.children[5].innerText}<br>
+                <strong>Cédula:</strong> ${fila.children[5].innerText}<br>
+                <strong>Teléfono:</strong> ${fila.children[5].innerText}<br>
+                <strong>Dirección:</strong> ${fila.children[5].innerText}
+            </div>
+            <div>
+                <strong>Factura N°:</strong> ${fila.children[3].innerText}<br>
+                <strong>Fecha:</strong> ${fila.children[1].innerText}<br>
+                <strong>Usuario:</strong> ${fila.children[4].innerText}
+            </div>
+        </div>
+
+        <p style="text-align:center;">Gracias por su preferencia 🙏</p>
+    </div>
+    `;
+
+    // Imprimir desde el mismo div
+    let original = document.body.innerHTML;
+    document.body.innerHTML = contenedor.innerHTML;
+    window.print();
+    document.body.innerHTML = original;
+
+    // Reasignar paginación si es necesario
+    if (typeof mostrarPagina === 'function') mostrarPagina(1);
+}
+</script>
+
+
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
