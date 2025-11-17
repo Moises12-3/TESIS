@@ -507,6 +507,10 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 
+
+
+
+
 <h1>Listado de Facturas</h1>
 <?php
 include 'Conexion/conex.php';
@@ -584,68 +588,165 @@ $result = $conn->query($sql);
 
 
 
-<div id="impresion" style="display:none;"></div> <!-- Contenedor oculto para impresión -->
+<div id="impresion" style="display:none;"></div>
 
 <script>
 async function imprimirFactura(btn) {
     let fila = btn.closest("tr");
+    let numeroFactura = fila.children[3].innerText.trim(); // número de factura
 
-    // Obtener datos de la empresa desde PHP
-    let empresa = {};
     try {
-        const response = await fetch('Configuracion/get_empresa.php');
-        empresa = await response.json();
+        const response = await fetch(`Configuracion/get_factura.php?id=${numeroFactura}`);
+        const data = await response.json();
+
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        const empresa = data.empresa || {};
+        const factura = data.factura || {};
+        const productos = data.productos || [];
+
+        const venta_descuento = parseFloat(factura.venta_descuento) || 0;
+        const total = parseFloat(factura.total) || 0;
+        const monto_devuelto = parseFloat(factura.monto_devuelto) || 0;
+        const monto_pagado_cliente = parseFloat(factura.monto_pagado_cliente) || 0;
+
+        const contenedor = document.getElementById("impresion");
+        contenedor.innerHTML = `
+        <style>
+            .factura { font-family: Arial, sans-serif; font-size: 14px; margin: 20px; }
+            .separador { border-top: 2px solid #000; margin: 15px 0; }
+            .factura h2 { text-align: center; }
+            .tabla-productos th, .tabla-productos td { border: 1px solid #000; padding: 5px; text-align: center; }
+            .tabla-productos { border-collapse: collapse; width: 100%; margin-top: 15px; }
+            .info-receptor { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 40px; margin-top: 15px; margin-bottom: 15px; }
+            .info-receptor .full-row { grid-column: 1 / -1; font-weight: bold; margin-bottom: 10px; }
+            .info-receptor p { margin: 4px 0; }
+        </style>
+
+        <div class="factura">
+        
+            ${empresa.foto_perfil ? `<div style="text-align:center;margin-bottom:10px;"><img src="${empresa.foto_perfil}" style="max-height:100px;"></div>` : ''}
+            <h2>Ruta de la imagen: ${empresa.foto_perfil || 'No hay ruta'}</h2>
+
+            <h2>Factura Electrónica N.º ${factura.numeroFactura || ''}</h2>
+
+            <p><strong>Nombre del Cliente:</strong> ${factura.cliente_nombre || ''}</p>
+            <p><strong>Ident. Dimex:</strong> 1558</p>
+
+            <div class="separador"></div>
+
+            <table style="width:100%;">
+                <tr>
+                    <td><strong>Dirección:</strong> ${factura.cliente_direccion || ''}</td>
+                    <td><strong>Clave Numérica:</strong> 1558</td>
+                </tr>
+                <tr>
+                    <td><strong>Fecha de Emisión:</strong> ${factura.fecha ? new Date(factura.fecha).toLocaleString('es-ES', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}) : ''}</td>
+                    <td><strong>Teléfono:</strong> ${factura.cliente_telefono || ''}</td>
+                </tr>
+                <tr>
+                    <td><strong>Condición de venta:</strong> Contado</td>
+                    <td><strong>Correo:</strong> ${factura.usuario_email || 'prueba@gmail.com'}</td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>Medio de pago:</strong> Efectivo</td>
+                </tr>
+            </table>
+
+            <div class="separador"></div>
+
+            <div class="info-receptor">
+                <p class="full-row"><strong>Receptor:</strong> ${empresa.nombre || ''}</p>
+                <p><strong>Ident. Jurídica:</strong> ${empresa.identidad_juridica || ''}</p>
+                <p><strong>Código Interno:</strong> ${empresa.codigo_interno || ''}</p>
+                <p><strong>Teléfono:</strong> ${empresa.telefono || ''}</p>
+                <p><strong>Correo:</strong> ${empresa.correo || ''}</p>
+                <p><strong>Destinatario:</strong> ${empresa.codigo_interno || ''}</p>
+                <p><strong>Dirección:</strong> ${empresa.direccion || ''}</p>
+            </div>
+
+            <div class="separador"></div>
+
+            <table class="tabla-productos">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Cantidad</th>
+                        <th>Unidad</th>
+                        <th>Descripción</th>
+                        <th>Precio Unitario</th>
+                        <th>Descuento</th>
+                        <th>Subtotal</th>
+                        <th>IVA</th>
+                        <th>Otros Imp.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${productos.map(p => {
+                        const cantidad = parseFloat(p.cantidad) || 0;
+                        const precio = parseFloat(p.precio) || 0;
+                        const subtotal = (cantidad * precio).toFixed(2);
+                        return `<tr>
+                            <td>${p.codigo || ''}</td>
+                            <td>${cantidad}</td>
+                            <td>${p.unidad || ''}</td>
+                            <td>${p.producto_nombre || ''}</td>
+                            <td>$${precio.toFixed(2)}</td>
+                            <td>${venta_descuento}%</td>
+                            <td>$${subtotal}</td>
+                            <td>0</td>
+                            <td>0</td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+
+            <div class="separador"></div>
+
+            <table style="width: 100%; margin-top: 15px;">
+                <tr>
+                    <td><strong>Subtotal Neto:</strong></td>
+                    <td>$${total.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Descuento:</strong></td>
+                    <td>${venta_descuento.toFixed(2)}%</td>
+                </tr>
+                <tr>
+                    <td><strong>Monto devuelto:</strong></td>
+                    <td>$${monto_devuelto.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Monto pagado cliente:</strong></td>
+                    <td>$${monto_pagado_cliente.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Total Factura:</strong></td>
+                    <td><strong>$${total.toFixed(2)}</strong></td>
+                </tr>
+            </table>
+        </div>
+        `;
+
+        const original = document.body.innerHTML;
+        document.body.innerHTML = contenedor.innerHTML;
+        window.print();
+        document.body.innerHTML = original;
+
     } catch (error) {
-        console.error("Error al obtener datos de la empresa:", error);
+        console.error("Error al obtener los datos de la factura:", error);
+        alert("No se pudo generar la factura.");
     }
-
-    // Construir contenido de la factura
-    const contenedor = document.getElementById("impresion");
-    contenedor.innerHTML = `
-    <div style="max-width:800px;margin:0 auto;font-family:Arial,sans-serif;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-            <div>
-                <img src="${empresa.foto_perfil}" alt="Logo" style="height:80px;">
-            </div>
-            <div style="text-align:right;">
-                <h3>${empresa.nombre}</h3>
-                <p style="margin:0;">${empresa.direccion}</p>
-                <p style="margin:0;">Correo: ${empresa.correo}</p>
-                <p style="margin:0;">Tel: ${empresa.telefono}</p>
-            </div>
-        </div>
-
-        <h2 style="text-align:center;">📦 Factura de Devolución</h2>
-        <hr>
-
-        <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
-            <div>
-                <strong>Cliente:</strong> ${fila.children[5].innerText}<br>
-                <strong>Cédula:</strong> ${fila.children[5].innerText}<br>
-                <strong>Teléfono:</strong> ${fila.children[5].innerText}<br>
-                <strong>Dirección:</strong> ${fila.children[5].innerText}
-            </div>
-            <div>
-                <strong>Factura N°:</strong> ${fila.children[3].innerText}<br>
-                <strong>Fecha:</strong> ${fila.children[1].innerText}<br>
-                <strong>Usuario:</strong> ${fila.children[4].innerText}
-            </div>
-        </div>
-
-        <p style="text-align:center;">Gracias por su preferencia 🙏</p>
-    </div>
-    `;
-
-    // Imprimir desde el mismo div
-    let original = document.body.innerHTML;
-    document.body.innerHTML = contenedor.innerHTML;
-    window.print();
-    document.body.innerHTML = original;
-
-    // Reasignar paginación si es necesario
-    if (typeof mostrarPagina === 'function') mostrarPagina(1);
 }
 </script>
+
+
+
+
+
 
 
 
