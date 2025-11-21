@@ -362,8 +362,10 @@ if (!file_exists($jsonPath)) {
 include("Conexion/conex.php");
 
 $mensaje = "";
+$metaRefresh = ""; // Para la redirección sin usar header()
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
     $nombre = trim($_POST["nombre"]);
     $simbolo = trim($_POST["simbolo"]);
     $tipo = $_POST["tipo"];
@@ -371,119 +373,122 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $estado = $_POST["estado"];
     $valor = ($tipo === "extranjera") ? trim($_POST["valor"]) : "0";
 
-    $sql = "INSERT INTO Moneda (nombre, simbolo, tipo, pais, estado, valor) VALUES (?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO Moneda (nombre, simbolo, tipo, pais, estado, valor) 
+            VALUES (?, ?, ?, ?, ?, ?)";
+
     $stmt = $conn->prepare($sql);
 
     if ($stmt) {
+
         $stmt->bind_param("sssssd", $nombre, $simbolo, $tipo, $pais, $estado, $valor);
+
         if ($stmt->execute()) {
-            $mensaje = '<div id="mensaje-alerta" class="alert alert-success mt-3">✅ Moneda guardada exitosamente.</div>';
-            header("refresh:3; url=AjusteMoneda.php");
+
+            // MENSAJE EXITOSO
+            $mensaje = '
+            <div id="mensaje-alerta" class="alert alert-success mt-3">
+                ✅ Moneda guardada exitosamente.
+            </div>';
+
+            // REDIRECCIÓN SIN USAR HEADER()
+            $metaRefresh = '<meta http-equiv="refresh" content="2;url=AjusteMoneda.php">';
+            
         } else {
-            $mensaje = '<div id="mensaje-alerta" class="alert alert-danger mt-3">❌ Error al guardar la moneda.</div>';
+            $mensaje = '
+            <div id="mensaje-alerta" class="alert alert-danger mt-3">
+                ❌ Error al guardar la moneda.
+            </div>';
         }
+
         $stmt->close();
+
     } else {
-        $mensaje = '<div id="mensaje-alerta" class="alert alert-warning mt-3">⚠️ Error al preparar la consulta.</div>';
+        $mensaje = '
+        <div id="mensaje-alerta" class="alert alert-warning mt-3">
+            ⚠️ Error al preparar la consulta.
+        </div>';
     }
 }
+
 $conn->close();
 ?>
 
-    <style>
-        h1 {
-            color: #2c3e50;
-            font-weight: bold;
-        }
-        .emoji-label { font-size: 1.2rem; margin-right: 5px; }
-        .btn-primary {
-            background: linear-gradient(90deg, #007bff, #0056b3);
-            border: none;
-        }
-        .btn-primary:hover {
-            background: linear-gradient(90deg, #0056b3, #003d80);
-        }
+<!-- Meta Refresh para la redirección -->
+<?php echo $metaRefresh; ?>
 
-        /* Ajuste para selects */
-        select.form-select {
-            height: 52px;               /* Igual altura que los inputs */
-            font-size: 1rem;
-            padding: 0.5rem 1rem;
-            border-radius: 10px;
-            border: 1px solid #ced4da;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
-            transition: all 0.2s ease-in-out;
-        }
+<style>
+    h1 { color:#2c3e50; font-weight:bold; }
+    .emoji-label { font-size:1.2rem; margin-right:5px; }
+    .btn-primary {
+        background: linear-gradient(90deg,#007bff,#0056b3);
+        border:none;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(90deg,#0056b3,#003d80);
+    }
+    select.form-select {
+        height:52px;
+        font-size:1rem;
+        padding:0.5rem 1rem;
+        border-radius:10px;
+        border:1px solid #ced4da;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+        transition: all .2s ease-in-out;
+    }
+    select.form-select:focus {
+        border-color:#007bff;
+        box-shadow:0 0 5px rgba(0,123,255,0.4);
+    }
+</style>
 
-        select.form-select:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0,123,255,0.4);
-        }
+<h1 class="text-center mb-4">🪙 Ajuste de Moneda</h1>
+<?php echo $mensaje; ?>
 
-    </style>
+<form action="" method="POST">
+    <div class="row g-4">
+        <div class="col-md-6">
+            <label class="form-label"><span class="emoji-label">🏷️</span>Nombre de la Moneda</label>
+            <input type="text" class="form-control" name="nombre" required>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label"><span class="emoji-label">💲</span>Símbolo</label>
+            <input type="text" class="form-control" name="simbolo" required>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label"><span class="emoji-label">🌍</span>Tipo</label>
+            <select class="form-select" id="tipo" name="tipo" onchange="mostrarValor()" required>
+                <option value="nacional">🏠 Nacional</option>
+                <option value="extranjera">✈️ Extranjera</option>
+            </select>
+        </div>
+
+        <div class="col-md-6" id="campo-valor" style="display:none;">
+            <label class="form-label"><span class="emoji-label">📈</span>Valor</label>
+            <input type="number" class="form-control" name="valor" step="0.01" min="0">
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label"><span class="emoji-label">🌎</span>País</label>
+            <input type="text" class="form-control" name="pais" required>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label"><span class="emoji-label">✅</span>Estado</label>
+            <select class="form-select" name="estado">
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <button class="btn btn-primary btn-lg px-5">💾 Guardar Moneda</button>
+        </div>
+    </div>
+</form>
 
 
-
-        <h1 class="text-center mb-4">🪙 Ajuste de Moneda</h1>
-        <?php echo $mensaje; ?>
-
-        <form action="" method="POST">
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <label for="nombre" class="form-label">
-                        <span class="emoji-label">🏷️</span>Nombre de la Moneda
-                    </label>
-                    <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ej: Dólar estadounidense" required>
-                </div>
-
-                <div class="col-md-6">
-                    <label for="simbolo" class="form-label">
-                        <span class="emoji-label">💲</span>Símbolo
-                    </label>
-                    <input type="text" class="form-control" id="simbolo" name="simbolo" placeholder="Ej: $" required>
-                </div>
-
-                <div class="col-md-6">
-                    <label for="tipo" class="form-label">
-                        <span class="emoji-label">🌍</span>Tipo de Moneda
-                    </label>
-                    <select class="form-select" id="tipo" name="tipo" onchange="mostrarValor()" required>
-                        <option value="nacional">🏠 Nacional</option>
-                        <option value="extranjera">✈️ Extranjera</option>
-                    </select>
-                </div>
-
-                <div class="col-md-6" id="campo-valor" style="display: none;">
-                    <label for="valor" class="form-label">
-                        <span class="emoji-label">📈</span>Valor de Conversión
-                    </label>
-                    <input type="number" class="form-control" id="valor" name="valor" step="0.01" min="0" placeholder="Ej: 36.50">
-                </div>
-
-                <div class="col-md-6">
-                    <label for="pais" class="form-label">
-                        <span class="emoji-label">🌎</span>País
-                    </label>
-                    <input type="text" class="form-control" id="pais" name="pais" placeholder="Ej: Nicaragua">
-                </div>
-
-                <div class="col-md-6">
-                    <label for="estado" class="form-label">
-                        <span class="emoji-label">✅</span>Estado de la Moneda
-                    </label>
-                    <select class="form-select" id="estado" name="estado">
-                        <option value="activo">Activo</option>
-                        <option value="inactivo">Inactivo</option>
-                    </select>
-                </div>
-            
-                <div class="col-md-6">
-                    <button type="submit" class="btn btn-primary btn-lg px-5">
-                        💾 Guardar Moneda
-                    </button>
-                </div>                
-            </div>
-        </form>
 
 
     <br><br>

@@ -1,4 +1,8 @@
+
+-- Elimina la base de datos 'ventas_php' si existe, para crearla desde cero
 DROP DATABASE IF EXISTS ventas_php;
+
+-- Crea la base de datos 'ventas_php' con codificación UTF8MB4
 
 CREATE DATABASE ventas_php
 CHARACTER SET utf8mb4
@@ -7,7 +11,10 @@ COLLATE utf8mb4_unicode_ci;
 
 USE ventas_php;
 
--- Tabla empresa
+-- ========================================
+-- TABLA: empresa
+-- Almacena información de las empresas
+-- ========================================
 CREATE TABLE IF NOT EXISTS empresa (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
@@ -21,18 +28,11 @@ CREATE TABLE IF NOT EXISTS empresa (
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- Tabla usuario (administrador)
-CREATE TABLE IF NOT EXISTS usuario (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_empresa INT NOT NULL,
-    nombre_usuario VARCHAR(100) NOT NULL,
-    correo_usuario VARCHAR(255) NOT NULL,
-    contrasena VARCHAR(255) NOT NULL,
-    rol VARCHAR(50) DEFAULT 'Administrador',
-    FOREIGN KEY (id_empresa) REFERENCES empresa(id) ON DELETE CASCADE
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-CREATE TABLE usuarios(
+-- ========================================
+-- TABLA: usuarios
+-- Almacena los usuarios que usan el sistema
+-- ========================================
+CREATE TABLE IF NOT EXISTS usuarios(
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     usuario VARCHAR(50) NOT NULL,
     nombre VARCHAR(255) NOT NULL,
@@ -47,7 +47,11 @@ CREATE TABLE usuarios(
     foto_perfil VARCHAR(255) DEFAULT NULL
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-CREATE TABLE clientes (
+-- ========================================
+-- TABLA: clientes
+-- Almacena información de los clientes
+-- ========================================
+CREATE TABLE IF NOT EXISTS clientes (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
     cedula VARCHAR(50) NOT NULL,
@@ -56,8 +60,23 @@ CREATE TABLE clientes (
     descuento DECIMAL(5,2) NOT NULL DEFAULT 0
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- ========================================
+-- TABLA: TipoPago
+-- Almacena los tipos de pago disponibles
+-- ========================================
+CREATE TABLE IF NOT EXISTS TipoPago (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,  
+    descripcion TEXT,
+    estado ENUM('Activo', 'Inactivo') DEFAULT 'Activo',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-CREATE TABLE ventas(
+-- ========================================
+-- TABLA: ventas
+-- Almacena todas las ventas realizadas
+-- ========================================
+CREATE TABLE IF NOT EXISTS ventas(
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
     total DECIMAL(9,2) NOT NULL,
@@ -65,20 +84,30 @@ CREATE TABLE ventas(
     monto_devuelto DECIMAL(5,2) NOT NULL DEFAULT 0,
     monto_pagado_cliente DECIMAL(5,2) NOT NULL DEFAULT 0,
     numeroFactura VARCHAR(20) UNIQUE,
-    idUsuario BIGINT NOT NULL,
-    idCliente BIGINT
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    idUsuario BIGINT UNSIGNED NOT NULL,
+    idCliente BIGINT UNSIGNED,
+    id_empresa INT NOT NULL,
+    id_tipoPago INT NOT NULL,
 
-CREATE TABLE productos_ventas(
-    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    cantidad INT NOT NULL,
-    precio DECIMAL(8,2) NOT NULL,
-    numeroFactura VARCHAR(20),
-    idProducto BIGINT NOT NULL,
-    idVenta BIGINT NOT NULL
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    FOREIGN KEY (idUsuario) REFERENCES usuarios(id) 
+        ON UPDATE CASCADE ON DELETE RESTRICT,
 
-CREATE TABLE Moneda (
+    FOREIGN KEY (idCliente) REFERENCES clientes(id)
+        ON UPDATE CASCADE ON DELETE SET NULL,
+
+    FOREIGN KEY (id_empresa) REFERENCES empresa(id)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+
+    FOREIGN KEY (id_tipoPago) REFERENCES TipoPago(id)
+        ON UPDATE CASCADE ON DELETE RESTRICT
+
+) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- ========================================
+-- TABLA: Moneda
+-- Almacena monedas disponibles
+-- ========================================
+CREATE TABLE IF NOT EXISTS Moneda (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     simbolo VARCHAR(10) NOT NULL,
@@ -89,15 +118,11 @@ CREATE TABLE Moneda (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-CREATE TABLE TipoPago (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,  -- Ejemplo: Efectivo, Tarjeta de Crédito, Transferencia
-    descripcion TEXT,
-    estado ENUM('Efectivo', 'Contado') DEFAULT 'Efectivo',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-CREATE TABLE UnidadPeso (
+-- ========================================
+-- TABLA: UnidadPeso
+-- Almacena las unidades de peso
+-- ========================================
+CREATE TABLE IF NOT EXISTS UnidadPeso (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,  -- Ejemplo: Kilogramo, Gramo, Libra
     simbolo VARCHAR(10) NOT NULL,
@@ -105,16 +130,10 @@ CREATE TABLE UnidadPeso (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-CREATE TABLE Impuesto (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,  -- Ejemplo: IVA, ISV
-    porcentaje DECIMAL(5,2) NOT NULL,  -- Porcentaje del impuesto, ejemplo: 15.00
-    descripcion TEXT,
-    tipo_impuesto ENUM('Porcentaje', 'Fijo') DEFAULT 'porcentaje',
-    estado ENUM('Activo', 'Inactivo') DEFAULT 'Activo',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
+-- ========================================
+-- TABLA: proveedores
+-- Almacena información de proveedores
+-- ========================================
 CREATE TABLE IF NOT EXISTS proveedores (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
@@ -127,7 +146,11 @@ CREATE TABLE IF NOT EXISTS proveedores (
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-CREATE TABLE productos(
+-- ========================================
+-- TABLA: productos
+-- Almacena información de productos
+-- ========================================
+CREATE TABLE IF NOT EXISTS productos(
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     codigo VARCHAR(255) NOT NULL,
     nombre VARCHAR(255) NOT NULL,
@@ -142,19 +165,52 @@ CREATE TABLE productos(
     estado ENUM('activo', 'inactivo') NOT NULL DEFAULT 'activo',    
     nombre_UnidadPeso VARCHAR(100),
 
-    idProveedor INT,
-    nombre_proveedor VARCHAR(255)
-
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    idProveedor BIGINT UNSIGNED,
+    nombre_proveedor VARCHAR(255),
 
 
+    FOREIGN KEY (id_UnidadPeso) REFERENCES UnidadPeso(id)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+    
+    FOREIGN KEY (idProveedor) REFERENCES proveedores(id)   -- Clave foránea a proveedores
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+
+    FOREIGN KEY (idMoneda) REFERENCES Moneda(id)
+        ON UPDATE CASCADE ON DELETE RESTRICT        
+
+) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- ========================================
+-- TABLA: productos_ventas
+-- Relación entre productos y ventas
+-- ========================================
+CREATE TABLE IF NOT EXISTS productos_ventas(
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    cantidad INT NOT NULL,
+    precio DECIMAL(8,2) NOT NULL,
+    numeroFactura VARCHAR(20),
+    idProducto BIGINT UNSIGNED NOT NULL,
+    idVenta BIGINT UNSIGNED NOT NULL,
+
+
+    FOREIGN KEY (idProducto) REFERENCES productos(id) 
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (idVenta) REFERENCES ventas(id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+
+) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- ========================================
+-- TABLA: devoluciones
+-- Almacena devoluciones de productos
+-- ========================================
 CREATE TABLE IF NOT EXISTS devoluciones (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 
-    idVenta BIGINT NOT NULL,              -- Relación con la venta
+    idVenta BIGINT UNSIGNED NOT NULL,              -- Relación con la venta
     numeroFactura VARCHAR(20) NOT NULL,   -- Número de factura original
 
-    idProducto BIGINT NOT NULL,           -- Producto devuelto
+    idProducto BIGINT UNSIGNED NOT NULL,           -- Producto devuelto
     cantidad_vendida INT NOT NULL,        -- Cantidad que se vendió originalmente
     cantidad_devuelta INT NOT NULL,       -- Cantidad devuelta en esta operación
     cantidad_devuelta_previa INT NOT NULL DEFAULT 0,  -- Cantidad devuelta anteriormente
@@ -162,68 +218,25 @@ CREATE TABLE IF NOT EXISTS devoluciones (
     motivo VARCHAR(255) DEFAULT NULL,     -- Motivo de la devolución
     fecha_devolucion DATETIME DEFAULT CURRENT_TIMESTAMP,
 
-    -- Llaves foráneas opcionales (descoméntalas si existen las tablas referenciadas)
-    -- FOREIGN KEY (idVenta) REFERENCES ventas(id),
-    -- FOREIGN KEY (idProducto) REFERENCES productos(id)
     
     INDEX(idVenta),
     INDEX(idProducto),
-    INDEX(numeroFactura)
-);
+    INDEX(numeroFactura),
 
+    FOREIGN KEY (idProducto) REFERENCES productos(id)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
 
+    FOREIGN KEY (idVenta) REFERENCES ventas(id)
+        ON UPDATE CASCADE ON DELETE CASCADE
 
+) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
- ALTER TABLE ventas ENGINE=InnoDB;
- ALTER TABLE productos ENGINE=InnoDB;
- ALTER TABLE devoluciones ENGINE=InnoDB;
-
--- INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("maaroncarrasco@gmail.com", "081-030301-1009B", "maaroncarrasco@gmail.com", "6667771234", "Nowhere", "0", "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
+-- ========================================
+-- Usuario administrador inicial
 INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("moises", "Aaron Moises Carrasco Thomas", "081-030301-1009B", "88090180", "Nowhere", 0.00, "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
 
+-- Empresa inicial
 INSERT INTO `empresa` (`id`, `nombre`, `direccion`, `correo`, `telefono`, `fax`, `codigo_interno`, `identidad_juridica`, `foto_perfil`, `fecha_registro`) VALUES
 (1, 'UNIVERSIDAD', 'Universidad Nacional Comandante Padre Gaspar Garcia Laviana', 'maaroncarrasco@gmail.com', '88090180', '3232', 'EMP_68d4dcef4f446', '32432', 'images/logo_empresa/UNIVERSIDAD_68d4dd13678f5.png', '2025-09-25 06:10:55');
 
--- CREATE DATABASE IF NOT EXISTS ConvertidorMedidas;
--- USE ConvertidorMedidas;
 
-CREATE TABLE IF NOT EXISTS convertidor_medidas (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    tipo_medida VARCHAR(50) NOT NULL,
-    unidad_origen VARCHAR(50) NOT NULL,
-    unidad_destino VARCHAR(50) NOT NULL,
-    factor_conversion DECIMAL(15,10) NOT NULL
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- Inserción de datos comunes
-INSERT INTO convertidor_medidas (tipo_medida, unidad_origen, unidad_destino, factor_conversion) VALUES
--- Longitud
-('Longitud', 'Metro', 'Centímetro', 100),
-('Longitud', 'Metro', 'Milímetro', 1000),
-('Longitud', 'Kilómetro', 'Metro', 1000),
-('Longitud', 'Pulgada', 'Centímetro', 2.54),
-('Longitud', 'Pie', 'Metro', 0.3048),
-('Longitud', 'Yarda', 'Metro', 0.9144),
-('Longitud', 'Milla', 'Kilómetro', 1.60934),
-
--- Peso
-('Peso', 'Kilogramo', 'Gramo', 1000),
-('Peso', 'Kilogramo', 'Libra', 2.20462),
-('Peso', 'Gramo', 'Miligramo', 1000),
-('Peso', 'Libra', 'Onza', 16),
-('Peso', 'Tonelada', 'Kilogramo', 1000),
-
--- Volumen
-('Volumen', 'Litro', 'Mililitro', 1000),
-('Volumen', 'Metro cúbico', 'Litro', 1000),
-('Volumen', 'Galón', 'Litro', 3.78541),
-('Volumen', 'Pinta', 'Litro', 0.473176),
-
--- Temperatura (diferentes fórmulas, factor de conversión referencial)
-('Temperatura', 'Celsius', 'Fahrenheit', 1.8),   -- (°C × 1.8) + 32 = °F
-('Temperatura', 'Fahrenheit', 'Celsius', 0.5556), -- (°F - 32) × 0.5556 = °C
-('Temperatura', 'Celsius', 'Kelvin', 1),          -- °C + 273.15 = K
-('Temperatura', 'Kelvin', 'Celsius', 1);          -- K - 273.15 = °C
-
--- Consultar la tabla
-SELECT * FROM convertidor_medidas;

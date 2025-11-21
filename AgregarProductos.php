@@ -562,12 +562,10 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
         $sqlMoneda = "SELECT id, nombre, simbolo FROM Moneda WHERE estado = 'activo'";
         $sqlUnidadPeso = "SELECT id, nombre, simbolo FROM UnidadPeso WHERE estado = 'activo'";
         $sqlTipoPago = "SELECT id, nombre FROM TipoPago";
-        $sqlImpuesto = "SELECT id, nombre, porcentaje FROM Impuesto WHERE estado = 'Activo'";
 
         $monedas = $conn->query($sqlMoneda);
         $unidades = $conn->query($sqlUnidadPeso);
         $tiposPago = $conn->query($sqlTipoPago);
-        $impuestos = $conn->query($sqlImpuesto);
     ?>
     <div class="row mb-3">
         <div class="col-md-6">

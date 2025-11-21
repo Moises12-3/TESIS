@@ -73,6 +73,19 @@ if (!file_exists($jsonPath)) {
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Agregar Proveedor</title>
+
+
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+
+
+
+
     <meta name="description" content="Ela Admin - HTML5 Admin Template">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -97,7 +110,6 @@ if (!file_exists($jsonPath)) {
     <link href="https://cdn.jsdelivr.net/npm/weathericons@2.1.0/css/weather-icons.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/fullcalendar.min.css" rel="stylesheet" />
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <!-- DataTables CSS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 
@@ -411,77 +423,133 @@ if (!file_exists($jsonPath)) {
   <button type="submit" class="btn btn-success w-100">💾 Guardar Proveedor</button>
 </form>
 
-<!-- ✅ Scripts -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-
 
 <div id="tablaProveedores" class="mt-3"></div>
 
 
 
-<script>
+    <!-- Tabla de Proveedores -->
+    <div id="tablaProveedores"></div>
 
-    
-$(document).ready(function(){
-    const modalElemento = document.getElementById("modalMensaje");
-    const modal = new bootstrap.Modal(modalElemento);
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    // ✅ Función para cargar la tabla de proveedores
-    function cargarProveedores() {
-        $("#tablaProveedores").load("Configuracion/ver_proveedores.php", function() {
-            // ✅ Inicializar DataTable al cargar la tabla
-            $('#tablaProveedoresData').DataTable({
-                responsive: true,
-                pageLength: 5, // filas por página
-                lengthMenu: [5, 10, 25, 50, 100], // selector de cantidad
-                language: {
-                    lengthMenu: "Mostrar _MENU_ registros por página",
-                    zeroRecords: "No se encontraron resultados 😢",
-                    info: "Mostrando página _PAGE_ de _PAGES_",
-                    infoEmpty: "No hay registros disponibles",
-                    infoFiltered: "(filtrado de _MAX_ registros totales)",
-                    search: "🔍 Buscar:",
-                    paginate: {
-                        first: "Primero",
-                        last: "Último",
-                        next: "Siguiente ➡️",
-                        previous: "⬅️ Anterior"
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- Botones DataTables -->
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
+    <script>
+    $(document).ready(function(){
+        const modalElemento = document.getElementById("modalMensaje");
+        const modal = new bootstrap.Modal(modalElemento);
+
+        // Función para cargar proveedores
+        function cargarProveedores() {
+            $.ajax({
+                url: "Configuracion/ver_proveedores.php",
+                success: function(data) {
+                    $("#tablaProveedores").html(data);
+
+                    // Destruir DataTable si ya existía
+                    if ($.fn.DataTable.isDataTable("#tablaProveedoresData")) {
+                        $('#tablaProveedoresData').DataTable().clear().destroy();
                     }
+
+                    // Inicializar DataTable
+                    let table = $('#tablaProveedoresData').DataTable({
+                        responsive: true,
+                        pageLength: 5,
+                        lengthMenu: [5, 10, 25, 50, 100],
+                        order: [[1, "desc"]],
+                        dom: 'Bflrtip',
+                        buttons: [
+                            {
+                                extend: 'excelHtml5',
+                                text: '📥 Exportar a Excel',
+                                className: 'btn btn-success mb-2',
+                                title: 'Proveedores',
+                                exportOptions: { columns: ':visible' }
+                            }
+                        ],
+                        language: {
+                            lengthMenu: "Mostrar _MENU_ registros por página",
+                            zeroRecords: "No se encontraron resultados 😢",
+                            info: "Mostrando página _PAGE_ de _PAGES_",
+                            infoEmpty: "No hay registros disponibles",
+                            infoFiltered: "(filtrado de _MAX_ registros totales)",
+                            search: "🔍 Buscar:",
+                            paginate: {
+                                first: "Primero",
+                                last: "Último",
+                                next: "Siguiente ➡️",
+                                previous: "⬅️ Anterior"
+                            }
+                        },
+                        columnDefs: [
+                            {
+                                targets: 0,
+                                searchable: false,
+                                orderable: false,
+                                render: function(data, type, row, meta) {
+                                    return meta.row + 1;
+                                }
+                            }
+                        ]
+                    });
+
+                    // Filtro por columna
+                    $('#tablaProveedoresData thead th').each(function () {
+                        var title = $(this).text();
+                        if (title !== "#" && title !== "ID") {
+                            $(this).append('<br><input type="text" placeholder="Filtrar ' + title + '" class="form-control form-control-sm mt-1">');
+                        }
+                    });
+
+                    table.columns().every(function () {
+                        var column = this;
+                        $('input', this.header()).on('keyup change', function () {
+                            if (column.search() !== this.value) {
+                                column.search(this.value).draw();
+                            }
+                        });
+                    });
+                }
+            });
+        }
+
+        // Cargar tabla al inicio
+        cargarProveedores();
+
+        // Guardar proveedor
+        $("#formProveedor").on("submit", function(e){
+            e.preventDefault();
+            $.ajax({
+                url: "Configuracion/guardar_proveedor.php",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function(respuesta){
+                    $("#contenidoModal").html("✅ " + respuesta);
+                    $("#modalLabel").text("Proveedor guardado correctamente");
+                    $("#formProveedor")[0].reset();
+                    modal.show();
+                    cargarProveedores();
+                },
+                error: function(){
+                    $("#contenidoModal").html("❌ Error al guardar el proveedor.");
+                    $("#modalLabel").text("Error");
+                    modal.show();
                 }
             });
         });
-    }
-
-    
-
-    // 🚀 Cargar la tabla al inicio
-    cargarProveedores();
-
-    $("#formProveedor").on("submit", function(e){
-        e.preventDefault();
-
-        $.ajax({
-            url: "Configuracion/guardar_proveedor.php",
-            type: "POST",
-            data: $(this).serialize(),
-            success: function(respuesta){
-                $("#contenidoModal").html("✅ " + respuesta);
-                $("#modalLabel").text("Proveedor guardado correctamente");
-                $("#formProveedor")[0].reset();
-                modal.show();
-                cargarProveedores(); // 🔄 Actualiza la tabla automáticamente
-            },
-            error: function(){
-                $("#contenidoModal").html("❌ Error al guardar el proveedor.");
-                $("#modalLabel").text("Error");
-                modal.show();
-            }
-        });
     });
-});
-</script>
+    </script>
 
         
 

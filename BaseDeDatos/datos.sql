@@ -54,22 +54,6 @@ USE ventas_php;
     ('U.S. hundredweight', 'cwt (US)', 'activo'),
     ('Imperial hundredweight', 'cwt (Imp)', 'activo');
     
-    INSERT INTO Impuesto (nombre, porcentaje, descripcion, tipo_impuesto, estado)
-    VALUES
-    ('IVA', 15.00, 'Impuesto al Valor Agregado', 'Porcentaje', 'Activo'),
-    ('ISV', 12.00, 'Impuesto sobre Ventas', 'Porcentaje', 'Activo'),
-    ('Impuesto Selectivo al Consumo', 10.00, 'Aplica a productos específicos como alcohol y tabaco', 'Porcentaje', 'Activo'),
-    ('Impuesto Municipal', 2.00, 'Tributo aplicado por las alcaldías', 'Porcentaje', 'Activo'),
-    ('Impuesto Ecológico', 1.50, 'Aplicado a productos que afectan el medio ambiente', 'Porcentaje', 'Activo'),
-    ('Impuesto Turismo', 5.00, 'Gravamen aplicado a actividades turísticas', 'Porcentaje', 'Activo'),
-    ('Impuesto Fijo de Timbres', 50.00, 'Pago único fijo por documentos legales', 'Fijo', 'Activo'),
-    ('Impuesto Fijo de Transporte', 100.00, 'Tasa fija anual por transporte comercial', 'Fijo', 'Activo'),
-    ('Impuesto Digital', 7.00, 'Aplicado a servicios digitales', 'Porcentaje', 'Activo'),
-    ('Impuesto de Exportación', 3.00, 'Gravamen sobre productos exportados', 'Porcentaje', 'Activo'),
-    ('Impuesto de Importación', 8.00, 'Gravamen sobre productos importados', 'Porcentaje', 'Activo'),
-    ('Impuesto a Juegos de Azar', 20.00, 'Aplicado a loterías, casinos, etc.', 'Porcentaje', 'Activo'),
-    ('Impuesto de Solidaridad', 1.00, 'Impuesto adicional para fines sociales', 'Porcentaje', 'Activo');
-
     INSERT INTO TipoPago (nombre, descripcion, estado) VALUES
     ('Efectivo', 'Pago realizado directamente con dinero físico', 'Efectivo'),
     ('Tarjeta de Débito', 'Pago realizado con tarjeta de débito bancaria', 'Contado'),
@@ -192,7 +176,6 @@ USE ventas_php;
     ('Sandra Ortiz', '081-010118-0018R', '88880018', 'sandra.ortiz@gmail.com', 'Calle 18, Masaya', 'Suministros LMN', 'activo'),
     ('Pedro Jiménez', '081-010119-0019S', '88880019', 'pedro.jimenez@gmail.com', 'Calle 19, Chinandega', 'Proveedora ABC', 'activo'),
     ('Gabriela Ruiz', '081-010120-0020T', '88880020', 'gabriela.ruiz@gmail.com', 'Calle 20, Granada', 'Distribuidora XYZ', 'activo');
-
 
 
 
