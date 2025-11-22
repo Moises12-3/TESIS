@@ -68,7 +68,8 @@ CREATE TABLE IF NOT EXISTS TipoPago (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,  
     descripcion TEXT,
-    estado ENUM('Activo', 'Inactivo') DEFAULT 'Activo',
+    -- estado ENUM('Activo', 'Inactivo') DEFAULT 'Activo',
+    estado VARCHAR(100) NOT NULL,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -83,7 +84,8 @@ CREATE TABLE IF NOT EXISTS ventas(
     descuento DECIMAL(5,2) NOT NULL DEFAULT 0,
     monto_devuelto DECIMAL(5,2) NOT NULL DEFAULT 0,
     monto_pagado_cliente DECIMAL(5,2) NOT NULL DEFAULT 0,
-    numeroFactura VARCHAR(20) UNIQUE,
+    -- numeroFactura VARCHAR(20) UNIQUE,
+    numeroFactura VARCHAR(20) NOT NULL,
     idUsuario BIGINT UNSIGNED NOT NULL,
     idCliente BIGINT UNSIGNED,
     id_empresa INT NOT NULL,

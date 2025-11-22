@@ -629,7 +629,7 @@ async function imprimirFactura(btn) {
         <div class="factura">
         
             ${empresa.foto_perfil ? `<div style="text-align:center;margin-bottom:10px;"><img src="${empresa.foto_perfil}" style="max-height:100px;"></div>` : ''}
-            <h2>Ruta de la imagen: ${empresa.foto_perfil || 'No hay ruta'}</h2>
+            
 
             <h2>Factura Electrónica N.º ${factura.numeroFactura || ''}</h2>
 
