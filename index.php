@@ -343,7 +343,224 @@ if (!file_exists($jsonPath)) {
                         <div class="card">
                             <div class="row">
                                 <div class="col-lg-8">
-                                    <div class="card-body"><h1>Formato de relleno</h1>
+                                    <div class="card-body">
+                                        
+
+
+
+
+                                    
+
+
+
+
+
+
+
+
+
+                                    
+<h1>📊📈 Reportes de Productos</h1>
+
+<style>
+.card-custom {
+    border-radius: 18px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    padding: 25px;
+    background: white;
+}
+.card-title-custom {
+    font-weight: bold;
+    font-size: 1.4rem;
+}
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 450px; /* Ajustable según pantalla */
+}
+@media (max-width: 992px) {
+    .chart-container { height: 350px; }
+}
+@media (max-width: 576px) {
+    .chart-container { height: 300px; }
+}
+</style>
+
+<!-- FILTROS -->
+<div class="card-custom mb-4">
+    <h4 class="card-title-custom mb-3">📅🗓️ Filtros de Fechas</h4>
+    <div class="row">
+        <div class="col-md-4">
+            <label class="fw-bold">🟢 Fecha inicio:</label>
+            <input type="date" id="fechaInicio" class="form-control shadow-sm">
+        </div>
+        <div class="col-md-4">
+            <label class="fw-bold">🔴 Fecha final:</label>
+            <input type="date" id="fechaFinal" class="form-control shadow-sm">
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button id="btnFiltrar" class="btn btn-primary w-100 shadow-sm">
+                🔍✨ Aplicar Filtro
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+
+    <!-- Productos más vendidos -->
+    <div class="col-12">
+        <div class="card-custom">
+            <h4 class="text-primary card-title-custom">📊🔥 Productos más vendidos</h4>
+            <div class="chart-container">
+                <canvas id="graficoVendidos"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Productos con más devoluciones -->
+    <div class="col-12">
+        <div class="card-custom">
+            <h4 class="text-danger card-title-custom">♻️📉 Productos con más devoluciones</h4>
+            <div class="chart-container">
+                <canvas id="graficoDevoluciones"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Productos próximos a vencer -->
+    <div class="col-12">
+        <div class="card-custom">
+            <h4 class="text-warning card-title-custom">⏳⚠️ Productos próximos a vencer (30 días)</h4>
+            <div class="chart-container">
+                <canvas id="graficoVencimiento"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+let graficoVendidos = null;
+let graficoDevoluciones = null;
+let graficoVenc = null;
+
+// AUTO-CARGAR SEMANA ACTUAL
+function cargarSemanaActual() {
+    const hoy = new Date();
+    const primerDia = new Date(hoy.setDate(hoy.getDate() - hoy.getDay() + 1)); 
+    const ultimoDia = new Date(hoy.setDate(primerDia.getDate() + 6));         
+
+    document.getElementById("fechaInicio").value = primerDia.toISOString().split("T")[0];
+    document.getElementById("fechaFinal").value = ultimoDia.toISOString().split("T")[0];
+}
+
+function cargarGraficos() {
+    const inicio = document.getElementById("fechaInicio").value;
+    const final = document.getElementById("fechaFinal").value;
+
+    fetch("obtener_datos_graficos.php?inicio=" + inicio + "&final=" + final)
+        .then(response => response.json())
+        .then(data => {
+
+            // --- Vendidos ---
+            if (graficoVendidos) graficoVendidos.destroy();
+            graficoVendidos = new Chart(document.getElementById("graficoVendidos"), {
+                type: "bar",
+                data: {
+                    labels: data.masVendidos.productos,
+                    datasets: [{
+                        label: "Vendidos 🔥",
+                        data: data.masVendidos.vendidos,
+                        backgroundColor: "rgba(25,118,210,0.5)",
+                        borderColor: "rgba(25,118,210,1)",
+                        borderWidth: 2,
+                        borderRadius: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { enabled: true } },
+                    scales: { x: { ticks: { maxRotation: 45, minRotation: 0 } }, y: { beginAtZero: true } }
+                }
+            });
+
+            // --- Devoluciones ---
+            if (graficoDevoluciones) graficoDevoluciones.destroy();
+            graficoDevoluciones = new Chart(document.getElementById("graficoDevoluciones"), {
+                type: "bar",
+                data: {
+                    labels: data.masDevueltos.productos,
+                    datasets: [{
+                        label: "Devueltos ♻️",
+                        data: data.masDevueltos.devueltos,
+                        backgroundColor: "rgba(244,67,54,0.5)",
+                        borderColor: "rgba(244,67,54,1)",
+                        borderWidth: 2,
+                        borderRadius: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // --- Próximos a vencer (Pie chart) ---
+            if (graficoVenc) graficoVenc.destroy();
+            graficoVenc = new Chart(document.getElementById("graficoVencimiento"), {
+                type: "pie",
+                data: {
+                    labels: data.porVencer.productos.map(p => "⚠️ " + p),
+                    datasets: [{
+                        label: "Productos próximos a vencer ⏳",
+                        data: data.porVencer.dias,
+                        backgroundColor: [
+                            "#FFB300", "#FF7043", "#AB47BC", "#42A5F5", "#26A69A",
+                            "#9CCC65", "#FFCA28", "#EC407A", "#5C6BC0", "#8D6E63"
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' },
+                        tooltip: { enabled: true }
+                    }
+                }
+            });
+
+        });
+}
+
+document.getElementById("btnFiltrar").addEventListener("click", cargarGraficos);
+
+cargarSemanaActual();
+cargarGraficos();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                                     </div>
                                 </div>
