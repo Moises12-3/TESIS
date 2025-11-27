@@ -71,7 +71,10 @@ if (!file_exists($jsonPath)) {
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Visualizar Reportes</title>
+    <title>Reporte de Productos Vendidos</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <meta name="description" content="Ela Admin - HTML5 Admin Template">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -503,7 +506,94 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-<h1>Formato de relleno</h1>
+
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">📦 Reporte de Productos Vendidos</h2>
+
+    <!-- Filtro de Fechas y Cantidad -->
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <label for="fecha_inicio" class="form-label">Fecha Inicio</label>
+            <input type="date" id="fecha_inicio" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label for="fecha_fin" class="form-label">Fecha Fin</label>
+            <input type="date" id="fecha_fin" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label for="cantidad" class="form-label">Registros por página</label>
+            <select id="cantidad" class="form-select">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button id="btn_filtrar" class="btn btn-primary w-100">Filtrar</button>
+        </div>
+    </div>
+
+    <!-- Tabla de productos vendidos -->
+    <div id="tabla_productos">
+        <!-- Aquí se cargará la tabla vía Ajax -->
+    </div>
+</div>
+
+<script>
+$(document).ready(function(){
+
+    // Configurar fechas por defecto: última semana
+    let hoy = new Date();
+    let semana_antes = new Date();
+    semana_antes.setDate(hoy.getDate() - 7);
+
+    $('#fecha_inicio').val(semana_antes.toISOString().split('T')[0]);
+    $('#fecha_fin').val(hoy.toISOString().split('T')[0]);
+
+    let pagina_actual = 1;
+
+    function cargarTabla(fecha_inicio, fecha_fin, cantidad, pagina){
+        $.ajax({
+            url: 'Configuracion/fetch_productos_vendidos.php',
+            method: 'POST',
+            data: {fecha_inicio: fecha_inicio, fecha_fin: fecha_fin, cantidad: cantidad, pagina: pagina},
+            success: function(data){
+                $('#tabla_productos').html(data);
+            }
+        });
+    }
+
+    // Cargar tabla por defecto
+    cargarTabla($('#fecha_inicio').val(), $('#fecha_fin').val(), $('#cantidad').val(), pagina_actual);
+
+    // Filtrar al hacer clic
+    $('#btn_filtrar').click(function(){
+        pagina_actual = 1;
+        let fi = $('#fecha_inicio').val();
+        let ff = $('#fecha_fin').val();
+        let cant = $('#cantidad').val();
+        cargarTabla(fi, ff, cant, pagina_actual);
+    });
+
+    // Paginación dinámica
+    $(document).on('click', '.pagina', function(){
+        pagina_actual = $(this).data('pagina');
+        let fi = $('#fecha_inicio').val();
+        let ff = $('#fecha_fin').val();
+        let cant = $('#cantidad').val();
+        cargarTabla(fi, ff, cant, pagina_actual);
+    });
+});
+</script>
+
+
+
+
+
+
+
 
                                     </div>
                                 </div>

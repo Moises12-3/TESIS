@@ -356,7 +356,7 @@ if (!file_exists($jsonPath)) {
 
 
                                     
-    <h2 class="text-center mb-4">🧾 Consultar Factura</h2>
+    <h2 class="text-center mb-4">🧾 Registrar devolucion con factura</h2>
 
     <form id="formFactura" class="d-flex mb-4">
         <input type="text" name="numeroFactura" id="numeroFactura" class="form-control me-2" placeholder="Ingrese número de factura" required>
