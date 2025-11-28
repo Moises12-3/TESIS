@@ -200,7 +200,7 @@ if (!file_exists($jsonPath)) {
                         <li><i class="fa fa-money"></i><a href="AjusteMoneda.php">Moneda</a></li>
                         <li><i class="fa fa-credit-card"></i><a href="AjustesTipoPago.php">Tipo Pago</a></li>
                         <li><i class="fa fa-balance-scale"></i><a href="AjusteUnidad.php">Unidad de peso</a></li>
-                        <li><i class="fa fa-calculator"></i><a href="AjustesImpuestos.php">Impuestos</a></li>
+                        <!-- <li><i class="fa fa-calculator"></i><a href="AjustesImpuestos.php">Impuestos</a></li> -->
                         <li><i class="fa fa-building"></i><a href="ConfigurarEmpresas.php">Configurar Empresas</a></li>
                     </ul>
                 </li>
@@ -637,7 +637,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                                 <th scope="col">🏠Dirección</th>
                                                 <th scope="col">💸Descuento</th> <!-- Nueva columna para Descuento -->
                                                 <th scope="col">✏️Editar</th>
-                                                <th scope="col">🗑️Eliminar</th>
+                                                <!-- <th scope="col">🗑️Eliminar</th> -->
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -651,7 +651,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                                     echo "<td>" . htmlspecialchars($fila["direccion"]) . "</td>";
                                                     echo "<td>" . htmlspecialchars($fila["descuento"]) . "</td>"; 
                                                     echo "<td><a href='EditarCliente.php?id=" . $fila["id"] . "' class='btn btn-primary'>Editar</a></td>";
-                                                    echo "<td><a href='Configuracion/eliminar_cliente.php?id=" . $fila["id"] . "' class='btn btn-danger' onclick='return confirm(\"¿Seguro que deseas eliminar este cliente?\");'>Eliminar</a></td>";
+                                                    // echo "<td><a href='Configuracion/eliminar_cliente.php?id=" . $fila["id"] . "' class='btn btn-danger' onclick='return confirm(\"¿Seguro que deseas eliminar este cliente?\");'>Eliminar</a></td>";
                                                     echo "</tr>";
                                                 }
                                             } else {

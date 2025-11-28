@@ -201,7 +201,7 @@ if (!file_exists($jsonPath)) {
                         <li><i class="fa fa-money"></i><a href="AjusteMoneda.php">Moneda</a></li>
                         <li><i class="fa fa-credit-card"></i><a href="AjustesTipoPago.php">Tipo Pago</a></li>
                         <li><i class="fa fa-balance-scale"></i><a href="AjusteUnidad.php">Unidad de peso</a></li>
-                        <li><i class="fa fa-calculator"></i><a href="AjustesImpuestos.php">Impuestos</a></li>
+                        <!-- <li><i class="fa fa-calculator"></i><a href="AjustesImpuestos.php">Impuestos</a></li> -->
                         <li><i class="fa fa-building"></i><a href="ConfigurarEmpresas.php">Configurar Empresas</a></li>
                     </ul>
                 </li>
@@ -649,7 +649,7 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
                                                     <th scope="col">📞Teléfono</th>
                                                     <th scope="col">🏠Dirección</th>
                                                     <th scope="col">✏️Editar</th>
-                                                    <th scope="col">🗑️Eliminar</th>
+                                                    <!-- <th scope="col">🗑️Eliminar</th> -->
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -662,7 +662,7 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
                                                         echo "<td>" . htmlspecialchars($fila["telefono"]) . "</td>";
                                                         echo "<td>" . htmlspecialchars($fila["direccion"]) . "</td>";
                                                         echo "<td><a href='EditarUsuario.php?id=" . $fila["id"] . "' class='btn btn-primary'>Editar</a></td>";
-                                                        echo "<td><a href='Configuracion/eliminar_usuario.php?id=" . $fila["id"] . "' class='btn btn-danger' onclick='return confirm(\"¿Seguro que deseas eliminar este usuario?\");'>Eliminar</a></td>";
+                                                        // echo "<td><a href='Configuracion/eliminar_usuario.php?id=" . $fila["id"] . "' class='btn btn-danger' onclick='return confirm(\"¿Seguro que deseas eliminar este usuario?\");'>Eliminar</a></td>";
                                                         echo "</tr>";
                                                     }
                                                 } else {
