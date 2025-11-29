@@ -662,7 +662,7 @@ $conn->close();
         <?php
         if (count($tiposPago) > 0) {
             foreach ($tiposPago as $tipo) {
-                $estadoEmoji = $tipo['estado'] === 'Efectivo' ? '🟢' : '🔴';
+                $estadoEmoji = $tipo['estado'] === 'activo' ? '🟢' : '🔴';
                 echo "<tr>";
                 echo "<td>" . htmlspecialchars($tipo['id']) . "</td>";
                 echo "<td>" . htmlspecialchars($tipo['nombre']) . "</td>";

@@ -48,7 +48,6 @@ if (!empty($monedas)) {
                         <th>🌍 Tipo</th>
                         <th>🇳🇮 País</th>
                         <th>✅ Estado</th>
-                        <th>📈 Valor</th>
                     </tr>
                 </thead>
                 <tbody>';
@@ -59,7 +58,6 @@ if (!empty($monedas)) {
                 <td>🌎 '.htmlspecialchars($moneda['tipo']).'</td>
                 <td>🏳️‍🌈 '.htmlspecialchars($moneda['pais']).'</td>
                 <td>🟢 '.htmlspecialchars($moneda['estado']).'</td>
-                <td>📊 '.htmlspecialchars($moneda['valor']).'</td>
               </tr>';
     }
     echo '</tbody></table></div>';

@@ -525,8 +525,12 @@ $(document).ready(function() {
             $("#modal-mensaje").html(res.mensaje);
             var modal = new bootstrap.Modal(document.getElementById("modal-alerta"));
             modal.show();
-            setTimeout(() => modal.hide(), 3000);
-
+            //setTimeout(() => modal.hide(), 3000);
+            // Cerrar y recargar después de 3 segundos
+            setTimeout(() => {
+                modal.hide();
+                location.reload(); // <--- recarga la página
+            }, 3000);
             // Agregar fila a DataTable con emojis
             if(res.estado=='ok'){
                 var fila = '<tr>'+

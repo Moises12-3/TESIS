@@ -342,105 +342,107 @@ if (!file_exists($jsonPath)) {
                                     <div class="card-body">
 
                                         
+<?php
+require 'Conexion/conex.php'; // Conexión a la base de datos
 
-                                    <?php
-                                    require 'Conexion/conex.php'; // Incluir la conexión a la base de datos
+// Verificar si el parámetro 'id' está presente en la URL
+if (isset($_GET['id'])) {
+    $id_cliente = $_GET['id'];
+    $sql = "SELECT * FROM clientes WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('i', $id_cliente);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
 
-                                    // Verificar si el parámetro 'id' está presente en la URL
-                                    if (isset($_GET['id'])) {
-                                        $id_cliente = $_GET['id'];
+    if ($resultado->num_rows > 0) {
+        $fila = $resultado->fetch_assoc();
+    } else {
+        echo "<div class='alert alert-danger text-center'>❌ Cliente no encontrado</div>";
+        exit;
+    }
+} else {
+    echo "<div class='alert alert-warning text-center'>⚠️ ID de cliente no proporcionado</div>";
+    exit;
+}
+?>
 
-                                        // Consulta para obtener los datos del cliente
-                                        $sql = "SELECT * FROM clientes WHERE id = ?";
-                                        $stmt = $conn->prepare($sql);
-                                        $stmt->bind_param('i', $id_cliente);
-                                        $stmt->execute();
-                                        $resultado = $stmt->get_result();
+<div class="container mt-4">
+    <h1 class="mb-4 text-center">✏️ Editar Cliente</h1>
 
-                                        // Verificar si el cliente existe
-                                        if ($resultado->num_rows > 0) {
-                                            $fila = $resultado->fetch_assoc();
-                                        } else {
-                                            echo "Cliente no encontrado";
-                                            exit;
-                                        }
-                                    } else {
-                                        echo "ID de cliente no proporcionado";
-                                        exit;
-                                    }
-                                ?>
+    <!-- Mensajes -->
+    <?php
+    if (isset($_GET['mensaje'])) {
+        switch ($_GET['mensaje']) {
+            case 'guardado':
+                echo "<div id='mensaje' class='alert alert-success text-center fs-5'>✅ Cliente guardado exitosamente.</div>";
+                break;
+            case 'error':
+                echo "<div id='mensaje' class='alert alert-danger text-center fs-5'>❌ Error al guardar el cliente. Intente nuevamente.</div>";
+                break;
+            case 'incompleto':
+                echo "<div id='mensaje' class='alert alert-warning text-center fs-5'>⚠️ Todos los campos son obligatorios.</div>";
+                break;
+            case 'duplicado':
+                echo "<div id='mensaje' class='alert alert-warning text-center fs-5'>⚠️ La cédula o el teléfono ya están registrados.</div>";
+                break;
+            case 'eliminado':
+                echo "<div id='mensaje' class='alert alert-success text-center fs-5'>🗑️ Cliente eliminado correctamente.</div>";
+                break;
+        }
+    }
+    ?>
 
-                                <h1>Editar Cliente</h1>
-                                <br>
+    <!-- Formulario en dos columnas -->
+    <form action="Configuracion/guardar_editar_cliente.php" method="POST" class="mt-4 p-4 border rounded shadow-sm bg-light">
+        <input type="hidden" name="id" value="<?= $fila['id'] ?>">
 
-                                <form action="Configuracion/guardar_editar_cliente.php" method="POST">
-                                    <input type="hidden" name="id" value="<?php echo $fila['id']; ?>">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="clienteNombre" class="form-label">🏷️ Nombre</label>
+                <input type="text" class="form-control" id="clienteNombre" name="nombre_cliente" value="<?= htmlspecialchars($fila['nombre']); ?>" placeholder="Ingrese el nombre del cliente" required>
+            </div>
 
-                                    <div class="form-group">
-                                        <label for="clienteNombre">Nombre</label>
-                                        <input type="text" class="form-control" id="clienteNombre" name="nombre_cliente" value="<?php echo htmlspecialchars($fila['nombre']); ?>" placeholder="Ingrese el nombre del cliente" required>
-                                    </div>
+            <div class="col-md-6">
+                <label for="clienteCedula" class="form-label">🆔 Cédula</label>
+                <input type="text" class="form-control" id="clienteCedula" name="cedula_cliente" value="<?= htmlspecialchars($fila['cedula']); ?>" placeholder="Ingrese la cédula del cliente" required>
+            </div>
 
-                                    <div class="form-group">
-                                        <label for="clienteCedula">Cédula del Cliente</label>
-                                        <input type="text" class="form-control" id="clienteCedula" name="cedula_cliente" value="<?php echo htmlspecialchars($fila['cedula']); ?>" placeholder="Ingrese la cédula del cliente" required>
-                                    </div>
+            <div class="col-md-6">
+                <label for="clienteTelefono" class="form-label">📞 Teléfono</label>
+                <input type="tel" class="form-control" id="clienteTelefono" name="telefono_cliente" value="<?= htmlspecialchars($fila['telefono']); ?>" placeholder="Ingrese el teléfono del cliente" required>
+            </div>
 
-                                    <div class="form-group">
-                                        <label for="clienteTelefono">Teléfono del Cliente</label>
-                                        <input type="tel" class="form-control" id="clienteTelefono" name="telefono_cliente" value="<?php echo htmlspecialchars($fila['telefono']); ?>" placeholder="Ingrese el teléfono del cliente" required>
-                                    </div>
+            <div class="col-md-6">
+                <label for="clienteDireccion" class="form-label">🏠 Dirección</label>
+                <input type="text" class="form-control" id="clienteDireccion" name="direccion_cliente" value="<?= htmlspecialchars($fila['direccion']); ?>" placeholder="Ingrese la dirección del cliente" required>
+            </div>
 
-                                    <div class="form-group">
-                                        <label for="clienteDireccion">Dirección del Cliente</label>
-                                        <input type="text" class="form-control" id="clienteDireccion" name="direccion_cliente" value="<?php echo htmlspecialchars($fila['direccion']); ?>" placeholder="Ingrese la dirección del cliente" required>
-                                    </div>
+            <div class="col-md-6">
+                <label for="clienteDescuento" class="form-label">💰 Descuento (%)</label>
+                <input type="number" step="0.01" class="form-control" id="clienteDescuento" name="descuento_cliente" value="<?= htmlspecialchars($fila['descuento']); ?>" placeholder="Ingrese el descuento" required>
+            </div>
+        </div>
 
-                                    <div class="form-group">
-                                        <label for="clienteDescuento">Descuento</label>
-                                        <input type="number" step="0.01" class="form-control" id="clienteDescuento" name="descuento_cliente" value="<?php echo htmlspecialchars($fila['descuento']); ?>" placeholder="Ingrese el descuento" required>
-                                    </div>
+        <div class="d-flex justify-content-center mt-4 gap-2">
+            <button type="submit" class="btn btn-success px-4">💾 Guardar Cambios</button>
+            <a href="VerClientes.php" class="btn btn-secondary px-4">↩️ Cancelar</a>
+        </div>
+    </form>
+</div>
 
-                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                                    <a href="VerClientes.php" class="btn btn-secondary">Cancelar</a>
-                                </form>
+<script type="text/javascript">
+window.onload = function() {
+    var mensaje = document.getElementById('mensaje');
+    if (mensaje) {
+        setTimeout(function() {
+            mensaje.style.transition = "opacity 0.8s";
+            mensaje.style.opacity = "0";
+            setTimeout(() => mensaje.remove(), 800);
+        }, 5000);
+    }
+};
+</script>
 
-                                <?php
-                                $conn->close();
-                                ?>
-
-                                <?php
-                                if (isset($_GET['mensaje'])) {
-                                    switch ($_GET['mensaje']) {
-                                        case 'guardado':
-                                            echo "<div id='mensaje' class='alert alert-success'>Cliente guardado exitosamente.</div>";
-                                            break;
-                                        case 'error':
-                                            echo "<div id='mensaje' class='alert alert-danger'>Error al guardar el cliente. Intente nuevamente.</div>";
-                                            break;
-                                        case 'incompleto':
-                                            echo "<div id='mensaje' class='alert alert-warning'>Todos los campos son obligatorios.</div>";
-                                            break;
-                                        case 'duplicado':
-                                            echo "<div id='mensaje' class='alert alert-warning'>La cédula o el teléfono ya están registrados.</div>";
-                                            break;
-                                        case 'eliminado':
-                                            echo "<div id='mensaje' class='alert alert-success'>Cliente eliminado correctamente.</div>";
-                                            break;
-                                    }
-                                }
-                                ?>
-
-                                <script type="text/javascript">
-                                    window.onload = function() {
-                                        var mensaje = document.getElementById('mensaje');
-                                        if (mensaje) {
-                                            setTimeout(function() {
-                                                mensaje.style.display = 'none';
-                                            }, 5000);
-                                        }
-                                    };
-                                </script>
 
                                     </div>
                                 </div>
