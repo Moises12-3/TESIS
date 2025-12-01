@@ -151,6 +151,7 @@ $id_usuario = $_SESSION["id"];
                         <li><i class="fa fa-money"></i><a href="AjusteMoneda.php">Moneda</a></li>
                         <li><i class="fa fa-credit-card"></i><a href="AjustesTipoPago.php">Tipo Pago</a></li>
                         <li><i class="fa fa-balance-scale"></i><a href="AjusteUnidad.php">Unidad de peso</a></li>
+                        <li><i class="fa fa-lock"></i><a href="accesos.php">Accesos</a></li>
                         <!-- <li><i class="fa fa-calculator"></i><a href="AjustesImpuestos.php">Impuestos</a></li> -->
                         <li><i class="fa fa-building"></i><a href="ConfigurarEmpresas.php">Configurar Empresas</a></li>
                     </ul>
