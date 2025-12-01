@@ -63,6 +63,7 @@ if (!file_exists($jsonPath)) {
 ?>
 
 
+
 <!doctype html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
@@ -71,7 +72,7 @@ if (!file_exists($jsonPath)) {
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Ela Admin - HTML5 Admin Template</title>
+    <title>Gestión de Permisos del Sistema</title>
     <meta name="description" content="Ela Admin - HTML5 Admin Template">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -227,62 +228,67 @@ if (!file_exists($jsonPath)) {
                     <div class="header-left">
 
 
+                        
                         <div class="dropdown for-message">
-                            <a class="nav-link" href="#" onclick="toggleFullscreen()">
-                                    <i class="fa fa-expand"></i>Ver Pantalla completa
-                                </a>
-
-                                <script src>
-                                // Comprueba el estado de pantalla completa al cargar la página
-                                document.addEventListener('DOMContentLoaded', function () {
-                                    if (localStorage.getItem('fullscreen') === 'true') {
-                                        enableFullscreen();
-                                    }
-                                });
-
-                                // Función para activar el modo de pantalla completa
-                                function toggleFullscreen() {
-                                    if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
-                                        enableFullscreen();
-                                    } else {
-                                        disableFullscreen();
-                                    }
-                                }
-
-                                // Activar pantalla completa
-                                function enableFullscreen() {
-                                    if (document.documentElement.requestFullscreen) {
-                                        document.documentElement.requestFullscreen();
-                                    } else if (document.documentElement.mozRequestFullScreen) {
-                                        document.documentElement.mozRequestFullScreen(); // Firefox
-                                    } else if (document.documentElement.webkitRequestFullscreen) {
-                                        document.documentElement.webkitRequestFullscreen(); // Chrome, Safari y Opera
-                                    } else if (document.documentElement.msRequestFullscreen) {
-                                        document.documentElement.msRequestFullscreen(); // IE/Edge
-                                    }
-                                    
-                                    // Guardamos en el localStorage que el modo pantalla completa está activado
-                                    localStorage.setItem('fullscreen', 'true');
-                                }
-
-                                // Desactivar pantalla completa
-                                function disableFullscreen() {
-                                    if (document.exitFullscreen) {
-                                        document.exitFullscreen();
-                                    } else if (document.mozCancelFullScreen) {
-                                        document.mozCancelFullScreen(); // Firefox
-                                    } else if (document.webkitExitFullscreen) {
-                                        document.webkitExitFullscreen(); // Chrome, Safari y Opera
-                                    } else if (document.msExitFullscreen) {
-                                        document.msExitFullscreen(); // IE/Edge
-                                    }
-                                    
-                                    // Guardamos en el localStorage que el modo pantalla completa está desactivado
-                                    localStorage.setItem('fullscreen', 'false');
-                                }
-
-                                </script>                           
+                            <a class="nav-link" href="#" onclick="toggleFullscreen(event)">
+                                <i class="fa fa-expand" id="fullscreenIcon"></i> Ver Pantalla completa
+                            </a>                   
                         </div>
+
+                        <script>
+                        function toggleFullscreen(event) {
+                            event.preventDefault();
+
+                            if (!document.fullscreenElement) {
+                                document.documentElement.requestFullscreen()
+                                    .then(() => {
+                                        sessionStorage.setItem('fullscreenActive', 'true');
+                                        updateIcon(true);
+                                    })
+                                    .catch((err) => {
+                                        alert(`Error: ${err.message} (${err.name})`);
+                                    });
+                            } else {
+                                document.exitFullscreen()
+                                    .then(() => {
+                                        sessionStorage.setItem('fullscreenActive', 'false');
+                                        updateIcon(false);
+                                    });
+                            }
+                        }
+
+                        function updateIcon(isFullscreen) {
+                            const icon = document.getElementById('fullscreenIcon');
+                            if (isFullscreen) {
+                                icon.classList.remove('fa-expand');
+                                icon.classList.add('fa-compress');
+                            } else {
+                                icon.classList.remove('fa-compress');
+                                icon.classList.add('fa-expand');
+                            }
+                        }
+
+                        // Al cargar la página, verifica si el usuario quería pantalla completa
+                        document.addEventListener('DOMContentLoaded', () => {
+                            if (sessionStorage.getItem('fullscreenActive') === 'true') {
+                                // Solo se puede activar tras interacción, así que muestra un mensaje o botón para que el usuario lo active
+                                // Aquí solo actualizamos el icono para reflejar la intención
+                                updateIcon(true);
+                                // Opcional: mostrar mensaje para pedir que active pantalla completa manualmente
+                                console.log("Recuerda activar pantalla completa con el botón si quieres continuar.");
+                            }
+                        });
+
+                        // Detecta cambios en pantalla completa para actualizar el icono
+                        document.addEventListener('fullscreenchange', () => {
+                            updateIcon(!!document.fullscreenElement);
+                            if (!document.fullscreenElement) {
+                                sessionStorage.setItem('fullscreenActive', 'false');
+                            }
+                        });
+                        </script>
+
+
                     </div>
 
                     <div class="user-area dropdown float-right">
@@ -335,94 +341,19 @@ if (!file_exists($jsonPath)) {
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
-                        <div class="card">
                             <div class="row">
                                 <div class="col-lg-8">
                                     <div class="card-body">
 
 
-                                    
-<?php
-require 'Conexion/conex.php';
-
-$mesActual = date('m');
-$anioActual = date('Y');
-
-// Contar productos que vencen este mes
-$sqlContador = "SELECT COUNT(*) AS total FROM productos 
-                WHERE MONTH(fecha_vencimiento) = $mesActual 
-                  AND YEAR(fecha_vencimiento) = $anioActual 
-                  AND fecha_vencimiento IS NOT NULL";
-$resContador = $conn->query($sqlContador);
-$total_vencimientos = 0;
-
-if ($resContador && $fila = $resContador->fetch_assoc()) {
-    $total_vencimientos = $fila['total'];
-}
-?>
-
-<?php if ($total_vencimientos > 0): ?>
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <strong>Atención:</strong> Tienes <?= $total_vencimientos ?> producto(s) que vencen este mes.
-        <a href="#" class="alert-link" data-toggle="modal" data-target="#modalVencimientos">Ver detalles</a>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-<?php endif; ?>
 
 
-<!-- Modal de productos por vencer -->
-<div class="modal fade" id="modalVencimientos" tabindex="-1" role="dialog" aria-labelledby="tituloModal" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg-warning text-white">
-        <h5 class="modal-title" id="tituloModal">Productos que vencen este mes</h5>
-        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <?php
-        $sql_modal = "SELECT codigo, nombre, fecha_vencimiento 
-                      FROM productos 
-                      WHERE MONTH(fecha_vencimiento) = $mesActual 
-                        AND YEAR(fecha_vencimiento) = $anioActual 
-                      ORDER BY fecha_vencimiento ASC";
-        $res_modal = $conn->query($sql_modal);
-        if ($res_modal && $res_modal->num_rows > 0): ?>
-            <table class="table table-bordered">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre</th>
-                        <th>Fecha de Vencimiento</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($fila = $res_modal->fetch_assoc()): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($fila['codigo']) ?></td>
-                            <td><?= htmlspecialchars($fila['nombre']) ?></td>
-                            <td><?= htmlspecialchars($fila['fecha_vencimiento']) ?></td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <p>No hay productos que venzan este mes.</p>
-        <?php endif; ?>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- Requiere jQuery y Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+
+
+
 
 
 
@@ -430,129 +361,202 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 
 <?php
 require 'Conexion/conex.php';
-
-$mesActual = date('m');
-$anioActual = date('Y');
-
-// Contar productos que vencen este mes
-$sqlContador = "SELECT COUNT(*) AS total FROM productos 
-                WHERE MONTH(fecha_vencimiento) = $mesActual 
-                  AND YEAR(fecha_vencimiento) = $anioActual 
-                  AND fecha_vencimiento IS NOT NULL";
-$resContador = $conn->query($sqlContador);
-$total_vencimientos = 0;
-
-if ($resContador && $fila = $resContador->fetch_assoc()) {
-    $total_vencimientos = $fila['total'];
-}
+$usuarios = $conn->query("SELECT id, nombre, rol FROM usuarios ORDER BY nombre ASC");
 ?>
 
+<h2 class="text-center mb-4">🔐 Gestión de Permisos del Sistema</h2>
 
+<!-- SELECT2 -->
+<div class="card shadow-lg mb-4 border-0">
+    <div class="card-body">
+        <h5 class="card-title mb-3">👤 Seleccionar Usuario</h5>
 
-<!-- Modal de productos por vencer -->
-<div class="modal fade" id="modalVencimientos" tabindex="-1" role="dialog" aria-labelledby="tituloModal" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg-warning text-white">
-        <h5 class="modal-title" id="tituloModal">Productos que vencen este mes</h5>
-        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <?php
-        $sql_modal = "SELECT codigo, nombre, fecha_vencimiento 
-                      FROM productos 
-                      WHERE MONTH(fecha_vencimiento) = $mesActual 
-                        AND YEAR(fecha_vencimiento) = $anioActual 
-                      ORDER BY fecha_vencimiento ASC";
-        $res_modal = $conn->query($sql_modal);
-        if ($res_modal && $res_modal->num_rows > 0): ?>
-            <table class="table table-bordered">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre</th>
-                        <th>Fecha de Vencimiento</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($fila = $res_modal->fetch_assoc()): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($fila['codigo']) ?></td>
-                            <td><?= htmlspecialchars($fila['nombre']) ?></td>
-                            <td><?= htmlspecialchars($fila['fecha_vencimiento']) ?></td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <p>No hay productos que venzan este mes.</p>
-        <?php endif; ?>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Requiere jQuery y Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-
-                                        <h1>Formato de relleno</h1>
-                                        
-                                        <?php
-include("Conexion/conex.php");
-
-// Obtener usuarios
-$usuarios = $conn->query("SELECT usuario FROM usuarios");
-
-// Obtener páginas
-$paginas = $conn->query("SELECT * FROM paginas");
-
-// Manejo del formulario
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $usuario = $_POST['usuario'];
-    $codigo_pagina = $_POST['pagina'];
-
-    $stmt = $conn->prepare("INSERT INTO accesos (codigo_usuario, codigo_pagina) VALUES (?, ?)");
-    $stmt->bind_param("ss", $usuario, $codigo_pagina);
-    $stmt->execute();
-    echo "<div class='alert alert-success'>Acceso registrado correctamente</div>";
-}
-?>
-
-
-<h3>Asignar acceso a páginas</h3>
-
-<form method="POST">
-    <div class="mb-3">
-        <label for="usuario" class="form-label">Seleccionar Usuario</label>
-        <select name="usuario" class="form-select" required>
-            <option value="">-- Selecciona un usuario --</option>
-            <?php while ($row = $usuarios->fetch_assoc()): ?>
-                <option value="<?= htmlspecialchars($row['usuario']) ?>"><?= htmlspecialchars($row['usuario']) ?></option>
-            <?php endwhile; ?>
-        </select>
-    </div>
-
-    <div class="mb-3">
-        <label for="pagina" class="form-label">Seleccionar Página</label>
-        <select name="pagina" class="form-select" required>
-            <option value="">-- Selecciona una página --</option>
-            <?php while ($row = $paginas->fetch_assoc()): ?>
-                <option value="<?= htmlspecialchars($row['codigo_pagina']) ?>">
-                    <?= htmlspecialchars($row['nombre_pagina']) ?> (<?= htmlspecialchars($row['url_pagina']) ?>)
+        <select class="form-select select2" id="usuarioSelect">
+            <option value="">🔽 Selecciona un usuario...</option>
+            <?php while ($u = $usuarios->fetch_assoc()) { ?>
+                <option value="<?= $u['id'] ?>" data-rol="<?= htmlspecialchars($u['rol']) ?>">
+                    🧑 <?= htmlspecialchars($u['nombre']) ?> (<?= htmlspecialchars($u['rol']) ?>)
                 </option>
-            <?php endwhile; ?>
+            <?php } ?>
         </select>
-    </div>
 
-    <button type="submit" class="btn btn-primary">Guardar Acceso</button>
-</form>
+        <div class="mt-2 fs-5" id="rolUsuario"></div>
+    </div>
+</div>
+
+<!-- TABLA -->
+<div class="card shadow-lg border-0">
+    <div class="card-body">
+        <h5 class="card-title">📄 Permisos por Página</h5>
+
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>✔ Permitir</th>
+                        <th class="text-start">📁 Módulo</th>
+                        <th class="text-start">📄 Página</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaPermisos"></tbody>
+            </table>
+        </div>
+
+        <div class="text-end mt-3">
+            <button id="guardarCambios" class="btn btn-success btn-lg shadow-sm">
+                💾 Guardar Cambios
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- Modal Notificación -->
+<div class="modal fade" id="modalNotif" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0" style="border-radius:20px;">
+      <div class="modal-header bg-success text-white" style="border-radius:20px 20px 0 0;">
+        <h5 class="modal-title">✅ Operación Exitosa</h5>
+      </div>
+      <div class="modal-body text-center fs-4">
+        <span id="mensajeModal">Los permisos se guardaron correctamente 🎉</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Mejora visual de checkboxes */
+.permisoCheck {
+    width: 1.5rem;
+    height: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.permisoCheck:hover {
+    transform: scale(1.2);
+}
+
+.table td, .table th {
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Alinear columnas módulo y página a la izquierda */
+.table td:nth-child(3),
+.table td:nth-child(4),
+.table th:nth-child(3),
+.table th:nth-child(4) {
+    text-align: left;
+    padding-left: 1rem;
+}
+</style>
+
+<script>
+$(document).ready(function() {
+
+    $(".select2").select2({
+        width: "100%",
+        placeholder: "Selecciona un usuario..."
+    });
+
+    // Mostrar rol al seleccionar usuario
+    $("#usuarioSelect").on("change", function() {
+        let id_user = $(this).val();
+        let rol = $(this).find('option:selected').data('rol') || '';
+        $("#rolUsuario").html(rol ? `👔 Rol: <strong>${rol}</strong>` : '');
+
+        if (!id_user) {
+            $("#tablaPermisos").html("");
+            return;
+        }
+
+        // Cargar permisos del usuario
+        $.get("Configuracion/get_permisos_usuario.php?id_usuario=" + id_user, function(data) {
+            let permisos = JSON.parse(data);
+            let html = "";
+            let num = 1;
+
+            permisos.forEach(p => {
+                html += `
+                <tr>
+                    <td>${num++}</td>
+                    <td>
+                        <input type="checkbox" class="form-check-input permisoCheck"
+                            data-id="${p.id}" ${p.checked ? "checked" : ""}>
+                    </td>
+                    <td>📁 ${p.modulo}</td>
+                    <td>📄 ${p.pagina}</td>
+                </tr>`;
+            });
+
+            $("#tablaPermisos").html(html);
+        });
+    });
+
+    // Guardar cambios
+    $("#guardarCambios").on("click", function() {
+        let usuario = $("#usuarioSelect").val();
+        if (!usuario) return alert("Selecciona un usuario primero");
+
+        let permisos = [];
+        $(".permisoCheck").each(function() {
+            permisos.push({
+                id_permiso: $(this).data("id"),
+                checked: $(this).is(":checked")
+            });
+        });
+
+        $.ajax({
+            url: "Configuracion/save_permisos_usuario.php",
+            method: "POST",
+            data: {
+                usuario: usuario,
+                permisos: JSON.stringify(permisos)
+            },
+            success: function() {
+                // Mostrar modal
+                $("#mensajeModal").text("Los permisos se guardaron correctamente 🎉");
+                let modalEl = document.getElementById('modalNotif');
+                let modal = new bootstrap.Modal(modalEl);
+                modal.show();
+
+                // Cerrar automáticamente después de 3 segundos
+                setTimeout(() => modal.hide(), 3000);
+            }
+        });
+    });
+
+});
+</script>
+
+<!-- BOOTSTRAP JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
                                     </div>

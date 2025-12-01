@@ -40,7 +40,9 @@ CREATE TABLE IF NOT EXISTS usuarios(
     telefono VARCHAR(25) NOT NULL,
     direccion VARCHAR(255) NOT NULL,
     descuento DECIMAL(5,2) NOT NULL DEFAULT 0, 
-    rol ENUM('admin', 'editor', 'usuario') NOT NULL DEFAULT 'usuario',
+    
+    -- CAMBIO REALIZADO: ahora es VARCHAR en vez de ENUM
+    rol VARCHAR(50) NOT NULL DEFAULT 'usuario',
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
 
@@ -233,6 +235,7 @@ CREATE TABLE IF NOT EXISTS devoluciones (
 
 ) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+
 -- ========================================
 -- Usuario administrador inicial
 INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("moises", "Aaron Moises Carrasco Thomas", "081-030301-1009B", "88090180", "Nowhere", 0.00, "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
@@ -240,5 +243,84 @@ INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, e
 -- Empresa inicial
 INSERT INTO `empresa` (`id`, `nombre`, `direccion`, `correo`, `telefono`, `fax`, `codigo_interno`, `identidad_juridica`, `foto_perfil`, `fecha_registro`) VALUES
 (1, 'UNIVERSIDAD', 'Universidad Nacional Comandante Padre Gaspar Garcia Laviana', 'maaroncarrasco@gmail.com', '88090180', '3232', 'EMP_68d4dcef4f446', '32432', 'images/logo_empresa/UNIVERSIDAD_68d4dd13678f5.png', '2025-09-25 06:10:55');
+
+
+
+-- ========================================
+-- TABLA: paginas_projectos
+-- Guardará los permisos individuales por usuario
+-- ========================================
+
+CREATE TABLE IF NOT EXISTS paginas_projectos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    modulo VARCHAR(100) NOT NULL,
+    pagina VARCHAR(255) NOT NULL,
+    acceso ENUM('permitido','denegado') NOT NULL DEFAULT 'permitido',
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP  
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+
+-- ========================================
+-- TABLA: permisos_usuario
+-- Relaciona usuarios con permisos
+-- ========================================
+CREATE TABLE IF NOT EXISTS permisos_usuario (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario BIGINT UNSIGNED NOT NULL,
+    id_permiso INT NOT NULL,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+
+    FOREIGN KEY (id_permiso) REFERENCES paginas_projectos(id)
+        ON UPDATE CASCADE ON DELETE CASCADE
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+
+
+INSERT INTO paginas_projectos (modulo, pagina, acceso) VALUES
+('accesos', 'accesos.php', 'permitido'),
+('clientes', 'AgregarClientes.php', 'permitido'),
+('productos', 'AgregarProductos.php', 'permitido'),
+('usuarios', 'AgregarUsuario.php', 'permitido'),
+('moneda', 'AjusteMoneda.php', 'permitido'),
+('impuestos', 'AjustesImpuestos.php', 'permitido'),
+('tipo_pago', 'AjustesTipoPago.php', 'permitido'),
+('unidad_peso', 'AjusteUnidad.php', 'permitido'),
+('backup', 'backup.php', 'permitido'),
+('sesion', 'cerrar_sesion.php', 'permitido'),
+('empresa', 'ConfigurarEmpresas.php', 'permitido'),
+('reportes', 'descargar_pdf.php', 'permitido'),
+('ventas', 'Devolucion.php', 'permitido'),
+('clientes', 'EditarCliente.php', 'permitido'),
+('productos', 'EditarProducto.php', 'permitido'),
+('usuarios', 'EditarUsuario.php', 'permitido'),
+('ventas', 'factura.php', 'permitido'),
+('tools', 'hash.php', 'permitido'),
+('dashboard', 'index.php', 'permitido'),
+('dashboard', 'index_copy.php', 'permitido'),
+('auth', 'login.php', 'permitido'),
+('auth', 'logout.php', 'permitido'),
+('perfil', 'MyProfile.php', 'permitido'),
+('graficos', 'obtener_datos_graficos.php', 'permitido'),
+('auth', 'page-login.php', 'permitido'),
+('proveedores', 'Proveedor.php', 'permitido'),
+('test', 'prueba.php', 'permitido'),
+('tablas', 'tables-data.php', 'permitido'),
+('ventas', 'Ventas.php', 'permitido'),
+('ventas', 'ventas_select.php', 'permitido'),
+('clientes', 'VerClientes.php', 'permitido'),
+('ventas', 'VerDevolucion.php', 'permitido'),
+('productos', 'VerFechaVencimiento.php', 'permitido'),
+('productos', 'VerProductos.php', 'permitido'),
+('reportes', 'VerReportes.php', 'permitido'),
+('usuarios', 'VerUsuario.php', 'permitido'),
+('ventas', 'ver_detalle_factura.php', 'permitido'),
+('ventas', 'ver_facturas.php', 'permitido');
+
+
+
+
 
 
