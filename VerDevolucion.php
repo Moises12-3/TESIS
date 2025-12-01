@@ -138,78 +138,201 @@ if (!file_exists($jsonPath)) {
 <body>
     <!-- Left Panel -->
     <aside id="left-panel" class="left-panel">
+
+        <?php
+        // session_start();
+
+        // Si no hay sesión activa, redirigir al login
+        if (!isset($_SESSION["usuario"])) {
+            header("Location: page-login.php");
+            exit();
+        }
+
+        $id_usuario = $_SESSION["id"];
+
+        require 'Conexion/conex.php';
+
+        // Obtener páginas permitidas
+        $sql = "SELECT p.pagina 
+                FROM permisos_usuario pu
+                INNER JOIN paginas_projectos p ON pu.id_permiso = p.id
+                WHERE pu.id_usuario = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id_usuario);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $permisos = [];
+        while ($row = $result->fetch_assoc()) {
+            $permisos[] = strtolower($row['pagina']); // Normalizamos para evitar errores
+        }
+
+        $stmt->close();
+        $conn->close();
+
+        // Función para validar permiso
+        function puede($pagina, $permisos) {
+            return in_array(strtolower($pagina), $permisos);
+        }
+        ?>
+
         <nav class="navbar navbar-expand-sm navbar-default">
             <div id="main-menu" class="main-menu collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-            <ul class="nav navbar-nav">
-                <li class="active">
-                    <a href="index.php"><i class="menu-icon fa fa-home"></i>Inicio</a>
-                </li>
-                <li class="menu-item-has-children dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="menu-icon fa fa-cube"></i>Productos
-                    </a>
-                    <ul class="sub-menu children dropdown-menu">
-                        <li><i class="fa fa-cube"></i><a href="VerProductos.php">Ver Productos</a></li>
-                        <li><i class="fa fa-plus-circle"></i><a href="AgregarProductos.php">Agregar Productos</a></li>
-                    </ul>
-                </li>
-                <li class="menu-item-has-children dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="menu-icon fa fa-users"></i>Usuarios
-                    </a>
-                    <ul class="sub-menu children dropdown-menu">
-                        <li><i class="menu-icon fa fa-users"></i><a href="VerUsuario.php">Ver Usuarios</a></li>
-                        <li><i class="menu-icon fa fa-user-plus"></i><a href="AgregarUsuario.php">Agregar Usuario</a></li>
-                    </ul>
-                </li>
-                <li class="menu-item-has-children dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="menu-icon fa fa-users"></i>Clientes
-                    </a>
-                    <ul class="sub-menu children dropdown-menu">
-                        <li><i class="menu-icon fa fa-address-book"></i><a href="VerClientes.php">Ver Clientes</a></li>
-                        <li><i class="menu-icon fa fa-user-plus"></i><a href="AgregarClientes.php">Nuevo Cliente</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="Proveedor.php"><i class="menu-icon fa fa-truck"></i>Proveedor</a>
-                </li>
-                <li>
-                    <a href="Ventas.php"><i class="menu-icon fa fa-shopping-cart"></i>Vender</a>
-                </li>
-                <li>
-                    <a href="Devolucion.php"><i class="menu-icon fa fa-rotate-left"></i>Devoluciones</a>
-                </li>
-                <li>
-                    <a href="VerDevolucion.php"><i class="menu-icon fa fa-list-alt"></i>Ver Devolucion</a>
-                </li>
-                <li class="menu-item-has-children dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="menu-icon fa fa-pie-chart"></i>Reportes de ventas
-                    </a>
-                    <ul class="sub-menu children dropdown-menu">
-                        <li><i class="menu-icon fa fa-map"></i><a href="VerReportes.php">Visualizar Reportes</a></li>                    
-                        <li><i class="menu-icon fa fa-file-invoice"></i><a href="ver_facturas.php">Ver facturas</a></li>                
-                        <li><i class="menu-icon fa fa-clock"></i><a href="verfechavencimiento.php">Ver Fecha Vencimiento</a></li>
-                    </ul>
-                </li>
-                <li class="menu-item-has-children dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="menu-icon fa fa-cogs"></i>Configuración
-                    </a>
-                    <ul class="sub-menu children dropdown-menu">
-                        <li><i class="fa fa-money"></i><a href="AjusteMoneda.php">Moneda</a></li>
-                        <li><i class="fa fa-credit-card"></i><a href="AjustesTipoPago.php">Tipo Pago</a></li>
-                        <li><i class="fa fa-balance-scale"></i><a href="AjusteUnidad.php">Unidad de peso</a></li>
-                        <li><i class="fa fa-lock"></i><a href="accesos.php">Accesos</a></li>
-                        <!-- <li><i class="fa fa-calculator"></i><a href="AjustesImpuestos.php">Impuestos</a></li> -->
-                        <li><i class="fa fa-building"></i><a href="ConfigurarEmpresas.php">Configurar Empresas</a></li>
-                    </ul>
-                </li>
-            </ul>
+                <ul class="nav navbar-nav">
 
-            </div><!-- /.navbar-collapse -->
+                    <!-- INICIO -->
+                    <?php if (puede("index.php", $permisos)) : ?>
+                    <li class="active">
+                        <a href="index.php"><i class="menu-icon fa fa-home"></i>Inicio</a>
+                    </li>
+                    <?php endif; ?>
+
+                    <!-- PRODUCTOS -->
+                    <?php if (puede("VerProductos.php", $permisos) || puede("AgregarProductos.php", $permisos)) : ?>
+                    <li class="menu-item-has-children dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="menu-icon fa fa-cube"></i>Productos
+                        </a>
+                        <ul class="sub-menu children dropdown-menu">
+                            <?php if (puede("VerProductos.php", $permisos)) : ?>
+                            <li><i class="fa fa-cube"></i><a href="VerProductos.php">Ver Productos</a></li>
+                            <?php endif; ?>
+
+                            <?php if (puede("AgregarProductos.php", $permisos)) : ?>
+                            <li><i class="fa fa-plus-circle"></i><a href="AgregarProductos.php">Agregar Productos</a></li>
+                            <?php endif; ?>
+                        </ul>
+                    </li>
+                    <?php endif; ?>
+
+                    <!-- USUARIOS -->
+                    <?php if (puede("VerUsuario.php", $permisos) || puede("AgregarUsuario.php", $permisos)) : ?>
+                    <li class="menu-item-has-children dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="menu-icon fa fa-users"></i>Usuarios
+                        </a>
+                        <ul class="sub-menu children dropdown-menu">
+                            <?php if (puede("VerUsuario.php", $permisos)) : ?>
+                            <li><i class="menu-icon fa fa-users"></i><a href="VerUsuario.php">Ver Usuarios</a></li>
+                            <?php endif; ?>
+
+                            <?php if (puede("AgregarUsuario.php", $permisos)) : ?>
+                            <li><i class="menu-icon fa fa-user-plus"></i><a href="AgregarUsuario.php">Agregar Usuario</a></li>
+                            <?php endif; ?>
+                        </ul>
+                    </li>
+                    <?php endif; ?>
+
+                    <!-- CLIENTES -->
+                    <?php if (puede("VerClientes.php", $permisos) || puede("AgregarClientes.php", $permisos)) : ?>
+                    <li class="menu-item-has-children dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="menu-icon fa fa-users"></i>Clientes
+                        </a>
+                        <ul class="sub-menu children dropdown-menu">
+                            <?php if (puede("VerClientes.php", $permisos)) : ?>
+                            <li><i class="menu-icon fa fa-address-book"></i><a href="VerClientes.php">Ver Clientes</a></li>
+                            <?php endif; ?>
+
+                            <?php if (puede("AgregarClientes.php", $permisos)) : ?>
+                            <li><i class="menu-icon fa fa-user-plus"></i><a href="AgregarClientes.php">Nuevo Cliente</a></li>
+                            <?php endif; ?>
+                        </ul>
+                    </li>
+                    <?php endif; ?>
+
+                    <!-- PROVEEDOR -->
+                    <?php if (puede("Proveedor.php", $permisos)) : ?>
+                    <li>
+                        <a href="Proveedor.php"><i class="menu-icon fa fa-truck"></i>Proveedor</a>
+                    </li>
+                    <?php endif; ?>
+
+                    <!-- VENTAS -->
+                    <?php if (puede("Ventas.php", $permisos)) : ?>
+                    <li>
+                        <a href="Ventas.php"><i class="menu-icon fa fa-shopping-cart"></i>Vender</a>
+                    </li>
+                    <?php endif; ?>
+
+                    <!-- DEVOLUCIONES -->
+                    <?php if (puede("Devolucion.php", $permisos)) : ?>
+                    <li>
+                        <a href="Devolucion.php"><i class="menu-icon fa fa-rotate-left"></i>Devoluciones</a>
+                    </li>
+                    <?php endif; ?>
+
+                    <?php if (puede("VerDevolucion.php", $permisos)) : ?>
+                    <li>
+                        <a href="VerDevolucion.php"><i class="menu-icon fa fa-list-alt"></i>Ver Devolucion</a>
+                    </li>
+                    <?php endif; ?>
+
+                    <!-- REPORTES -->
+                    <?php if (
+                        puede("VerReportes.php", $permisos) ||
+                        puede("ver_facturas.php", $permisos) ||
+                        puede("verfechavencimiento.php", $permisos)
+                    ) : ?>
+                    <li class="menu-item-has-children dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="menu-icon fa fa-pie-chart"></i>Reportes de ventas
+                        </a>
+                        <ul class="sub-menu children dropdown-menu">
+                            <?php if (puede("VerReportes.php", $permisos)) : ?>
+                            <li><i class="menu-icon fa fa-map"></i><a href="VerReportes.php">Visualizar Reportes</a></li>
+                            <?php endif; ?>
+
+                            <?php if (puede("ver_facturas.php", $permisos)) : ?>
+                            <li><i class="menu-icon fa fa-file-invoice"></i><a href="ver_facturas.php">Ver facturas</a></li>
+                            <?php endif; ?>
+
+                            <?php if (puede("verfechavencimiento.php", $permisos)) : ?>
+                            <li><i class="menu-icon fa fa-clock"></i><a href="verfechavencimiento.php">Ver Fecha Vencimiento</a></li>
+                            <?php endif; ?>
+                        </ul>
+                    </li>
+                    <?php endif; ?>
+
+                    <!-- CONFIGURACIÓN -->
+                    <?php if (
+                        puede("AjusteMoneda.php", $permisos) ||
+                        puede("AjustesTipoPago.php", $permisos) ||
+                        puede("AjusteUnidad.php", $permisos) ||
+                        puede("accesos.php", $permisos) ||
+                        puede("ConfigurarEmpresas.php", $permisos)
+                    ) : ?>
+                    <li class="menu-item-has-children dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="menu-icon fa fa-cogs"></i>Configuración
+                        </a>
+                        <ul class="sub-menu children dropdown-menu">
+
+                            <?php if (puede("AjusteMoneda.php", $permisos)) : ?>
+                            <li><i class="fa fa-money"></i><a href="AjusteMoneda.php">Moneda</a></li>
+                            <?php endif; ?>
+
+                            <?php if (puede("AjustesTipoPago.php", $permisos)) : ?>
+                            <li><i class="fa fa-credit-card"></i><a href="AjustesTipoPago.php">Tipo Pago</a></li>
+                            <?php endif; ?>
+
+                            <?php if (puede("AjusteUnidad.php", $permisos)) : ?>
+                            <li><i class="fa fa-balance-scale"></i><a href="AjusteUnidad.php">Unidad de peso</a></li>
+                            <?php endif; ?>
+
+                            <?php if (puede("accesos.php", $permisos)) : ?>
+                            <li><i class="fa fa-lock"></i><a href="accesos.php">Accesos</a></li>
+                            <?php endif; ?>
+
+                            <?php if (puede("ConfigurarEmpresas.php", $permisos)) : ?>
+                            <li><i class="fa fa-building"></i><a href="ConfigurarEmpresas.php">Configurar Empresas</a></li>
+                            <?php endif; ?>
+                        </ul>
+                    </li>
+                    <?php endif; ?>
+
+                </ul>
+            </div>
         </nav>
     </aside>
     <!-- /#left-panel -->
