@@ -1,7 +1,8 @@
 <?php
-require '../Conexion/conex.php'; // Incluir la conexión a la base de datos
+require '../Conexion/conex.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
     // Recibir datos del formulario
     $usuario = trim($_POST["usuario"]);
     $nombre = trim($_POST["nombre"]);
@@ -10,46 +11,72 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $direccion = trim($_POST["direccion"]);
     $descuento = isset($_POST["descuento"]) ? floatval($_POST["descuento"]) : 0;
     $rol = trim($_POST["rol"]);
-    $password = password_hash(trim($_POST["password"]), PASSWORD_BCRYPT); // Encriptar la contraseña
+    $password = password_hash(trim($_POST["password"]), PASSWORD_BCRYPT);
 
-    // Validar que los campos no estén vacíos
+    // Validaciones básicas
     if (empty($usuario) || empty($nombre) || empty($cedula) || empty($telefono) || empty($direccion) || empty($password) || empty($rol)) {
         die("Error: Todos los campos son obligatorios.");
     }
 
-    // Validar que el descuento sea un número válido entre 0 y 100
     if ($descuento < 0 || $descuento > 100) {
         die("Error: El descuento debe estar entre 0 y 100.");
     }
 
-    // Validar que el rol sea válido
-    $roles_validos = ['admin', 'editor', 'usuario'];
-    if (!in_array($rol, $roles_validos)) {
-        die("Error: Rol no válido.");
+    // Insertar usuario en la tabla usuarios
+    $sql = "INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, rol, password) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssssdss", $usuario, $nombre, $cedula, $telefono, $direccion, $descuento, $rol, $password);
+
+    if (!$stmt->execute()) {
+        die("Error al guardar usuario: " . $stmt->error);
     }
 
-    // Preparar la consulta SQL para evitar inyección SQL
-    $sql = "INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, rol, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    
-    if ($stmt) {
-        $stmt->bind_param("sssssdss", $usuario, $nombre, $cedula, $telefono, $direccion, $descuento, $rol, $password);
-        
-        if ($stmt->execute()) {
-            echo "Usuario registrado exitosamente.";
-            header("Location: ../VerUsuario.php"); // Redirigir a la página principal
-            exit();
-        } else {
-            echo "Error al guardar el usuario: " . $stmt->error;
-        }
-        
-        $stmt->close();
+    // Obtener ID del usuario recién creado
+    $usuario_id = $stmt->insert_id;
+    $stmt->close();
+
+    // -------------------------
+    // ASIGNAR PERMISOS SEGÚN ROL
+    // -------------------------
+    if ($rol == 'ADMINISTRADOR') {
+        // Todos los permisos de paginas_projectos
+        $query = "SELECT id FROM paginas_projectos";
+    } elseif ($rol == 'VENTAS') {
+        // Solo páginas permitidas para VENTAS
+        $paginas_ventas = [
+            'Ventas.php',
+            'ventas_select.php',
+            'VerClientes.php',
+            'VerDevolucion.php',
+            'VerFechaVencimiento.php',
+            'VerProductos.php',
+            'VerReportes.php',
+            'VerUsuario.php',
+            'ver_detalle_factura.php',
+            'ver_facturas.php',
+            'url.php'
+        ];
+        $in = "'" . implode("','", $paginas_ventas) . "'";
+        $query = "SELECT id FROM paginas_projectos WHERE pagina IN ($in)";
     } else {
-        echo "Error en la preparación de la consulta.";
+        $query = "";
+    }
+
+    if ($query) {
+        $result = $conn->query($query);
+        while ($row = $result->fetch_assoc()) {
+            $sqlPerm = $conn->prepare("INSERT INTO permisos_usuario (id_usuario, id_permiso) VALUES (?, ?)");
+            $sqlPerm->bind_param("ii", $usuario_id, $row['id']);
+            $sqlPerm->execute();
+            $sqlPerm->close();
+        }
     }
 
     $conn->close();
-} else {
-    echo "Método de solicitud inválido.";
+
+    // Redirigir a la lista de usuarios
+    header("Location: ../VerUsuario.php");
+    exit();
 }
 ?>

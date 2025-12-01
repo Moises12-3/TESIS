@@ -527,9 +527,8 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
             <div class="mb-3">
                 <label for="rol" class="form-label">🎛️ Rol</label>
                 <select class="form-control" id="rol" name="rol" required>
-                    <option value="usuario">Usuario</option>
-                    <option value="editor">Editor</option>
-                    <option value="admin">Administrador</option>
+                    <option value="VENTAS">VENTAS</option>
+                    <option value="ADMINISTRADOR">ADMINISTRADOR</option>
                 </select>
             </div>
         </div>

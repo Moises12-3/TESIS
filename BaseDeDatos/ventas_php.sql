@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS usuarios(
     descuento DECIMAL(5,2) NOT NULL DEFAULT 0, 
     
     -- CAMBIO REALIZADO: ahora es VARCHAR en vez de ENUM
-    rol VARCHAR(50) NOT NULL DEFAULT 'usuario',
+    rol VARCHAR(50) NOT NULL DEFAULT 'VENTAS',
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
 
@@ -238,7 +238,7 @@ CREATE TABLE IF NOT EXISTS devoluciones (
 
 -- ========================================
 -- Usuario administrador inicial
-INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("moises", "Aaron Moises Carrasco Thomas", "081-030301-1009B", "88090180", "Nowhere", 0.00, "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
+-- INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("moises", "Aaron Moises Carrasco Thomas", "081-030301-1009B", "88090180", "Nowhere", 0.00, "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
 
 -- Empresa inicial
 INSERT INTO `empresa` (`id`, `nombre`, `direccion`, `correo`, `telefono`, `fax`, `codigo_interno`, `identidad_juridica`, `foto_perfil`, `fecha_registro`) VALUES
@@ -317,10 +317,50 @@ INSERT INTO paginas_projectos (modulo, pagina, acceso) VALUES
 ('reportes', 'VerReportes.php', 'permitido'),
 ('usuarios', 'VerUsuario.php', 'permitido'),
 ('ventas', 'ver_detalle_factura.php', 'permitido'),
-('ventas', 'ver_facturas.php', 'permitido');
+('ventas', 'ver_facturas.php', 'permitido'),
+('accesos', 'url.php', 'permitido');
 
 
 
 
+-- ========================================
+-- Usuario administrador inicial con permisos
+-- ========================================
+INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, rol, email, password)
+VALUES ("moises", "Aaron Moises Carrasco Thomas", "081-030301-1009B", "88090180", "Nowhere", 0.00, "ADMINISTRADOR", "maaroncarrasco@gmail.com", "$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
+
+-- Obtener el ID del usuario recién creado (supongamos que es 1, ajusta si es necesario)
+SET @usuario_id = LAST_INSERT_ID();
+
+-- Insertar permisos para el usuario administrador
+INSERT INTO permisos_usuario (id_usuario, id_permiso)
+SELECT @usuario_id, id FROM paginas_projectos;
 
 
+-- ========================================
+-- Usuario ventas inicial con permisos
+-- ========================================
+INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, rol, email, password)
+VALUES ("ventas1", "Usuario Ventas Inicial", "001-000000-0000V", "88090000", "Nowhere", 0.00, "VENTAS", "ventas1@example.com", "$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
+
+-- Obtener el ID del usuario recién creado
+SET @usuario_ventas_id = LAST_INSERT_ID();
+
+-- Insertar permisos solo para el rol VENTAS
+INSERT INTO permisos_usuario (id_usuario, id_permiso)
+SELECT @usuario_ventas_id, id
+FROM paginas_projectos
+WHERE pagina IN (
+    'Ventas.php',
+    'ventas_select.php',
+    'VerClientes.php',
+    'VerDevolucion.php',
+    'VerFechaVencimiento.php',
+    'VerProductos.php',
+    'VerReportes.php',
+    'VerUsuario.php',
+    'ver_detalle_factura.php',
+    'ver_facturas.php',
+    'MyProfile.php',
+    'url.php'
+);
