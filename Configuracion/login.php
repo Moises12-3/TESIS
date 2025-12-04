@@ -1,7 +1,7 @@
 <?php
 session_start();
 header('Content-Type: application/json');
-require_once "Conexion/conex.php"; // $conn debe venir de aquí (mysqli)
+require_once "../Conexion/conex.php"; // $conn debe venir de aquí (mysqli)
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     echo json_encode(["status"=>"error","type"=>"danger","message"=>"Solicitud no válida."]);
@@ -17,7 +17,7 @@ if ($email === '') {
 }
 
 // --- Comprobar credencial admin desde JSON ---
-$credFile = __DIR__ . "/json/credencial.json"; // ajusta si la ruta es distinta
+$credFile = __DIR__ . "../json/credencial.json"; // ajusta si la ruta es distinta
 if (file_exists($credFile)) {
     $json = file_get_contents($credFile);
     $data = json_decode($json, true);

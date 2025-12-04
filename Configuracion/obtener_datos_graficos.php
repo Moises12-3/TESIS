@@ -1,5 +1,5 @@
 <?php
-require 'Conexion/conex.php';
+require '../Conexion/conex.php';
 
 $inicio = $_GET['inicio'] ?? null;
 $final = $_GET['final'] ?? null;

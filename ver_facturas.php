@@ -755,7 +755,7 @@ async function imprimirFactura(btn) {
             ${empresa.foto_perfil ? `<div style="text-align:center;margin-bottom:10px;"><img src="${empresa.foto_perfil}" style="max-height:100px;"></div>` : ''}
             
 
-            <h2>Factura Electrónica N.º ${factura.numeroFactura || ''}</h2>
+            <h2 style="text-align:center; font-weight:bold;">Factura Electrónica N.º ${factura.numeroFactura || ''}</h2>
 
             <p><strong>Nombre del Cliente:</strong> ${factura.cliente_nombre || ''}</p>
             <p><strong>Ident. Dimex:</strong> 1558</p>

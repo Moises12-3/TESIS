@@ -143,7 +143,7 @@ if($fondo_images){
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             💾 Respaldo y Restauración de Base de Datos
-            <a href="logout.php" class="text-white fw-bold" style="text-decoration:none;">⬅️ Volver</a>
+            <a href="cerrar_sesion_backup.php" class="text-white fw-bold" style="text-decoration:none;">⬅️ Volver</a>
         </div>
 
         <div class="card-body">

@@ -200,7 +200,7 @@
                     <div class="user-area dropdown float-right">
 
                         <?php
-                        require 'Conexion/conex.php'; // Conexión a la base de datos
+                        require '../Conexion/conex.php'; // Conexión a la base de datos
                         // session_start(); // Asegúrate de tener esto activado si usas sesiones
 
                         $id_usuario = $_SESSION['id'] ?? null;

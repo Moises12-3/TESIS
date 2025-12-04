@@ -1,5 +1,5 @@
 <?php
-include("Conexion/conex.php");
+include("../Conexion/conex.php");
 
 // Consultas para cada tabla
 $sqlMoneda = "SELECT id, nombre, simbolo FROM Moneda WHERE estado = 'activo'";
@@ -10,7 +10,7 @@ $sqlImpuesto = "SELECT id, nombre, porcentaje FROM Impuesto WHERE estado = 'Acti
 $monedas = $conn->query($sqlMoneda);
 $unidades = $conn->query($sqlUnidadPeso);
 $tiposPago = $conn->query($sqlTipoPago);
-$impuestos = $conn->query($sqlImpuesto);
+//$impuestos = $conn->query($sqlImpuesto);
 ?>
 <!DOCTYPE html>
 <html lang="es">

@@ -723,7 +723,7 @@ if ($result_empresa->num_rows > 0) {
         </div>
     <?php endif; ?>
 
-    <h2>Factura Electrónica N.º <?= $factura['numeroFactura'] ?></h2>
+    <h2 style="text-align:center; font-weight:bold;">Factura Electrónica N.º <?= $factura['numeroFactura'] ?></h2>
     
     <p><strong>Nombre del Cliente:</strong> <?= $factura['cliente_nombre'] ?></p>
     <p><strong>Ident. Dimex:</strong> 1558</p>

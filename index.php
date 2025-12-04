@@ -583,7 +583,7 @@ function cargarGraficos() {
     const inicio = document.getElementById("fechaInicio").value;
     const final = document.getElementById("fechaFinal").value;
 
-    fetch("obtener_datos_graficos.php?inicio=" + inicio + "&final=" + final)
+    fetch("Configuracion/obtener_datos_graficos.php?inicio=" + inicio + "&final=" + final)
         .then(response => response.json())
         .then(data => {
 
