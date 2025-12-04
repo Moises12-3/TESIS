@@ -351,3 +351,41 @@ INSERT INTO productos (codigo, nombre, compra, venta, fecha_vencimiento, iva, ex
  1, 'Córdoba Oro', 19, 'Docena',
  30, 'Ricardo José Mendoza', 'activo');
 
+-- Para ADMINISTRADOR: asigna todos los permisos
+INSERT INTO permisos_usuario (id_usuario, id_permiso)
+SELECT u.id, p.id
+FROM usuarios u
+CROSS JOIN paginas_projectos p
+WHERE u.rol = 'ADMINISTRADOR';
+
+-- Para VENTAS: asigna solo permisos específicos
+INSERT INTO permisos_usuario (id_usuario, id_permiso)
+SELECT u.id, p.id
+FROM usuarios u
+JOIN paginas_projectos p
+    ON p.pagina IN (
+        'Ventas.php',
+        'ventas_select.php',
+        'VerClientes.php',
+        'VerDevolucion.php',
+        'VerFechaVencimiento.php',
+        'VerProductos.php',
+        'VerReportes.php',
+        'VerUsuario.php',
+        'ver_detalle_factura.php',
+        'ver_facturas.php',
+        'MyProfile.php',
+        'url.php'
+    )
+WHERE u.rol = 'VENTAS';
+
+
+
+
+
+
+
+
+
+
+
