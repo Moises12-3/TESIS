@@ -352,65 +352,61 @@ if (!file_exists($jsonPath)) {
 
 
                         <div class="dropdown for-message">
-                            <a class="nav-link" href="#" onclick="toggleFullscreen(event)">
-                                <i class="fa fa-expand" id="fullscreenIcon"></i> Ver Pantalla completa
-                            </a>                   
+                            <a class="nav-link" href="#" onclick="toggleFullscreen()">
+                                    <i class="fa fa-expand"></i>Ver Pantalla completa
+                                </a>
+
+                                <script src>
+                                // Comprueba el estado de pantalla completa al cargar la página
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    if (localStorage.getItem('fullscreen') === 'true') {
+                                        enableFullscreen();
+                                    }
+                                });
+
+                                // Función para activar el modo de pantalla completa
+                                function toggleFullscreen() {
+                                    if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                                        enableFullscreen();
+                                    } else {
+                                        disableFullscreen();
+                                    }
+                                }
+
+                                // Activar pantalla completa
+                                function enableFullscreen() {
+                                    if (document.documentElement.requestFullscreen) {
+                                        document.documentElement.requestFullscreen();
+                                    } else if (document.documentElement.mozRequestFullScreen) {
+                                        document.documentElement.mozRequestFullScreen(); // Firefox
+                                    } else if (document.documentElement.webkitRequestFullscreen) {
+                                        document.documentElement.webkitRequestFullscreen(); // Chrome, Safari y Opera
+                                    } else if (document.documentElement.msRequestFullscreen) {
+                                        document.documentElement.msRequestFullscreen(); // IE/Edge
+                                    }
+                                    
+                                    // Guardamos en el localStorage que el modo pantalla completa está activado
+                                    localStorage.setItem('fullscreen', 'true');
+                                }
+
+                                // Desactivar pantalla completa
+                                function disableFullscreen() {
+                                    if (document.exitFullscreen) {
+                                        document.exitFullscreen();
+                                    } else if (document.mozCancelFullScreen) {
+                                        document.mozCancelFullScreen(); // Firefox
+                                    } else if (document.webkitExitFullscreen) {
+                                        document.webkitExitFullscreen(); // Chrome, Safari y Opera
+                                    } else if (document.msExitFullscreen) {
+                                        document.msExitFullscreen(); // IE/Edge
+                                    }
+                                    
+                                    // Guardamos en el localStorage que el modo pantalla completa está desactivado
+                                    localStorage.setItem('fullscreen', 'false');
+                                }
+
+                                </script>                           
                         </div>
-
-                        <script>
-                        function toggleFullscreen(event) {
-                            event.preventDefault();
-
-                            if (!document.fullscreenElement) {
-                                document.documentElement.requestFullscreen()
-                                    .then(() => {
-                                        sessionStorage.setItem('fullscreenActive', 'true');
-                                        updateIcon(true);
-                                    })
-                                    .catch((err) => {
-                                        alert(`Error: ${err.message} (${err.name})`);
-                                    });
-                            } else {
-                                document.exitFullscreen()
-                                    .then(() => {
-                                        sessionStorage.setItem('fullscreenActive', 'false');
-                                        updateIcon(false);
-                                    });
-                            }
-                        }
-
-                        function updateIcon(isFullscreen) {
-                            const icon = document.getElementById('fullscreenIcon');
-                            if (isFullscreen) {
-                                icon.classList.remove('fa-expand');
-                                icon.classList.add('fa-compress');
-                            } else {
-                                icon.classList.remove('fa-compress');
-                                icon.classList.add('fa-expand');
-                            }
-                        }
-
-                        // Al cargar la página, verifica si el usuario quería pantalla completa
-                        document.addEventListener('DOMContentLoaded', () => {
-                            if (sessionStorage.getItem('fullscreenActive') === 'true') {
-                                // Solo se puede activar tras interacción, así que muestra un mensaje o botón para que el usuario lo active
-                                // Aquí solo actualizamos el icono para reflejar la intención
-                                updateIcon(true);
-                                // Opcional: mostrar mensaje para pedir que active pantalla completa manualmente
-                                console.log("Recuerda activar pantalla completa con el botón si quieres continuar.");
-                            }
-                        });
-
-                        // Detecta cambios en pantalla completa para actualizar el icono
-                        document.addEventListener('fullscreenchange', () => {
-                            updateIcon(!!document.fullscreenElement);
-                            if (!document.fullscreenElement) {
-                                sessionStorage.setItem('fullscreenActive', 'false');
-                            }
-                        });
-                        </script>
-
-
                     </div>
 
                     <div class="user-area dropdown float-right">
@@ -632,13 +628,10 @@ if ($resContador && $fila = $resContador->fetch_assoc()) {
 
                                         
 
-
-
-
-
-
-
 <h2 class="text-center mb-4">📦 Lista de Productos 🛒</h2>
+
+
+
 
 <!-- Contenedor con flexbox para alinear elementos horizontalmente -->
 <div class="d-flex align-items-center">
@@ -953,97 +946,18 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 
+
                                     </div>
                                 </div>
                             </div> <!-- /.row -->
                             <div class="card-body"></div>
                         </div>
-
-                        
-                        <div class="row">
-                                                <div class="col-lg-3 col-md-6">
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <div class="stat-widget-five">
-                                                                <div class="stat-icon dib flat-color-3">
-                                                                    <i class="pe-7s-browser"></i>
-                                                                </div>
-                                                                <div class="stat-content">
-                                                                    <div class="text-left dib">
-                                                                        <div class="stat-text"><span class="count">349</span></div>
-                                                                        <div class="stat-heading">No. Productos</div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-lg-3 col-md-6">
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <div class="stat-widget-five">
-                                                                <div class="stat-icon dib flat-color-2">
-                                                                    <i class="pe-7s-cart"></i>
-                                                                </div>
-                                                                <div class="stat-content">
-                                                                    <div class="text-left dib">
-                                                                        <div class="stat-text"><span class="count">3435</span></div>
-                                                                        <div class="stat-heading">Total Productos</div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-lg-3 col-md-6">
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <div class="stat-widget-five">
-                                                                <div class="stat-icon dib flat-color-1">
-                                                                    <i class="pe-7s-cash"></i>
-                                                                </div>
-                                                                <div class="stat-content">
-                                                                    <div class="text-left dib">
-                                                                        <div class="stat-text">$<span class="count">23569</span></div>
-                                                                        <div class="stat-heading">Total Inventario</div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-lg-3 col-md-6">
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <div class="stat-widget-five">
-                                                                <div class="stat-icon dib flat-color-1">
-                                                                    <i class="ti-layout-grid2 text-warning border-warning"></i>
-                                                                </div>
-                                                                <div class="stat-content">
-                                                                    <div class="text-left dib">
-                                                                        <div class="stat-text">$<span class="count">54</span></div>
-                                                                        <div class="stat-heading">Ganancias</div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
                     </div><!-- /# column -->
                 </div>
                 <!--  /Traffic -->
             </div>
             <!-- .animated -->
         </div>
-
-
-        
-
         <!-- /.content -->
         <div class="clearfix"></div>
         <!-- Footer -->

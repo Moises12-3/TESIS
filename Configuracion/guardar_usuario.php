@@ -9,7 +9,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $cedula = trim($_POST["cedula"]);
     $telefono = trim($_POST["telefono"]);
     $direccion = trim($_POST["direccion"]);
-    $descuento = isset($_POST["descuento"]) ? floatval($_POST["descuento"]) : 0;
     $rol = trim($_POST["rol"]);
     $password = password_hash(trim($_POST["password"]), PASSWORD_BCRYPT);
 
@@ -18,32 +17,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Error: Todos los campos son obligatorios.");
     }
 
-    if ($descuento < 0 || $descuento > 100) {
-        die("Error: El descuento debe estar entre 0 y 100.");
-    }
+    // Insertar usuario sin descuento
+    $sql = "INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, rol, password) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-    // Insertar usuario en la tabla usuarios
-    $sql = "INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, rol, password) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssdss", $usuario, $nombre, $cedula, $telefono, $direccion, $descuento, $rol, $password);
+    $stmt->bind_param("sssssss", $usuario, $nombre, $cedula, $telefono, $direccion, $rol, $password);
 
     if (!$stmt->execute()) {
         die("Error al guardar usuario: " . $stmt->error);
     }
 
-    // Obtener ID del usuario recién creado
+    // ID usuario
     $usuario_id = $stmt->insert_id;
     $stmt->close();
 
-    // -------------------------
+    // ---------------------------------------------------
     // ASIGNAR PERMISOS SEGÚN ROL
-    // -------------------------
+    // ---------------------------------------------------
     if ($rol == 'ADMINISTRADOR') {
-        // Todos los permisos de paginas_projectos
         $query = "SELECT id FROM paginas_projectos";
     } elseif ($rol == 'VENTAS') {
-        // Solo páginas permitidas para VENTAS
         $paginas_ventas = [
             'Ventas.php',
             'ventas_select.php',
@@ -75,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $conn->close();
 
-    // Redirigir a la lista de usuarios
+    // Redirigir
     header("Location: ../VerUsuario.php");
     exit();
 }

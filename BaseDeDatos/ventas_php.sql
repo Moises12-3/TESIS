@@ -39,7 +39,6 @@ CREATE TABLE IF NOT EXISTS usuarios(
     cedula VARCHAR(50) NOT NULL,
     telefono VARCHAR(25) NOT NULL,
     direccion VARCHAR(255) NOT NULL,
-    descuento DECIMAL(5,2) NOT NULL DEFAULT 0, 
     
     -- CAMBIO REALIZADO: ahora es VARCHAR en vez de ENUM
     rol VARCHAR(50) NOT NULL DEFAULT 'VENTAS',
@@ -236,10 +235,6 @@ CREATE TABLE IF NOT EXISTS devoluciones (
 ) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 
--- ========================================
--- Usuario administrador inicial
--- INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, email, password) VALUES ("moises", "Aaron Moises Carrasco Thomas", "081-030301-1009B", "88090180", "Nowhere", 0.00, "maaroncarrasco@gmail.com","$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
-
 -- Empresa inicial
 INSERT INTO `empresa` (`id`, `nombre`, `direccion`, `correo`, `telefono`, `fax`, `codigo_interno`, `identidad_juridica`, `foto_perfil`, `fecha_registro`) VALUES
 (1, 'UNIVERSIDAD', 'Universidad Nacional Comandante Padre Gaspar Garcia Laviana', 'maaroncarrasco@gmail.com', '88090180', '3232', 'EMP_68d4dcef4f446', '32432', 'images/logo_empresa/UNIVERSIDAD_68d4dd13678f5.png', '2025-09-25 06:10:55');
@@ -324,10 +319,19 @@ INSERT INTO paginas_projectos (modulo, pagina, acceso) VALUES
 
 
 -- ========================================
--- Usuario administrador inicial con permisos
+-- Usuario administrador inicial con permisos 
 -- ========================================
-INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, rol, email, password)
-VALUES ("moises", "Aaron Moises Carrasco Thomas", "081-030301-1009B", "88090180", "Nowhere", 0.00, "ADMINISTRADOR", "maaroncarrasco@gmail.com", "$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
+INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, rol, email, password)
+VALUES (
+    "Moises", 
+    "Aaron Moises Carrasco Thomas", 
+    "081-03030301-1009B", 
+    "+50588090180", 
+    "Chinandega, Chinandega, NI", 
+    "ADMINISTRADOR", 
+    "maaroncarrasco@gmail.com", 
+    "$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q"
+);
 
 -- Obtener el ID del usuario recién creado (supongamos que es 1, ajusta si es necesario)
 SET @usuario_id = LAST_INSERT_ID();
@@ -336,12 +340,11 @@ SET @usuario_id = LAST_INSERT_ID();
 INSERT INTO permisos_usuario (id_usuario, id_permiso)
 SELECT @usuario_id, id FROM paginas_projectos;
 
-
 -- ========================================
--- Usuario ventas inicial con permisos
+-- Usuario ventas inicial con permisos 
 -- ========================================
-INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, descuento, rol, email, password)
-VALUES ("ventas1", "Usuario Ventas Inicial", "001-000000-0000V", "88090000", "Nowhere", 0.00, "VENTAS", "ventas1@example.com", "$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
+INSERT INTO usuarios (usuario, nombre, cedula, telefono, direccion, rol, email, password)
+VALUES ("ventas1", "Usuario Ventas Inicial", "001-000000-0000V", "88090000", "Nowhere", "VENTAS", "ventas1@example.com", "$2y$10$T5D81rjO/yQWY3vP0isjquwxMr4gnGRFloeCFRz72U97OV9Zb0i1q");
 
 -- Obtener el ID del usuario recién creado
 SET @usuario_ventas_id = LAST_INSERT_ID();

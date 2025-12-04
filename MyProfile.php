@@ -615,11 +615,6 @@ $usuario = $resultado->fetch_assoc();
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold">💲 Descuento (%)</label>
-                            <input type="text" class="form-control" value="<?php echo $usuario['descuento']; ?>" readonly>
-                        </div>
-
-                        <div class="mb-3">
                             <label class="form-label fw-bold">🛡️ Rol de usuario</label>
                             <input type="text" class="form-control" value="<?php 
                                 echo $usuario['rol']=="admin"?"👑 Administrador":
