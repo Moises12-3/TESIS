@@ -275,7 +275,7 @@ CREATE TABLE IF NOT EXISTS permisos_usuario (
 
 
 INSERT INTO paginas_projectos (modulo, pagina, acceso) VALUES
-('accesos', 'accesos.php', 'permitido'),
+('accesos', 'Accesos.php', 'permitido'),
 ('clientes', 'AgregarClientes.php', 'permitido'),
 ('productos', 'AgregarProductos.php', 'permitido'),
 ('usuarios', 'AgregarUsuario.php', 'permitido'),

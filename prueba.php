@@ -248,7 +248,7 @@ $id_usuario = $_SESSION["id"];
                         puede("AjusteMoneda.php", $permisos) ||
                         puede("AjustesTipoPago.php", $permisos) ||
                         puede("AjusteUnidad.php", $permisos) ||
-                        puede("accesos.php", $permisos) ||
+                        puede("Accesos.php", $permisos) ||
                         puede("ConfigurarEmpresas.php", $permisos)
                     ) : ?>
                     <li class="menu-item-has-children dropdown">
@@ -269,8 +269,8 @@ $id_usuario = $_SESSION["id"];
                             <li><i class="fa fa-balance-scale"></i><a href="AjusteUnidad.php">Unidad de peso</a></li>
                             <?php endif; ?>
 
-                            <?php if (puede("accesos.php", $permisos)) : ?>
-                            <li><i class="fa fa-lock"></i><a href="accesos.php">Accesos</a></li>
+                            <?php if (puede("Accesos.php", $permisos)) : ?>
+                            <li><i class="fa fa-lock"></i><a href="Accesos.php">Accesos</a></li>
                             <?php endif; ?>
 
                             <?php if (puede("ConfigurarEmpresas.php", $permisos)) : ?>
