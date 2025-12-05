@@ -3,7 +3,52 @@
     {
       "id": 1,
       "email": "admin@ventasphp.com",
-      "password": "$2y$10$Z4v4cU1zMnNdUa4Za8YOJuQdbIIFEziQo5Xa1VS0/7ToCgeVbWdl2"
+      "password": "$2y$10$672uy5O9kq2XMKgdsgVgT.nXfZTV1m0QucB74SBQLGCExLFBa3.ke"
+    },
+    {
+      "id": 2,
+      "email": "ventas1@ventasphp.com",
+      "password": "$2y$10$672uy5O9kq2XMKgdsgVgT.nXfZTV1m0QucB74SBQLGCExLFBa3.ke"
+    },
+    {
+      "id": 3,
+      "email": "ventas2@ventasphp.com",
+      "password": "$2y$10$672uy5O9kq2XMKgdsgVgT.nXfZTV1m0QucB74SBQLGCExLFBa3.ke"
+    },
+    {
+      "id": 4,
+      "email": "soporte@ventasphp.com",
+      "password": "$2y$10$672uy5O9kq2XMKgdsgVgT.nXfZTV1m0QucB74SBQLGCExLFBa3.ke"
+    },
+    {
+      "id": 5,
+      "email": "gerente@ventasphp.com",
+      "password": "$2y$10$672uy5O9kq2XMKgdsgVgT.nXfZTV1m0QucB74SBQLGCExLFBa3.ke"
+    },
+    {
+      "id": 6,
+      "email": "auditor@ventasphp.com",
+      "password": "$2y$10$672uy5O9kq2XMKgdsgVgT.nXfZTV1m0QucB74SBQLGCExLFBa3.ke"
+    },
+    {
+      "id": 7,
+      "email": "backup@ventasphp.com",
+      "password": "$2y$10$672uy5O9kq2XMKgdsgVgT.nXfZTV1m0QucB74SBQLGCExLFBa3.ke"
+    },
+    {
+      "id": 8,
+      "email": "root@ventasphp.com",
+      "password": "$2y$10$672uy5O9kq2XMKgdsgVgT.nXfZTV1m0QucB74SBQLGCExLFBa3.ke"
+    },
+    {
+      "id": 9,
+      "email": "demo@ventasphp.com",
+      "password": "$2y$10$672uy5O9kq2XMKgdsgVgT.nXfZTV1m0QucB74SBQLGCExLFBa3.ke"
+    },
+    {
+      "id": 10,
+      "email": "invitado@ventasphp.com",
+      "password": "$2y$10$672uy5O9kq2XMKgdsgVgT.nXfZTV1m0QucB74SBQLGCExLFBa3.ke"
     }
   ]
 }

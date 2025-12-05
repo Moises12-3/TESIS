@@ -1,7 +1,14 @@
 <?php
 session_start();
 header('Content-Type: application/json');
-require_once "../Conexion/conex.php"; // $conn debe venir de aquí (mysqli)
+
+// Primero intentamos la conexión pero manejamos el error
+try {
+    require_once "../Conexion/conex.php";
+    $conn_available = ($conn !== null && $conn->ping());
+} catch (Exception $e) {
+    $conn_available = false;
+}
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     echo json_encode(["status"=>"error","type"=>"danger","message"=>"Solicitud no válida."]);
@@ -16,34 +23,38 @@ if ($email === '') {
     exit;
 }
 
-// --- Comprobar credencial admin desde JSON ---
-$credFile = __DIR__ . "../json/credencial.json"; // ajusta si la ruta es distinta
+// --- Comprobar credenciales desde JSON primero ---
+$credFile = __DIR__ . "/../json/credencial.json";
+$userFoundInJson = false;
+$jsonUserData = null;
+
 if (file_exists($credFile)) {
     $json = file_get_contents($credFile);
     $data = json_decode($json, true);
-} else {
-    $data = null;
-}
-
-$adminEmail = "admin@ventasphp.com";
-$adminHash = null;
-if (isset($data['usuarios']) && is_array($data['usuarios'])) {
-    foreach ($data['usuarios'] as $u) {
-        if (isset($u['email']) && $u['email'] === $adminEmail) {
-            $adminHash = $u['password'];
-            break;
+    
+    if (isset($data['usuarios']) && is_array($data['usuarios'])) {
+        foreach ($data['usuarios'] as $u) {
+            if (isset($u['email']) && strtolower($u['email']) === strtolower($email)) {
+                $userFoundInJson = true;
+                $jsonUserData = $u;
+                break;
+            }
         }
     }
 }
 
-// Si el usuario es el admin definido, validar contra el hash JSON
-if (strtolower($email) === strtolower($adminEmail) && $adminHash !== null) {
-    if (password_verify($password, $adminHash)) {
-        // Sesión para admin y redirigir a backup.php
-        $_SESSION["usuario"] = $adminEmail;
-        // Si tienes un id en el JSON podrías setearlo, si no usaremos id = 0
-        $_SESSION["id"] = 0;
-        echo json_encode(["status"=>"success", "redirect"=>"backup.php"]);
+// Si el usuario está en el JSON, validar contraseña
+if ($userFoundInJson) {
+    if (password_verify($password, $jsonUserData['password'])) {
+        $_SESSION["usuario"] = $jsonUserData['email'];
+        $_SESSION["id"] = $jsonUserData['id'];
+        
+        // Redirección especial para admin
+        if (strtolower($jsonUserData['email']) === "admin@ventasphp.com") {
+            echo json_encode(["status"=>"success", "redirect"=>"./backup.php"]);
+        } else {
+            echo json_encode(["status"=>"success", "redirect"=>"./index.php"]);
+        }
         exit;
     } else {
         echo json_encode([
@@ -55,44 +66,51 @@ if (strtolower($email) === strtolower($adminEmail) && $adminHash !== null) {
     }
 }
 
-// Si no es admin, validar contra la base de datos (tabla usuarios)
-if ($conn === null) {
-    echo json_encode(["status"=>"error","type"=>"danger","message"=>"⚠️ Error en la conexión a la base de datos."]);
-    exit;
-}
-
-$stmt = $conn->prepare("SELECT id, email, password FROM usuarios WHERE email = ?");
-if (!$stmt) {
-    echo json_encode(["status"=>"error","type"=>"danger","message"=>"⚠️ Error en la consulta."]);
-    exit;
-}
-$stmt->bind_param("s", $email);
-$stmt->execute();
-$stmt->store_result();
-
-if ($stmt->num_rows > 0) {
-    $stmt->bind_result($id, $db_email, $db_password);
-    $stmt->fetch();
-
-    if (password_verify($password, $db_password)) {
-        $_SESSION["usuario"] = $db_email;
-        $_SESSION["id"] = $id;
-        // redirigir al index u otra página
-        echo json_encode(["status"=>"success", "redirect"=>"index.php"]);
-    } else {
-        echo json_encode([
-            "status"=>"error",
-            "type"=>"danger",
-            "message"=>"❌ Usuario o contraseña incorrectos."
-        ]);
+// Si no está en JSON y hay conexión a la BD, buscar en la base de datos
+if ($conn_available) {
+    $stmt = $conn->prepare("SELECT id, email, password FROM usuarios WHERE email = ?");
+    if ($stmt) {
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->store_result();
+        
+        if ($stmt->num_rows > 0) {
+            $stmt->bind_result($id, $db_email, $db_password);
+            $stmt->fetch();
+            
+            if (password_verify($password, $db_password)) {
+                $_SESSION["usuario"] = $db_email;
+                $_SESSION["id"] = $id;
+                echo json_encode(["status"=>"success", "redirect"=>"./index.php"]);
+                $stmt->close();
+                exit;
+            } else {
+                $stmt->close();
+                echo json_encode([
+                    "status"=>"error",
+                    "type"=>"danger",
+                    "message"=>"❌ Usuario o contraseña incorrectos."
+                ]);
+                exit;
+            }
+        }
+        $stmt->close();
     }
-} else {
+    
+    // Si llegamos aquí, el usuario no está en la BD
     echo json_encode([
         "status"=>"error",
         "type"=>"warning",
         "message"=>"⚠️ Usuario no encontrado."
     ]);
+    exit;
+} else {
+    // Si no hay conexión a la BD y no está en JSON
+    echo json_encode([
+        "status"=>"error",
+        "type"=>"danger",
+        "message"=>"⚠️ No se puede conectar a la base de datos. Usuario no encontrado en el sistema."
+    ]);
+    exit;
 }
-
-$stmt->close();
-exit;
+?>
