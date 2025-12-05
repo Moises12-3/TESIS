@@ -565,6 +565,7 @@ if (!file_exists($jsonPath)) {
 </div>
 
 <script>
+    
 let graficoVendidos = null;
 let graficoDevoluciones = null;
 let graficoVenc = null;
@@ -575,26 +576,46 @@ function cargarSemanaActual() {
     const primerDia = new Date(hoy.setDate(hoy.getDate() - hoy.getDay() + 1)); 
     const ultimoDia = new Date(hoy.setDate(primerDia.getDate() + 6));         
 
-    document.getElementById("fechaInicio").value = primerDia.toISOString().split("T")[0];
-    document.getElementById("fechaFinal").value = ultimoDia.toISOString().split("T")[0];
+    document.getElementById("fechaInicio").valueAsDate = primerDia;
+    document.getElementById("fechaFinal").valueAsDate = ultimoDia;
 }
 
 function cargarGraficos() {
     const inicio = document.getElementById("fechaInicio").value;
     const final = document.getElementById("fechaFinal").value;
+    
+    console.log("Cargando gráficos con fechas:", inicio, "a", final);
+    
+    // Mostrar mensaje de carga
+    showLoading(true);
 
     fetch("Configuracion/obtener_datos_graficos.php?inicio=" + inicio + "&final=" + final)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log("Datos recibidos:", data);
+            
+            // Verificar si hay error
+            if (data.error) {
+                console.error("Error del servidor:", data.error);
+                alert("Error: " + data.error);
+                showLoading(false);
+                return;
+            }
 
             // --- Vendidos ---
+            const ctxVendidos = document.getElementById("graficoVendidos").getContext('2d');
             if (graficoVendidos) graficoVendidos.destroy();
-            graficoVendidos = new Chart(document.getElementById("graficoVendidos"), {
+            graficoVendidos = new Chart(ctxVendidos, {
                 type: "bar",
                 data: {
                     labels: data.masVendidos.productos,
                     datasets: [{
-                        label: "Vendidos 🔥",
+                        label: "Cantidad Vendida",
                         data: data.masVendidos.vendidos,
                         backgroundColor: "rgba(25,118,210,0.5)",
                         borderColor: "rgba(25,118,210,1)",
@@ -605,19 +626,41 @@ function cargarGraficos() {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { enabled: true } },
-                    scales: { x: { ticks: { maxRotation: 45, minRotation: 0 } }, y: { beginAtZero: true } }
+                    plugins: { 
+                        legend: { display: true },
+                        title: {
+                            display: true,
+                            text: 'Productos Más Vendidos'
+                        }
+                    },
+                    scales: { 
+                        x: { 
+                            ticks: { 
+                                maxRotation: 45, 
+                                minRotation: 0,
+                                autoSkip: false
+                            } 
+                        }, 
+                        y: { 
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Cantidad'
+                            }
+                        } 
+                    }
                 }
             });
 
             // --- Devoluciones ---
+            const ctxDevoluciones = document.getElementById("graficoDevoluciones").getContext('2d');
             if (graficoDevoluciones) graficoDevoluciones.destroy();
-            graficoDevoluciones = new Chart(document.getElementById("graficoDevoluciones"), {
+            graficoDevoluciones = new Chart(ctxDevoluciones, {
                 type: "bar",
                 data: {
                     labels: data.masDevueltos.productos,
                     datasets: [{
-                        label: "Devueltos ♻️",
+                        label: "Cantidad Devuelta",
                         data: data.masDevueltos.devueltos,
                         backgroundColor: "rgba(244,67,54,0.5)",
                         borderColor: "rgba(244,67,54,1)",
@@ -628,19 +671,34 @@ function cargarGraficos() {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
+                    plugins: { 
+                        legend: { display: true },
+                        title: {
+                            display: true,
+                            text: 'Productos con Más Devoluciones'
+                        }
+                    },
+                    scales: { 
+                        y: { 
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Cantidad'
+                            }
+                        } 
+                    }
                 }
             });
 
             // --- Próximos a vencer (Pie chart) ---
+            const ctxVenc = document.getElementById("graficoVencimiento").getContext('2d');
             if (graficoVenc) graficoVenc.destroy();
-            graficoVenc = new Chart(document.getElementById("graficoVencimiento"), {
+            graficoVenc = new Chart(ctxVenc, {
                 type: "pie",
                 data: {
-                    labels: data.porVencer.productos.map(p => "⚠️ " + p),
+                    labels: data.porVencer.productos.map((p, i) => `${p} (${data.porVencer.dias[i]} días)`),
                     datasets: [{
-                        label: "Productos próximos a vencer ⏳",
+                        label: "Días restantes",
                         data: data.porVencer.dias,
                         backgroundColor: [
                             "#FFB300", "#FF7043", "#AB47BC", "#42A5F5", "#26A69A",
@@ -653,21 +711,111 @@ function cargarGraficos() {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'right' },
-                        tooltip: { enabled: true }
+                        legend: { 
+                            position: 'right',
+                            labels: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Productos Próximos a Vencer (30 días)'
+                        },
+                        tooltip: { 
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw} días`;
+                                }
+                            }
+                        }
                     }
                 }
             });
 
+            showLoading(false);
+        })
+        .catch(error => {
+            console.error("Error al cargar gráficos:", error);
+            alert("Error al cargar los datos. Verifica la consola para más detalles.");
+            showLoading(false);
+            
+            // Mostrar gráficos vacíos en caso de error
+            crearGraficosVacios();
         });
 }
 
-document.getElementById("btnFiltrar").addEventListener("click", cargarGraficos);
+function showLoading(show) {
+    const btn = document.getElementById("btnFiltrar");
+    if (show) {
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cargando...';
+        btn.disabled = true;
+    } else {
+        btn.innerHTML = '🔍✨ Aplicar Filtro';
+        btn.disabled = false;
+    }
+}
 
-cargarSemanaActual();
-cargarGraficos();
+function crearGraficosVacios() {
+    const datosVacios = {
+        productos: ["Sin datos"],
+        valores: [0]
+    };
+    
+    // Gráficos vacíos
+    const ctx = document.getElementById("graficoVendidos").getContext('2d');
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: datosVacios.productos,
+            datasets: [{
+                label: "Sin datos",
+                data: datosVacios.valores,
+                backgroundColor: "rgba(200,200,200,0.5)"
+            }]
+        }
+    });
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM cargado, inicializando gráficos...");
+    cargarSemanaActual();
+    cargarGraficos();
+    
+    document.getElementById("btnFiltrar").addEventListener("click", cargarGraficos);
+});
+
+
 </script>
+<style>
+    /* Agregar al archivo CSS existente */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    display: none;
+}
 
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Para mensajes de error */
+.alert-custom {
+    border-radius: 10px;
+    margin: 10px 0;
+}
+</style>
 
 
 
