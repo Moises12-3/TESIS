@@ -2,6 +2,10 @@
 session_start();
 header('Content-Type: application/json');
 
+// DEBUG: Mostrar error para ver qué pasa
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Primero intentamos la conexión pero manejamos el error
 try {
     require_once "../Conexion/conex.php";
@@ -45,18 +49,33 @@ if (file_exists($credFile)) {
 
 // Si el usuario está en el JSON, validar contraseña
 if ($userFoundInJson) {
+    // DEBUG: Ver qué usuario encontramos
+    error_log("Usuario encontrado en JSON: " . $jsonUserData['email']);
+    
+    // DEBUG: Verificar si password_verify funciona
+    $password_correct = password_verify($password, $jsonUserData['password']);
+    error_log("Password correcto: " . ($password_correct ? "SÍ" : "NO"));
+    
     if (password_verify($password, $jsonUserData['password'])) {
         $_SESSION["usuario"] = $jsonUserData['email'];
         $_SESSION["id"] = $jsonUserData['id'];
         
-        // Redirección especial para admin
+        // DEBUG: Ver qué email estamos comparando
+        error_log("Email del usuario: " . $jsonUserData['email']);
+        error_log("Comparando con admin@ventasphp.com: " . (strtolower($jsonUserData['email']) === "admin@ventasphp.com" ? "IGUAL" : "DIFERENTE"));
+        
+        // Redirección especial solo para admin (para backup.php)
         if (strtolower($jsonUserData['email']) === "admin@ventasphp.com") {
+            error_log("Redirigiendo a backup.php");
             echo json_encode(["status"=>"success", "redirect"=>"./backup.php"]);
         } else {
-            echo json_encode(["status"=>"success", "redirect"=>"./index.php"]);
+            // Para todos los demás usuarios, redirigir al index principal
+            error_log("Redirigiendo a backup.php");
+            echo json_encode(["status"=>"success", "redirect"=>"./backup.php"]);
         }
         exit;
     } else {
+        error_log("Password incorrecto para: " . $jsonUserData['email']);
         echo json_encode([
             "status"=>"error",
             "type"=>"danger",
@@ -81,6 +100,7 @@ if ($conn_available) {
             if (password_verify($password, $db_password)) {
                 $_SESSION["usuario"] = $db_email;
                 $_SESSION["id"] = $id;
+                // Usuarios de BD van al index principal
                 echo json_encode(["status"=>"success", "redirect"=>"./index.php"]);
                 $stmt->close();
                 exit;
