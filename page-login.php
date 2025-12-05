@@ -1,7 +1,14 @@
 <?php
 session_start();
+
+// Si ya hay sesión activa, redirigir según el tipo de usuario
 if (isset($_SESSION["usuario"])) {
-    header("Location: index.php");
+    // Verificar si es admin
+    if (strtolower($_SESSION["usuario"]) === "admin@ventasphp.com") {
+        header("Location: Backup.php");
+    } else {
+        header("Location: index.php");
+    }
     exit();
 }
 

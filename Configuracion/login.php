@@ -64,14 +64,14 @@ if ($userFoundInJson) {
         error_log("Email del usuario: " . $jsonUserData['email']);
         error_log("Comparando con admin@ventasphp.com: " . (strtolower($jsonUserData['email']) === "admin@ventasphp.com" ? "IGUAL" : "DIFERENTE"));
         
-        // Redirección especial solo para admin (para backup.php)
+        // Redirección especial solo para admin (para Backup.php)
         if (strtolower($jsonUserData['email']) === "admin@ventasphp.com") {
-            error_log("Redirigiendo a backup.php");
-            echo json_encode(["status"=>"success", "redirect"=>"./backup.php"]);
+            error_log("Redirigiendo a Backup.php");
+            echo json_encode(["status"=>"success", "redirect"=>"./Backup.php"]);
         } else {
             // Para todos los demás usuarios, redirigir al index principal
-            error_log("Redirigiendo a backup.php");
-            echo json_encode(["status"=>"success", "redirect"=>"./backup.php"]);
+            error_log("Redirigiendo a Backup.php");
+            echo json_encode(["status"=>"success", "redirect"=>"./Backup.php"]);
         }
         exit;
     } else {
