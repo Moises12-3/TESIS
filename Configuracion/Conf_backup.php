@@ -143,7 +143,14 @@ function crearRespaldo() {
         mkdir($backup_dir, 0777, true);
     }
     
-    $backup_file = $backup_dir . "/backup_" . date("Y-m-d_H-i-s") . ".sql";
+    // Configurar zona horaria de Nicaragua (América Central)
+    date_default_timezone_set('America/Managua');
+    
+    // Formato de fecha para Nicaragua: dd-mm-AAAA_HH-MM-SS
+    $fecha_nicaragua = date("d-m-Y_H-i-s");
+    
+    // Nombre del archivo con formato Nicaragua
+    $backup_file = $backup_dir . "/backup_" . $fecha_nicaragua . ".sql";
     
     $command = "\"C:\\xampp\\mysql\\bin\\mysqldump\" --default-character-set=utf8mb4 --user={$username} --password={$password} --host={$servername} --port={$port} {$database} > \"{$backup_file}\" 2>&1";
     
@@ -153,9 +160,12 @@ function crearRespaldo() {
         $file_size = round(filesize($backup_file) / 1024, 2); // KB
         $filename = basename($backup_file);
         
+        // Mostrar fecha en formato amigable para Nicaragua
+        $fecha_mostrar = date("d/m/Y H:i:s");
+        
         echo json_encode([
             'success' => true,
-            'message' => '✅ Respaldo creado exitosamente (' . $file_size . ' KB): <a href="Backup/' . $filename . '" target="_blank">⬇️ Descargar</a>',
+            'message' => '✅ Respaldo creado exitosamente (' . $file_size . ' KB) el ' . $fecha_mostrar . ': <a href="Backup/' . $filename . '" target="_blank">⬇️ Descargar</a>',
             'filename' => $filename
         ]);
     } else {
@@ -218,6 +228,9 @@ function restaurarBaseDatos() {
 function listarRespaldos() {
     global $backup_dir;
     
+    // Configurar zona horaria de Nicaragua
+    date_default_timezone_set('America/Managua');
+    
     // Verificar si la carpeta existe
     if (!is_dir($backup_dir)) {
         echo json_encode([
@@ -232,18 +245,38 @@ function listarRespaldos() {
     
     if($files){
         foreach($files as $file){
+            // Obtener información del archivo
+            $file_name = basename($file);
+            
+            // Extraer fecha del nombre del archivo si es posible
+            $fecha_archivo = '';
+            if (preg_match('/backup_(\d{2}-\d{2}-\d{4}_\d{2}-\d{2}-\d{2})\.sql/', $file_name, $matches)) {
+                // Convertir fecha del archivo a formato legible
+                $fecha_obj = DateTime::createFromFormat('d-m-Y_H-i-s', $matches[1]);
+                if ($fecha_obj) {
+                    $fecha_archivo = $fecha_obj->format('d/m/Y H:i:s');
+                } else {
+                    // Si no se puede parsear, usar fecha de modificación
+                    $fecha_archivo = date("d/m/Y H:i:s", filemtime($file));
+                }
+            } else {
+                // Si el formato no coincide, usar fecha de modificación
+                $fecha_archivo = date("d/m/Y H:i:s", filemtime($file));
+            }
+            
             $respaldos[] = [
-                'name' => basename($file),
+                'name' => $file_name,
                 'size' => round(filesize($file) / 1024, 2) . ' KB',
-                'date' => date("Y-m-d H:i:s", filemtime($file)),
-                'path' => 'Backup/' . basename($file) // Ruta relativa desde backup.php
+                'date' => $fecha_archivo,
+                'path' => 'Backup/' . basename($file),
+                'timestamp' => filemtime($file)
             ];
         }
     }
     
     // Ordenar por fecha (más reciente primero)
     usort($respaldos, function($a, $b) {
-        return strtotime($b['date']) - strtotime($a['date']);
+        return $b['timestamp'] - $a['timestamp'];
     });
     
     echo json_encode([
