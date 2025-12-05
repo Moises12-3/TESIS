@@ -13,138 +13,12 @@ if (strtolower($_SESSION["usuario"]) !== "admin@ventasphp.com") {
     exit();
 }
 
-// === LEER CONFIGURACIÓN DESDE JSON ===
-$configPath = __DIR__ . '/conexion/conexion.json';
-
-if (!file_exists($configPath)) {
-    die("❌ Error: No se encontró el archivo de configuración JSON.");
-}
-
-$config = json_decode(file_get_contents($configPath), true);
-
-if ($config === null) {
-    die("❌ Error: No se pudo leer el archivo JSON. Verifica su formato.");
-}
-
-$servername = $config['servername'];
-$username   = $config['username'];
-$password   = $config['password'];
-$database   = $config['database'];
-$port       = $config['port'];
-
-$mensaje = "";
-
-// ELIMINAR RESPALDO
-if(isset($_GET['delete'])){
-    $file_to_delete = "Backup/" . basename($_GET['delete']);
-    if(file_exists($file_to_delete)){
-        unlink($file_to_delete);
-        $mensaje = "🗑️ Respaldo eliminado: " . basename($file_to_delete);
-    } else {
-        $mensaje = "❌ El archivo no existe.";
-    }
-}
-
-// CREAR BASE DE DATOS DESDE ARCHIVOS SQL
-if(isset($_POST['crear_bd'])){
-    $conn = new mysqli($servername, $username, $password, "", $port);
-    if($conn->connect_error){
-        die("Conexión fallida: " . $conn->connect_error);
-    }
-
-    // Crear base de datos
-    $conn->query("CREATE DATABASE IF NOT EXISTS {$database} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-    $conn->close();
-
-    // Archivos SQL a ejecutar
-    $sql_files = ["BaseDeDatos/ventas_php.sql", "BaseDeDatos/datos.sql"];
-
-    foreach($sql_files as $sql_file){
-        if(file_exists($sql_file)){
-            // Usar mysql directamente con shell_exec
-            $command = "\"C:\\xampp\\mysql\\bin\\mysql\" --default-character-set=utf8mb4 --user={$username} --password={$password} --host={$servername} --port={$port} {$database} < \"{$sql_file}\" 2>&1";
-            
-            $output = shell_exec($command);
-            $return_var = 0;
-
-            if($output !== null && trim($output) !== ''){
-                $mensaje .= "⚠️ Advertencia al ejecutar " . basename($sql_file) . ": " . $output . "<br>";
-            }
-        } else {
-            $mensaje .= "❌ Archivo no encontrado: " . basename($sql_file) . "<br>";
-        }
-    }
-
-    if($mensaje == "" || strpos($mensaje, "Advertencia") !== false){
-        $mensaje = "✅ Base de datos creada e inicializada desde archivos SQL.";
-    }
-}
-
-// RESPALDO DE BASE DE DATOS
-if(isset($_POST['backup'])){
-    // Verificar si existe la carpeta Backup, si no crearla
-    if (!is_dir('Backup')) {
-        mkdir('Backup', 0777, true);
-    }
-    
-    $backup_file = "Backup/backup_" . date("Y-m-d_H-i-s") . ".sql";
-    
-    // Usar la ruta correcta con comillas
-    $command = "\"C:\\xampp\\mysql\\bin\\mysqldump\" --default-character-set=utf8mb4 --user={$username} --password={$password} --host={$servername} --port={$port} {$database} > \"{$backup_file}\" 2>&1";
-    
-    $output = shell_exec($command);
-    
-    if(file_exists($backup_file) && filesize($backup_file) > 0){
-        $file_size = round(filesize($backup_file) / 1024, 2); // Tamaño en KB
-        $mensaje = "✅ Respaldo creado exitosamente (" . $file_size . " KB): <a href='{$backup_file}' target='_blank'>⬇️ Descargar</a>";
-    } else {
-        $mensaje = "❌ Error al crear el respaldo.";
-        if($output){
-            $mensaje .= " Detalles: " . $output;
-        }
-    }
-}
-
-// RESTAURAR BASE DE DATOS DESDE ARCHIVO
-if(isset($_POST['restore'])){
-    $restore_file = $_FILES['restore_file']['tmp_name'];
-    $original_name = $_FILES['restore_file']['name'];
-
-    if($restore_file && pathinfo($original_name, PATHINFO_EXTENSION) === 'sql'){
-        $conn = new mysqli($servername, $username, $password, "", $port);
-        if ($conn->connect_error) {
-            die("Conexión fallida: " . $conn->connect_error);
-        }
-
-        // Eliminar base de datos existente y crear nueva
-        $conn->query("DROP DATABASE IF EXISTS {$database}");
-        $conn->query("CREATE DATABASE {$database} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-        $conn->close();
-
-        // Restaurar desde el archivo SQL subido
-        $command = "\"C:\\xampp\\mysql\\bin\\mysql\" --default-character-set=utf8mb4 --user={$username} --password={$password} --host={$servername} --port={$port} {$database} < \"{$restore_file}\" 2>&1";
-        
-        $output = shell_exec($command);
-        
-        if($output !== null && trim($output) !== ''){
-            $mensaje = "⚠️ La restauración se completó con advertencias: " . $output;
-        } else {
-            $mensaje = "✅ Restauración completada exitosamente desde: " . htmlspecialchars($original_name);
-        }
-    } else {
-        $mensaje = "❌ Por favor selecciona un archivo SQL válido para restaurar.";
-    }
-}
-
 // OBTENER TODAS LAS IMÁGENES DE LA CARPETA fondo/
 $fondo_images = glob("fondo/*.{jpg,jpeg,png,gif}", GLOB_BRACE);
 $background_image = "";
 if($fondo_images){
     $background_image = $fondo_images[array_rand($fondo_images)];
 }
-
-// Obtener listado de respaldos existentes
-$files = glob("Backup/*.sql");
 ?>
 
 <!DOCTYPE html>
@@ -159,18 +33,31 @@ $files = glob("Backup/*.sql");
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
+            min-height: 100vh;
         }
         .card {
             background-color: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
         }
-        .list-group-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
         .btn-action {
             margin: 2px;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .progress {
+            height: 20px;
+            margin-top: 10px;
         }
     </style>
     <link rel="apple-touch-icon" href="images/favicon.png">
@@ -182,7 +69,7 @@ $files = glob("Backup/*.sql");
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <div>
                 <h4 class="mb-0">💾 Respaldo y Restauración de Base de Datos</h4>
-                <small>Base de datos: <strong><?= $database ?></strong> | Servidor: <strong><?= $servername ?></small></strong>
+                <small id="db-info">Cargando información...</small>
             </div>
             <div>
                 <a href="cerrar_sesion_backup.php" class="btn btn-outline-light btn-sm">⬅️ Volver</a>
@@ -190,12 +77,8 @@ $files = glob("Backup/*.sql");
         </div>
 
         <div class="card-body">
-            <?php if($mensaje != ""): ?>
-                <div class="alert alert-info alert-dismissible fade show" role="alert">
-                    <?= $mensaje ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            <?php endif; ?>
+            <!-- Alertas dinámicas -->
+            <div id="alert-container"></div>
 
             <!-- Panel de acciones rápidas -->
             <div class="row mb-4">
@@ -206,15 +89,17 @@ $files = glob("Backup/*.sql");
                         </div>
                         <div class="card-body">
                             <p>Recrea la base de datos desde los archivos SQL originales:</p>
-                            <form method="post">
-                                <button type="submit" name="crear_bd" class="btn btn-info w-100" 
-                                        onclick="return confirm('¿Estás seguro? Esto eliminará todos los datos actuales y recreará la BD desde cero.')">
-                                    🛠️ Recrear BD desde archivos SQL
-                                </button>
-                            </form>
+                            <button type="button" id="btn-recrear" class="btn btn-info w-100" 
+                                    onclick="crearBaseDatos()">
+                                🛠️ Recrear BD desde archivos SQL
+                            </button>
                             <small class="text-muted mt-2 d-block">
                                 Archivos: ventas_php.sql + datos.sql
                             </small>
+                            <div class="progress d-none" id="progress-recrear">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" style="width: 0%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -225,14 +110,17 @@ $files = glob("Backup/*.sql");
                         </div>
                         <div class="card-body">
                             <p>Crea un nuevo respaldo de la base de datos actual:</p>
-                            <form method="post">
-                                <button type="submit" name="backup" class="btn btn-success w-100">
-                                    📦 Crear Nuevo Respaldo
-                                </button>
-                            </form>
+                            <button type="button" id="btn-backup" class="btn btn-success w-100"
+                                    onclick="crearRespaldo()">
+                                📦 Crear Nuevo Respaldo
+                            </button>
                             <small class="text-muted mt-2 d-block">
                                 Se guardará en: Backup/backup_fecha.sql
                             </small>
+                            <div class="progress d-none" id="progress-backup">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" style="width: 0%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -244,7 +132,7 @@ $files = glob("Backup/*.sql");
                     <h5 class="mb-0">🔄 Restaurar Base de Datos</h5>
                 </div>
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
+                    <form id="form-restore" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label for="restore_file" class="form-label">📂 Selecciona archivo SQL para restaurar:</label>
                             <input type="file" class="form-control" id="restore_file" name="restore_file" accept=".sql" required>
@@ -252,62 +140,31 @@ $files = glob("Backup/*.sql");
                                 ⚠️ <strong>Advertencia:</strong> Esta acción eliminará toda la base de datos actual y la reemplazará con los datos del archivo seleccionado.
                             </div>
                         </div>
-                        <button type="submit" name="restore" class="btn btn-warning w-100" 
-                                onclick="return confirm('¿Estás seguro de restaurar? Se perderán todos los datos actuales.')">
+                        <button type="submit" id="btn-restore" class="btn btn-warning w-100">
                             🔄 Restaurar Base de Datos
                         </button>
                     </form>
+                    <div class="progress d-none mt-3" id="progress-restore">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: 0%"></div>
+                    </div>
                 </div>
             </div>
 
             <!-- Listado de respaldos existentes -->
             <div class="card">
                 <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">📄 Respaldos existentes:</h5>
+                    <h5 class="mb-0">📄 Respaldos existentes: <button class="btn btn-sm btn-light float-end" onclick="cargarRespaldos()">🔄 Actualizar</button></h5>
                 </div>
                 <div class="card-body">
-                    <?php if($files && count($files) > 0): ?>
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre del Archivo</th>
-                                        <th>Tamaño</th>
-                                        <th>Fecha</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach($files as $file): 
-                                        $file_name = basename($file);
-                                        $file_size = round(filesize($file) / 1024, 2); // KB
-                                        $file_date = date("Y-m-d H:i:s", filemtime($file));
-                                    ?>
-                                        <tr>
-                                            <td><?= $file_name ?></td>
-                                            <td><?= $file_size ?> KB</td>
-                                            <td><?= $file_date ?></td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <a href="<?= $file ?>" class="btn btn-sm btn-primary btn-action" target="_blank" title="Descargar">
-                                                        ⬇️ Descargar
-                                                    </a>
-                                                    <a href="?delete=<?= $file_name ?>" class="btn btn-sm btn-danger btn-action" 
-                                                       onclick="return confirm('¿Eliminar el respaldo: <?= $file_name ?>?')" title="Eliminar">
-                                                        🗑️ Eliminar
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+                    <div id="respaldos-container">
+                        <div class="text-center">
+                            <div class="spinner-border text-secondary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p>Cargando respaldos...</p>
                         </div>
-                    <?php else: ?>
-                        <div class="alert alert-warning">
-                            No hay respaldos disponibles. Crea tu primer respaldo usando el botón "📦 Crear Nuevo Respaldo".
-                        </div>
-                    <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
@@ -316,15 +173,358 @@ $files = glob("Backup/*.sql");
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
-// Auto cerrar alertas después de 5 segundos
-setTimeout(function() {
-    var alerts = document.querySelectorAll('.alert');
-    alerts.forEach(function(alert) {
-        var bsAlert = new bootstrap.Alert(alert);
-        bsAlert.close();
+$(document).ready(function() {
+    // Cargar información de la BD
+    cargarInfoBD();
+    
+    // Cargar lista de respaldos
+    cargarRespaldos();
+    
+    // Manejar envío del formulario de restauración
+    $('#form-restore').on('submit', function(e) {
+        e.preventDefault();
+        restaurarBaseDatos();
     });
-}, 5000);
+});
+
+function cargarInfoBD() {
+    $.ajax({
+        url: 'Configuracion/Conf_backup.php?action=info',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if(response.success) {
+                $('#db-info').html('Base de datos: <strong>' + response.data.database + 
+                                 '</strong> | Servidor: ' + response.data.servername);
+            }
+        }
+    });
+}
+
+function crearBaseDatos() {
+    if(!confirm('¿Estás seguro? Esto eliminará todos los datos actuales y recreará la BD desde cero.')) {
+        return;
+    }
+    
+    const btn = $('#btn-recrear');
+    const progress = $('#progress-recrear');
+    
+    btn.prop('disabled', true).html('<span class="loading"></span> Procesando...');
+    progress.removeClass('d-none').find('.progress-bar').css('width', '10%');
+    
+    $.ajax({
+        url: 'Configuracion/Conf_backup.php?action=crear_bd',
+        type: 'POST',
+        dataType: 'json',
+        success: function(response) {
+            progress.find('.progress-bar').css('width', '100%');
+            
+            setTimeout(function() {
+                showAlert(response.success ? 'success' : 'danger', response.message);
+                btn.prop('disabled', false).html('🛠️ Recrear BD desde archivos SQL');
+                progress.addClass('d-none').find('.progress-bar').css('width', '0%');
+                
+                // Recargar lista de respaldos después de recrear BD
+                if(response.success) {
+                    setTimeout(cargarRespaldos, 1000);
+                }
+            }, 500);
+        },
+        error: function() {
+            showAlert('danger', '❌ Error en la conexión con el servidor.');
+            btn.prop('disabled', false).html('🛠️ Recrear BD desde archivos SQL');
+            progress.addClass('d-none');
+        }
+    });
+}
+
+function crearRespaldo() {
+    const btn = $('#btn-backup');
+    const progress = $('#progress-backup');
+    
+    btn.prop('disabled', true).html('<span class="loading"></span> Creando respaldo...');
+    progress.removeClass('d-none').find('.progress-bar').css('width', '10%');
+    
+    $.ajax({
+        url: 'Configuracion/Conf_backup.php?action=backup',
+        type: 'POST',
+        dataType: 'json',
+        success: function(response) {
+            progress.find('.progress-bar').css('width', '100%');
+            
+            setTimeout(function() {
+                showAlert(response.success ? 'success' : 'danger', response.message);
+                btn.prop('disabled', false).html('📦 Crear Nuevo Respaldo');
+                progress.addClass('d-none').find('.progress-bar').css('width', '0%');
+                
+                // Recargar lista de respaldos
+                if(response.success) {
+                    setTimeout(cargarRespaldos, 1000);
+                }
+            }, 500);
+        },
+        error: function() {
+            showAlert('danger', '❌ Error en la conexión con el servidor.');
+            btn.prop('disabled', false).html('📦 Crear Nuevo Respaldo');
+            progress.addClass('d-none');
+        }
+    });
+}
+
+function restaurarBaseDatos() {
+    const fileInput = $('#restore_file')[0];
+    const btn = $('#btn-restore');
+    const progress = $('#progress-restore');
+    
+    if(!fileInput.files.length) {
+        showAlert('warning', '❌ Por favor selecciona un archivo SQL.');
+        return;
+    }
+    
+    if(!confirm('¿Estás seguro de restaurar? Se perderán todos los datos actuales.')) {
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('restore_file', fileInput.files[0]);
+    
+    btn.prop('disabled', true).html('<span class="loading"></span> Restaurando...');
+    progress.removeClass('d-none').find('.progress-bar').css('width', '10%');
+    
+    $.ajax({
+        url: 'Configuracion/Conf_backup.php?action=restore',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: 'json',
+        success: function(response) {
+            progress.find('.progress-bar').css('width', '100%');
+            
+            setTimeout(function() {
+                showAlert(response.success ? 'success' : 'warning', response.message);
+                btn.prop('disabled', false).html('🔄 Restaurar Base de Datos');
+                progress.addClass('d-none').find('.progress-bar').css('width', '0%');
+                
+                // Limpiar formulario
+                $('#restore_file').val('');
+                
+                // Recargar lista de respaldos
+                if(response.success) {
+                    setTimeout(cargarRespaldos, 1000);
+                }
+            }, 500);
+        },
+        error: function() {
+            showAlert('danger', '❌ Error en la conexión con el servidor.');
+            btn.prop('disabled', false).html('🔄 Restaurar Base de Datos');
+            progress.addClass('d-none');
+        }
+    });
+}
+
+function cargarRespaldos() {
+    $('#respaldos-container').html(`
+        <div class="text-center">
+            <div class="spinner-border text-secondary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p>Cargando respaldos...</p>
+        </div>
+    `);
+    
+    $.ajax({
+        url: 'Configuracion/Conf_backup.php?action=listar',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if(response.success) {
+                let html = '';
+                
+                if(response.data.length > 0) {
+                    html = `
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nombre del Archivo</th>
+                                    <th>Tamaño</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                    
+                    response.data.forEach(function(file) {
+                        html += `
+                            <tr id="file-${file.name}">
+                                <td>${file.name}</td>
+                                <td>${file.size}</td>
+                                <td>${file.date}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="${file.path}" class="btn btn-sm btn-primary btn-action" target="_blank" title="Descargar">
+                                            ⬇️ Descargar
+                                        </a>
+                                        <button class="btn btn-sm btn-danger btn-action" 
+                                                onclick="eliminarRespaldo('${file.name}')" title="Eliminar">
+                                            🗑️ Eliminar
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>`;
+                    });
+                    
+                    html += `</tbody></table></div>`;
+                } else {
+                    html = `<div class="alert alert-warning">
+                                No hay respaldos disponibles. Crea tu primer respaldo usando el botón "📦 Crear Nuevo Respaldo".
+                            </div>`;
+                }
+                
+                $('#respaldos-container').html(html);
+            } else {
+                showAlert('danger', response.message);
+            }
+        },
+        error: function() {
+            showAlert('danger', '❌ Error al cargar los respaldos.');
+        }
+    });
+}
+
+function verificarRutas() {
+    console.log('Verificando rutas...');
+    
+    $.ajax({
+        url: 'Configuracion/Conf_backup.php?action=listar',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            console.log('Respuesta del servidor:', response);
+            
+            if(response.success) {
+                console.log('Archivos encontrados:', response.data);
+                
+                // Verificar si la carpeta Backup existe
+                $.ajax({
+                    url: 'Backup/',
+                    type: 'HEAD',
+                    error: function() {
+                        console.warn('La carpeta Backup/ no existe o no es accesible');
+                        showAlert('warning', '⚠️ La carpeta Backup/ no existe. Se creará automáticamente al crear el primer respaldo.');
+                    },
+                    success: function() {
+                        console.log('Carpeta Backup/ existe');
+                    }
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error al verificar rutas:', error);
+        }
+    });
+}
+
+// Llamar a verificarRutas al cargar la página
+$(document).ready(function() {
+    // ... código existente ...
+    
+    // Verificar rutas (opcional, para depuración)
+    // verificarRutas();
+});
+
+function eliminarRespaldo(fileName) {
+    if(!confirm(`¿Eliminar el respaldo: ${fileName}?`)) {
+        return;
+    }
+    
+    // Mostrar indicador de carga
+    const row = $(`#file-${fileName.replace(/\./g, '\\.')}`);
+    row.find('td:last').html('<span class="loading"></span> Eliminando...');
+    
+    $.ajax({
+        url: 'Configuracion/Conf_backup.php?action=delete&file=' + encodeURIComponent(fileName),
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if(response.success) {
+                // Remover la fila de la tabla con animación
+                row.fadeOut(300, function() {
+                    $(this).remove();
+                    
+                    // Si no quedan archivos, mostrar mensaje
+                    if($('#respaldos-container tbody tr').length === 0) {
+                        $('#respaldos-container').html(`
+                            <div class="alert alert-warning">
+                                No hay respaldos disponibles. Crea tu primer respaldo usando el botón "📦 Crear Nuevo Respaldo".
+                            </div>
+                        `);
+                    }
+                });
+                
+                showAlert('success', response.message);
+            } else {
+                // Restaurar botones si falló
+                row.find('td:last').html(`
+                    <div class="btn-group">
+                        <a href="Backup/${fileName}" class="btn btn-sm btn-primary btn-action" target="_blank" title="Descargar">
+                            ⬇️ Descargar
+                        </a>
+                        <button class="btn btn-sm btn-danger btn-action" 
+                                onclick="eliminarRespaldo('${fileName}')" title="Eliminar">
+                            🗑️ Eliminar
+                        </button>
+                    </div>
+                `);
+                showAlert('danger', response.message);
+            }
+        },
+        error: function() {
+            // Restaurar botones si hubo error
+            row.find('td:last').html(`
+                <div class="btn-group">
+                    <a href="Backup/${fileName}" class="btn btn-sm btn-primary btn-action" target="_blank" title="Descargar">
+                        ⬇️ Descargar
+                    </a>
+                    <button class="btn btn-sm btn-danger btn-action" 
+                            onclick="eliminarRespaldo('${fileName}')" title="Eliminar">
+                        🗑️ Eliminar
+                    </button>
+                </div>
+            `);
+            showAlert('danger', '❌ Error al eliminar el respaldo.');
+        }
+    });
+}
+
+function showAlert(type, message) {
+    const alertClass = {
+        'success': 'alert-success',
+        'danger': 'alert-danger',
+        'warning': 'alert-warning',
+        'info': 'alert-info'
+    };
+    
+    const alertId = 'alert-' + Date.now();
+    const alertHtml = `
+        <div id="${alertId}" class="alert ${alertClass[type]} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+    
+    $('#alert-container').append(alertHtml);
+    
+    // Auto cerrar después de 5 segundos
+    setTimeout(function() {
+        $(`#${alertId}`).alert('close');
+    }, 5000);
+}
 </script>
 </body>
 </html>
