@@ -97,6 +97,8 @@ if (!file_exists($jsonPath)) {
     <link href="https://cdn.jsdelivr.net/npm/weathericons@2.1.0/css/weather-icons.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/fullcalendar.min.css" rel="stylesheet" />
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
    <style>
     #weatherWidget .currentDesc {
         color: #ffffff!important;
@@ -411,6 +413,77 @@ if (!file_exists($jsonPath)) {
                             }
                         });
                         </script>
+<style>
+/* ... tus estilos existentes ... */
+
+/* Estilos para gráficos vacíos */
+.chart-empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Mejoras para responsividad de gráficos */
+@media (max-width: 768px) {
+    .kpi-card {
+        margin-bottom: 15px;
+    }
+    
+    .kpi-value {
+        font-size: 2rem;
+    }
+    
+    .chart-container, .chart-container-sm {
+        height: 300px !important;
+    }
+}
+
+/* Estilo para alerts */
+.alert-custom {
+    border-radius: 10px;
+    margin: 15px 0;
+}
+
+
+
+/* Estilos específicos para gráfico de barras de tendencia */
+#graficoTendenciaMensual {
+    max-height: 400px;
+}
+
+/* Mejoras para gráficos de barras */
+.bar-chart-container {
+    position: relative;
+    background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 10px;
+    padding: 15px;
+}
+
+/* Animación para barras */
+@keyframes barAnimation {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+}
+
+/* Responsividad mejorada */
+@media (max-width: 768px) {
+    #graficoTendenciaMensual {
+        max-height: 300px;
+    }
+    
+    .card-custom {
+        padding: 15px;
+    }
+}
+
+
+
+</style>
+
+
 
 
                     </div>
@@ -464,26 +537,10 @@ if (!file_exists($jsonPath)) {
                 <!--  Traffic  -->
                 <div class="row">
                     <div class="col-lg-12">
-                        <div class="card">
-                            <div class="row">
-                                <div class="col-lg-8">
-                                    <div class="card-body">
-                                        
 
 
 
 
-                                    
-
-
-
-
-
-
-
-
-
-                                    
 <h1>📊📈 Reportes de Productos</h1>
 
 <style>
@@ -492,21 +549,107 @@ if (!file_exists($jsonPath)) {
     box-shadow: 0 6px 20px rgba(0,0,0,0.15);
     padding: 25px;
     background: white;
+    margin-bottom: 25px;
 }
 .card-title-custom {
     font-weight: bold;
     font-size: 1.4rem;
+    margin-bottom: 20px;
 }
 .chart-container {
     position: relative;
     width: 100%;
-    height: 450px; /* Ajustable según pantalla */
+    height: 450px;
+}
+.chart-container-sm {
+    height: 350px;
 }
 @media (max-width: 992px) {
     .chart-container { height: 350px; }
+    .chart-container-sm { height: 300px; }
 }
 @media (max-width: 576px) {
     .chart-container { height: 300px; }
+    .chart-container-sm { height: 250px; }
+}
+
+/* Nueva sección de KPIs */
+.kpi-card {
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    color: white;
+    margin-bottom: 20px;
+}
+.kpi-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 10px 0;
+}
+.kpi-label {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+/* Estilos para gráfico de dona de categorías */
+.dona-chart-container {
+    position: relative;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+#graficoVentasCategoria {
+    max-height: 380px;
+}
+
+/* Mejoras para la leyenda */
+.chart-legend {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.chart-legend::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chart-legend::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.chart-legend::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+/* Animación de entrada para el gráfico */
+@keyframes donutEnter {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.dona-chart-container canvas {
+    animation: donutEnter 0.8s ease-out;
+}
+
+/* Etiquetas en el gráfico */
+.chart-label {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .dona-chart-container {
+        padding: 15px;
+    }
+    
+    #graficoVentasCategoria {
+        max-height: 300px;
+    }
 }
 </style>
 
@@ -530,45 +673,171 @@ if (!file_exists($jsonPath)) {
     </div>
 </div>
 
-<div class="row g-4">
+<!-- SECCIÓN DE KPIs (Tarjetas con resumen) -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="kpi-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <i class="fas fa-dollar-sign fa-2x"></i>
+            <div class="kpi-value" id="kpiVentas">$0.00</div>
+            <div class="kpi-label">VENTAS TOTALES</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <i class="fas fa-exchange-alt fa-2x"></i>
+            <div class="kpi-value" id="kpiDevoluciones">0</div>
+            <div class="kpi-label">DEVOLUCIONES</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <i class="fas fa-boxes fa-2x"></i>
+            <div class="kpi-value" id="kpiProductos">0</div>
+            <div class="kpi-label">PRODUCTOS VENDIDOS</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <i class="fas fa-calendar-exclamation fa-2x"></i>
+            <div class="kpi-value" id="kpiPorVencer">0</div>
+            <div class="kpi-label">POR VENCER (30 días)</div>
+        </div>
+    </div>
+</div>
 
-    <!-- Productos más vendidos -->
-    <div class="col-12">
+<!-- PRIMERA FILA DE GRÁFICOS -->
+<div class="row g-4">
+    <!-- Ventas por día de la semana -->
+    <div class="col-lg-6">
         <div class="card-custom">
-            <h4 class="text-primary card-title-custom">📊🔥 Productos más vendidos</h4>
+            <h4 class="text-success card-title-custom">📅📈 Ventas por Día de la Semana</h4>
+            <div class="chart-container chart-container-sm">
+                <canvas id="graficoVentasSemana"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Métodos de Pago más usados -->
+    <div class="col-lg-6">
+        <div class="card-custom">
+            <h4 class="text-info card-title-custom">💳💰 Métodos de Pago más Utilizados</h4>
+            <div class="chart-container chart-container-sm">
+                <canvas id="graficoMetodosPago"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SEGUNDA FILA DE GRÁFICOS -->
+<div class="row g-4 mt-4">
+    <!-- Productos más vendidos -->
+    <div class="col-lg-6">
+        <div class="card-custom">
+            <h4 class="text-primary card-title-custom">📊🔥 Productos más vendidos (Top 10)</h4>
             <div class="chart-container">
                 <canvas id="graficoVendidos"></canvas>
             </div>
         </div>
     </div>
 
+    <!-- Ventas por categoría -->
+    <div class="col-lg-6">
+        <div class="card-custom">
+            <h4 class="text-warning card-title-custom">🏷️📦 Ventas por Categoría</h4>
+            <div class="chart-container">
+                <canvas id="graficoVentasCategoria"></canvas>
+            </div>
+        </div>
+    </div>
+
+
+    
+</div>
+
+<!-- TERCERA FILA DE GRÁFICOS -->
+<div class="row g-4 mt-4">
     <!-- Productos con más devoluciones -->
-    <div class="col-12">
+    <div class="col-lg-6">
         <div class="card-custom">
             <h4 class="text-danger card-title-custom">♻️📉 Productos con más devoluciones</h4>
-            <div class="chart-container">
+            <div class="chart-container chart-container-sm">
                 <canvas id="graficoDevoluciones"></canvas>
             </div>
         </div>
     </div>
 
+    <!-- Eficiencia de ventas por hora -->
+    <div class="col-lg-6">
+        <div class="card-custom">
+            <h4 class="text-purple card-title-custom">⏰📊 Eficiencia de Ventas por Hora</h4>
+            <div class="chart-container chart-container-sm">
+                <canvas id="graficoVentasHora"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CUARTA FILA DE GRÁFICOS -->
+<div class="row g-4 mt-4">
     <!-- Productos próximos a vencer -->
-    <div class="col-12">
+    <div class="col-lg-12">
         <div class="card-custom">
             <h4 class="text-warning card-title-custom">⏳⚠️ Productos próximos a vencer (30 días)</h4>
-            <div class="chart-container">
+            <div class="chart-container chart-container-sm">
                 <canvas id="graficoVencimiento"></canvas>
             </div>
         </div>
     </div>
-
 </div>
 
+<!-- QUINTA FILA DE GRÁFICOS -->
+<div class="row g-4 mt-4">
+    <!-- Top 10 Clientes -->
+    <div class="col-lg-6">
+        <div class="card-custom">
+            <h4 class="text-success card-title-custom">👥🏆 Top 10 Mejores Clientes</h4>
+            <div class="chart-container chart-container-sm">
+                <canvas id="graficoTopClientes"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tendencia de ventas mensual -->
+    <div class="col-lg-6">
+        <div class="card-custom">
+            <h4 class="text-info card-title-custom">📈📅 Tendencia de Ventas Mensual</h4>
+            <div class="chart-container chart-container-sm">
+                <canvas id="graficoTendenciaMensual"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay">
+    <div class="text-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+        <h4 class="mt-3">Cargando gráficos...</h4>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
 <script>
-    
-let graficoVendidos = null;
-let graficoDevoluciones = null;
-let graficoVenc = null;
+// Variables para los gráficos
+let graficos = {
+    vendidos: null,
+    devoluciones: null,
+    vencimiento: null,
+    ventasSemana: null,
+    metodosPago: null,
+    ventasCategoria: null,
+    ventasHora: null,
+    topClientes: null,
+    tendenciaMensual: null
+};
 
 // AUTO-CARGAR SEMANA ACTUAL
 function cargarSemanaActual() {
@@ -592,7 +861,7 @@ function cargarGraficos() {
     fetch("Configuracion/obtener_datos_graficos.php?inicio=" + inicio + "&final=" + final)
         .then(response => {
             if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor');
+                throw new Error(`Error HTTP: ${response.status}`);
             }
             return response.json();
         })
@@ -602,181 +871,702 @@ function cargarGraficos() {
             // Verificar si hay error
             if (data.error) {
                 console.error("Error del servidor:", data.error);
-                alert("Error: " + data.error);
+                mostrarError(`Error del servidor: ${data.error}`);
                 showLoading(false);
                 return;
             }
 
-            // --- Vendidos ---
-            const ctxVendidos = document.getElementById("graficoVendidos").getContext('2d');
-            if (graficoVendidos) graficoVendidos.destroy();
-            graficoVendidos = new Chart(ctxVendidos, {
-                type: "bar",
-                data: {
-                    labels: data.masVendidos.productos,
-                    datasets: [{
-                        label: "Cantidad Vendida",
-                        data: data.masVendidos.vendidos,
-                        backgroundColor: "rgba(25,118,210,0.5)",
-                        borderColor: "rgba(25,118,210,1)",
-                        borderWidth: 2,
-                        borderRadius: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { display: true },
-                        title: {
-                            display: true,
-                            text: 'Productos Más Vendidos'
-                        }
-                    },
-                    scales: { 
-                        x: { 
-                            ticks: { 
-                                maxRotation: 45, 
-                                minRotation: 0,
-                                autoSkip: false
-                            } 
-                        }, 
-                        y: { 
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Cantidad'
-                            }
-                        } 
-                    }
-                }
-            });
-
-            // --- Devoluciones ---
-            const ctxDevoluciones = document.getElementById("graficoDevoluciones").getContext('2d');
-            if (graficoDevoluciones) graficoDevoluciones.destroy();
-            graficoDevoluciones = new Chart(ctxDevoluciones, {
-                type: "bar",
-                data: {
-                    labels: data.masDevueltos.productos,
-                    datasets: [{
-                        label: "Cantidad Devuelta",
-                        data: data.masDevueltos.devueltos,
-                        backgroundColor: "rgba(244,67,54,0.5)",
-                        borderColor: "rgba(244,67,54,1)",
-                        borderWidth: 2,
-                        borderRadius: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { display: true },
-                        title: {
-                            display: true,
-                            text: 'Productos con Más Devoluciones'
-                        }
-                    },
-                    scales: { 
-                        y: { 
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Cantidad'
-                            }
-                        } 
-                    }
-                }
-            });
-
-            // --- Próximos a vencer (Pie chart) ---
-            const ctxVenc = document.getElementById("graficoVencimiento").getContext('2d');
-            if (graficoVenc) graficoVenc.destroy();
-            graficoVenc = new Chart(ctxVenc, {
-                type: "pie",
-                data: {
-                    labels: data.porVencer.productos.map((p, i) => `${p} (${data.porVencer.dias[i]} días)`),
-                    datasets: [{
-                        label: "Días restantes",
-                        data: data.porVencer.dias,
-                        backgroundColor: [
-                            "#FFB300", "#FF7043", "#AB47BC", "#42A5F5", "#26A69A",
-                            "#9CCC65", "#FFCA28", "#EC407A", "#5C6BC0", "#8D6E63"
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { 
-                            position: 'right',
-                            labels: {
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Productos Próximos a Vencer (30 días)'
-                        },
-                        tooltip: { 
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.label}: ${context.raw} días`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+            // Actualizar KPIs si existen
+            if (data.kpis) {
+                actualizarKPIs(data.kpis);
+            }
+            
+            // Crear todos los gráficos con manejo de errores
+            try {
+                if (data.ventasPorDia) crearGraficoVentasSemana(data.ventasPorDia);
+                if (data.metodosPago) crearGraficoMetodosPago(data.metodosPago);
+                if (data.masVendidos) crearGraficoVendidos(data.masVendidos);
+                if (data.ventasCategoria) crearGraficoVentasCategoria(data.ventasCategoria);
+                if (data.masDevueltos) crearGraficoDevoluciones(data.masDevueltos);
+                if (data.ventasPorHora) crearGraficoVentasHora(data.ventasPorHora);
+                if (data.porVencer) crearGraficoVencimiento(data.porVencer);
+                if (data.topClientes) crearGraficoTopClientes(data.topClientes);
+                if (data.tendenciaMensual) crearGraficoTendenciaMensual(data.tendenciaMensual);
+            } catch (error) {
+                console.error("Error al crear gráficos:", error);
+                mostrarError(`Error al crear gráficos: ${error.message}`);
+            }
 
             showLoading(false);
         })
         .catch(error => {
             console.error("Error al cargar gráficos:", error);
-            alert("Error al cargar los datos. Verifica la consola para más detalles.");
+            mostrarError(`Error al cargar los datos: ${error.message}`);
             showLoading(false);
-            
-            // Mostrar gráficos vacíos en caso de error
-            crearGraficosVacios();
         });
+}
+
+function mostrarError(mensaje) {
+    // Crear alerta de error
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+    alertDiv.innerHTML = `
+        <strong>Error:</strong> ${mensaje}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    `;
+    
+    // Insertar después de los filtros
+    const filtros = document.querySelector('.card-custom.mb-4');
+    filtros.parentNode.insertBefore(alertDiv, filtros.nextSibling);
+    
+    // Auto-eliminar después de 5 segundos
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+function actualizarKPIs(kpis) {
+    // Obtener el símbolo de moneda (por defecto 'NIO')
+    const simbolo = kpis.simboloMoneda || 'NIO';
+    
+    // Formatear el número con separadores de miles
+    const ventasFormateadas = kpis.ventasTotalNum ? 
+        kpis.ventasTotalNum.toLocaleString('es-NI', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }) : '0.00';
+    
+    // Mostrar VENTAS TOTALES con símbolo de moneda
+    document.getElementById('kpiVentas').innerHTML = 
+        `<span class="kpi-simbolo">${simbolo}</span> ${ventasFormateadas}`;
+    
+    document.getElementById('kpiDevoluciones').textContent = kpis.devolucionesTotal;
+    document.getElementById('kpiProductos').textContent = kpis.productosVendidos;
+    document.getElementById('kpiPorVencer').textContent = kpis.porVencer;
+}
+
+function crearGraficoVentasSemana(datos) {
+    const ctx = document.getElementById("graficoVentasSemana").getContext('2d');
+    if (graficos.ventasSemana) graficos.ventasSemana.destroy();
+    
+    graficos.ventasSemana = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: datos.dias,
+            datasets: [{
+                label: "Ventas por Día",
+                data: datos.ventas,
+                backgroundColor: "rgba(76, 175, 80, 0.2)",
+                borderColor: "rgba(76, 175, 80, 1)",
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true },
+                title: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Monto en Córdobas' }
+                }
+            }
+        }
+    });
+}
+
+function crearGraficoMetodosPago(datos) {
+    const ctx = document.getElementById("graficoMetodosPago").getContext('2d');
+    if (graficos.metodosPago) graficos.metodosPago.destroy();
+    
+    graficos.metodosPago = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+            labels: datos.metodos,
+            datasets: [{
+                label: "Cantidad de Ventas",
+                data: datos.cantidades,
+                backgroundColor: [
+                    "#4CAF50", "#2196F3", "#FF9800", "#E91E63",
+                    "#9C27B0", "#00BCD4", "#FF5722", "#795548"
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { 
+                    position: 'right',
+                    labels: { font: { size: 11 } }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.raw + ' ventas';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function crearGraficoVendidos(datos) {
+    const ctx = document.getElementById("graficoVendidos").getContext('2d');
+    if (graficos.vendidos) graficos.vendidos.destroy();
+    
+    graficos.vendidos = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: datos.productos,
+            datasets: [{
+                label: "Cantidad Vendida",
+                data: datos.vendidos,
+                backgroundColor: "rgba(25,118,210,0.5)",
+                borderColor: "rgba(25,118,210,1)",
+                borderWidth: 2,
+                borderRadius: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { display: true },
+                title: { display: false }
+            },
+            scales: { 
+                x: { 
+                    ticks: { 
+                        maxRotation: 45, 
+                        minRotation: 0,
+                        autoSkip: false
+                    } 
+                }, 
+                y: { 
+                    beginAtZero: true,
+                    title: { display: true, text: 'Cantidad' }
+                } 
+            }
+        }
+    });
+}
+
+function crearGraficoVentasCategoria(datos) {
+    console.log("Creando gráfico de dona para categorías...");
+    
+    const canvas = document.getElementById("graficoVentasCategoria");
+    if (!canvas) {
+        console.error("No se encontró el canvas para categorías");
+        return;
+    }
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Limpiar y destruir gráfico anterior
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (graficos.ventasCategoria instanceof Chart) {
+        try {
+            graficos.ventasCategoria.destroy();
+        } catch (e) {
+            console.warn("No se pudo destruir gráfico anterior:", e);
+        }
+    }
+    
+    // Preparar datos
+    let labels = ['Cervezas', 'Licores', 'Vinos', 'Refrescos', 'Snacks', 'Otros'];
+    let valores = [30, 25, 15, 12, 10, 8];
+    
+    if (datos && datos.categorias && Array.isArray(datos.categorias) && datos.categorias.length > 0) {
+        labels = datos.categorias;
+        valores = datos.totales || new Array(labels.length).fill(1);
+    }
+    
+    // Calcular total para porcentajes
+    const total = valores.reduce((a, b) => a + b, 0);
+    
+    try {
+        graficos.ventasCategoria = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: valores,
+                    backgroundColor: [
+                        '#FF6B6B', '#4ECDC4', '#FFD166', '#06D6A0', '#118AB2', '#EF476F',
+                        '#073B4C', '#7209B7', '#F72585', '#3A86FF', '#FB5607', '#8338EC'
+                    ],
+                    borderColor: '#ffffff',
+                    borderWidth: 3,
+                    hoverBorderColor: '#2c3e50',
+                    hoverBorderWidth: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            },
+                            color: '#2c3e50'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label;
+                                const value = context.raw;
+                                const percentage = total > 0 ? 
+                                    Math.round((value / total) * 100) : 0;
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true,
+                    duration: 1200
+                }
+            }
+        });
+        
+        console.log("✅ Gráfico de dona de categorías creado exitosamente");
+        
+    } catch (error) {
+        console.error("❌ Error al crear gráfico de categorías:", error);
+        
+        // Mostrar mensaje de error
+        ctx.fillStyle = '#f8f9fa';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#6c757d';
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Error al cargar gráfico', canvas.width/2, canvas.height/2);
+    }
+}
+
+function agregarTextoCentroDonut(canvas, total) {
+    const ctx = canvas.getContext('2d');
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    
+    // Guardar el contexto
+    ctx.save();
+    
+    // Dibujar fondo circular
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 50, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+    ctx.stroke();
+    
+    // Texto principal
+    ctx.font = 'bold 20px Arial';
+    ctx.fillStyle = '#2c3e50';
+    ctx.textAlign = 'center';
+    ctx.fillText('Total', centerX, centerY - 15);
+    
+    // Número total
+    ctx.font = 'bold 24px Arial';
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillText(total.toString(), centerX, centerY + 15);
+    
+    // Restaurar contexto
+    ctx.restore();
+}
+
+// Función de respaldo básica
+function crearGraficoCategoriasBasico(ctx, labels, valores) {
+    graficos.ventasCategoria = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: valores,
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function crearGraficoDevoluciones(datos) {
+    const ctx = document.getElementById("graficoDevoluciones").getContext('2d');
+    if (graficos.devoluciones) graficos.devoluciones.destroy();
+    
+    graficos.devoluciones = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: datos.productos,
+            datasets: [{
+                label: "Cantidad Devuelta",
+                data: datos.devueltos,
+                backgroundColor: "rgba(244,67,54,0.5)",
+                borderColor: "rgba(244,67,54,1)",
+                borderWidth: 2,
+                borderRadius: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { display: true },
+                title: { display: false }
+            },
+            scales: { 
+                y: { 
+                    beginAtZero: true,
+                    title: { display: true, text: 'Cantidad' }
+                } 
+            }
+        }
+    });
+}
+
+function crearGraficoVentasHora(datos) {
+    const ctx = document.getElementById("graficoVentasHora").getContext('2d');
+    if (graficos.ventasHora) graficos.ventasHora.destroy();
+    
+    graficos.ventasHora = new Chart(ctx, {
+        type: "radar",
+        data: {
+            labels: datos.horas,
+            datasets: [{
+                label: "Ventas por Hora",
+                data: datos.ventas,
+                backgroundColor: "rgba(156, 39, 176, 0.2)",
+                borderColor: "rgba(156, 39, 176, 1)",
+                borderWidth: 2,
+                pointBackgroundColor: "rgba(156, 39, 176, 1)"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    ticks: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: true }
+            }
+        }
+    });
+}
+
+function crearGraficoVencimiento(datos) {
+    const ctx = document.getElementById("graficoVencimiento").getContext('2d');
+    if (graficos.vencimiento) graficos.vencimiento.destroy();
+    
+    graficos.vencimiento = new Chart(ctx, {
+        type: "pie",
+        data: {
+            labels: datos.productos.map((p, i) => `${p} (${datos.dias[i]} días)`),
+            datasets: [{
+                label: "Días restantes",
+                data: datos.dias,
+                backgroundColor: [
+                    "#FFB300", "#FF7043", "#AB47BC", "#42A5F5", "#26A69A",
+                    "#9CCC65", "#FFCA28", "#EC407A", "#5C6BC0", "#8D6E63"
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { 
+                    position: 'right',
+                    labels: { font: { size: 12 } }
+                },
+                tooltip: { 
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.raw} días`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function crearGraficoTopClientes(datos) {
+    const ctx = document.getElementById("graficoTopClientes").getContext('2d');
+    if (graficos.topClientes) graficos.topClientes.destroy();
+    
+    // Verificar si tenemos datos válidos
+    if (!datos.clientes || datos.clientes.length === 0) {
+        // Crear gráfico vacío
+        graficos.topClientes = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: ["Sin datos"],
+                datasets: [{
+                    label: "Compras",
+                    data: [0],
+                    backgroundColor: "rgba(200, 200, 200, 0.7)"
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+        return;
+    }
+    
+    // Crear gráfico simplificado - SOLO barras
+    graficos.topClientes = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: datos.clientes,
+            datasets: [{
+                label: "Compras",
+                data: datos.compras,
+                backgroundColor: "rgba(76, 175, 80, 0.7)",
+                borderColor: "rgba(76, 175, 80, 1)",
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Número de Compras' }
+                }
+            }
+        }
+    });
+}
+
+function crearGraficoTendenciaMensual(datos) {
+    console.log("Creando gráfico de barras de tendencia...");
+    
+    const canvas = document.getElementById("graficoTendenciaMensual");
+    if (!canvas) {
+        console.error("No se encontró el canvas para tendencia mensual");
+        return;
+    }
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Limpiar canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Destruir gráfico anterior
+    if (graficos.tendenciaMensual instanceof Chart) {
+        try {
+            graficos.tendenciaMensual.destroy();
+        } catch (e) {
+            console.warn("No se pudo destruir gráfico anterior:", e);
+        }
+    }
+    
+    // Preparar datos
+    let labels = [];
+    let valores = [];
+    
+    // Verificar y preparar datos
+    if (datos && typeof datos === 'object') {
+        if (datos.meses && Array.isArray(datos.meses)) {
+            labels = datos.meses;
+        }
+        
+        if (datos.cantidad && Array.isArray(datos.cantidad)) {
+            valores = datos.cantidad;
+        } else if (datos.total && Array.isArray(datos.total)) {
+            valores = datos.total;
+        }
+    }
+    
+    // Si no hay datos, usar datos de ejemplo
+    if (labels.length === 0) {
+        labels = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'];
+        valores = [12, 19, 8, 15, 22, 17];
+        console.log("Usando datos de ejemplo para gráfico de tendencia");
+    }
+    
+    // Asegurar que labels y valores tengan la misma longitud
+    if (valores.length !== labels.length) {
+        valores = new Array(labels.length).fill(0);
+    }
+    
+    console.log("Datos finales para gráfico:", { labels, valores });
+    
+    try {
+        // Crear el gráfico de barras
+        graficos.tendenciaMensual = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Ventas Mensuales',
+                    data: valores,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 206, 86, 0.6)',
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(153, 102, 255, 0.6)',
+                        'rgba(255, 159, 64, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Ventas: ${context.parsed.y}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Cantidad'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Meses'
+                        }
+                    }
+                }
+            }
+        });
+        
+        console.log("✅ Gráfico de barras de tendencia creado exitosamente");
+        
+    } catch (error) {
+        console.error("❌ Error al crear gráfico de barras:", error);
+        
+        // Mostrar mensaje de error en el canvas
+        ctx.fillStyle = '#f8d7da';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#721c24';
+        ctx.font = '14px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Error al crear gráfico', canvas.width/2, canvas.height/2 - 10);
+        ctx.fillText('Intenta recargar la página', canvas.width/2, canvas.height/2 + 10);
+    }
+}
+
+// Función de respaldo básica
+function crearGraficoTendenciaBasico(ctx, labels, data) {
+    graficos.tendenciaMensual = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Ventas",
+                data: data,
+                backgroundColor: "rgba(54, 162, 235, 0.7)"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
 }
 
 function showLoading(show) {
     const btn = document.getElementById("btnFiltrar");
+    const overlay = document.querySelector('.loading-overlay');
+    
     if (show) {
         btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cargando...';
         btn.disabled = true;
+        overlay.style.display = 'flex';
     } else {
         btn.innerHTML = '🔍✨ Aplicar Filtro';
         btn.disabled = false;
+        overlay.style.display = 'none';
     }
 }
 
-function crearGraficosVacios() {
-    const datosVacios = {
-        productos: ["Sin datos"],
-        valores: [0]
-    };
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM cargado, inicializando gráficos...");
+    cargarSemanaActual();
+    cargarGraficos();
     
-    // Gráficos vacíos
-    const ctx = document.getElementById("graficoVendidos").getContext('2d');
-    new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: datosVacios.productos,
-            datasets: [{
-                label: "Sin datos",
-                data: datosVacios.valores,
-                backgroundColor: "rgba(200,200,200,0.5)"
-            }]
-        }
-    });
-}
+    document.getElementById("btnFiltrar").addEventListener("click", cargarGraficos);
+});    
+
+
+// Evento para reintentar gráfico de tendencia
+document.getElementById("btnReintentarTendencia")?.addEventListener("click", function() {
+    console.log("Reintentando gráfico de tendencia...");
+    
+    // Obtener datos actuales
+    const inicio = document.getElementById("fechaInicio").value;
+    const final = document.getElementById("fechaFinal").value;
+    
+    fetch("Configuracion/obtener_datos_graficos.php?inicio=" + inicio + "&final=" + final + "&t=" + Date.now())
+        .then(response => response.json())
+        .then(data => {
+            if (data.tendenciaMensual) {
+                crearGraficoTendenciaMensual(data.tendenciaMensual);
+                document.getElementById("tendenciaError").style.display = "none";
+            }
+        })
+        .catch(error => {
+            console.error("Error al reintentar:", error);
+        });
+});
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
@@ -789,33 +1579,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 </script>
-<style>
-    /* Agregar al archivo CSS existente */
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    display: none;
-}
-
-.spinner-border {
-    width: 3rem;
-    height: 3rem;
-}
-
-/* Para mensajes de error */
-.alert-custom {
-    border-radius: 10px;
-    margin: 10px 0;
-}
-</style>
 
 
 
@@ -823,22 +1586,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-                                    </div>
-                                </div>
-                            </div> <!-- /.row -->
-                            <div class="card-body"></div>
-                        </div>
                     </div><!-- /# column -->
                 </div>
                 <!--  /Traffic -->
